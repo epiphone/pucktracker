@@ -8,10 +8,13 @@ import time
 TEAMS = ["njd", "nyi", "nyr", "phi", "pit", "bos", "buf", "mon", "ott", "tor",
          "car", "fla", "tam", "was", "wpg", "chi", "cob", "det", "nas", "stl",
          "cgy", "col", "edm", "min", "van", "ana", "dal", "los", "pho", "san"]
-# Game Log-sivujen skreipattavat tilastot:
+# Eri sivuilta poimitaan erilaisia tilastoja:
 GAME_LOG_COLUMNS = ["opponent", "result", "g", "a", "pts", "+/-", "pim",
                     "ppg", "hits", "bks", "ppa", "shg", "sha", "gw", ",gt",
                     "sog", "pct"]
+BOXSCORE_COLUMNS_GOALIE = ["sa", "ga", "sv", "sv%", "pim", "toi"]
+BOXSCORE_COLUMNS = ["g", "a", "pts", "+/-", "pim", "s", "bs", "hits", "fw",
+                    "fl", "fo%", "shifts", "toi"]
 CACHE_IDS = {}
 CACHE_GAMES = {}
 CACHE_TEAM_GAMES = {}
@@ -25,34 +28,38 @@ def scrape_ids():
     if CACHE_IDS:
         return CACHE_IDS
 
-    url = "http://sports.yahoo.com/nhl/stats/byposition?pos=C,RW,LW,D"
-    t0 = time.time()
-    root = html.parse(url)
-    t1 = time.time() - t0
-    print "Haettiin html ja muokattiin lxml-objektiksi ajassa", t1
+    url = "http://sports.yahoo.com/nhl/stats/byposition?pos="
+    all_ids = {}
+    for param in ["C,RW,LW,D", "G"]:
+        url0 = url + param
+        t0 = time.time()
+        root = html.parse(url0)
+        t1 = time.time() - t0
+        print "Haettiin html ja muokattiin lxml-objektiksi ajassa", t1
 
-    t0 = time.time()
-    ids = {}
-    rows = root.xpath("//table[count(tr)>10]/tr")
-    columns = [el.text_content().strip().lower() for el in rows[0].xpath("td[*]")]
-    columns = columns[1:]
-    for row in rows[1:]:
-        name = row.xpath("td/a")[0].text_content().lower()
-        pid = row.xpath("td/a")[0].attrib["href"].split("/")[-1]
-        stats = {"pid": pid}
-        i = 0
-        for td in row.xpath("td")[1:]:
-            text = td.text_content().strip().lower()
-            if text != "":
-                stats[columns[i]] = text
-                i += 1
-        ids[name] = stats
+        t0 = time.time()
+        ids = {}
+        rows = root.xpath("//table[count(tr)>10]/tr")
+        columns = [el.text_content().strip().lower() for el in rows[0].xpath("td[*]")]
+        columns = columns[1:]
+        for row in rows[1:]:
+            name = row.xpath("td/a")[0].text_content().lower()
+            pid = row.xpath("td/a")[0].attrib["href"].split("/")[-1]
+            stats = {"pid": pid}
+            i = 0
+            for td in row.xpath("td")[1:]:
+                text = td.text_content().strip().lower()
+                if text != "":
+                    stats[columns[i]] = text
+                    i += 1
+            ids[name] = stats
+        all_ids = dict(all_ids.items() + ids.items())
 
     t1 = time.time() - t0
     print "Objektista parsettiin data ajassa", t1
 
-    CACHE_IDS = ids
-    return ids
+    CACHE_IDS = all_ids
+    return all_ids
 
 
 def scrape_player_games(pid, season="2013"):
@@ -164,7 +171,7 @@ def scrape_game(gid):
             goal["score"] = tds[3].text_content().strip()
             goals.append(goal)
         else:  # Shootout
-            for tr in period[4].xpath("tbody/tr"):
+            for tr in periods[4].xpath("tbody/tr"):
                 attempt = {}
                 attempt["team"] = tr.xpath("td/a/@href")[0].split("/")[-1]
                 attempt["desc"] = tr.xpath("td[last()]")[0].text_content().strip()
@@ -175,22 +182,24 @@ def scrape_game(gid):
     all_goalies = root.xpath("//div[contains(@class, 'goalies')]/table")
     all_skaters = root.xpath("//div[contains(@class, 'skaters')]/table")
     for i, team in enumerate(["away", "home"]):
-        team_goalies = []
+        team_goalies = {}
         # Maalivahdit:
         for tr in all_goalies[i].xpath("tbody/tr"):
-            goalie = []
-            goalie.append(tr.xpath(".//a/@href")[0].split("/")[-1])  # Id
-            goalie.append(tr.xpath(".//a")[0].text)  # Nimi
-            [goalie.append(td.text_content().strip()) for td in tr.xpath("td")[1:]]  # Tilastot
-            team_goalies.append(goalie)
+            goalie = {}
+            pid = tr.xpath(".//a/@href")[0].split("/")[-1]  # Id
+            goalie["name"] = tr.xpath(".//a")[0].text       # Nimi
+            for j, td in enumerate(tr.xpath("td")[1:]):     # Tilastot
+                goalie[BOXSCORE_COLUMNS_GOALIE[j]] = td.text_content().strip()
+            team_goalies[pid] = goalie
         # Loput:
-        team_skaters = []
+        team_skaters = {}
         for tr in all_skaters[i].xpath("tbody/tr"):
-            skater = []
-            skater.append(tr.xpath(".//a/@href")[0].split("/")[-1])  # Id
-            skater.append(tr.xpath(".//a")[0].text)  # Nimi
-            [skater.append(td.text_content().strip()) for td in tr.xpath("td")[1:]]  # Tilastot
-            team_skaters.append(skater)
+            skater = {}
+            pid = tr.xpath(".//a/@href")[0].split("/")[-1]  # Id
+            skater["name"] = tr.xpath(".//a")[0].text       # Nimi
+            for k, td in enumerate(tr.xpath("td")[1:]):     # Tilastot
+                skater[BOXSCORE_COLUMNS[k]] = td.text_content().strip()
+            team_skaters[pid] = skater
         game[team] = dict(goalies=team_goalies, skaters=team_skaters)
 
     print "Skreipattiin data ajassa", time.time() - t0
@@ -198,9 +207,12 @@ def scrape_game(gid):
     return game
 
 
-def get_latest_game(team):
+def get_latest_game(team=None, pid=None):
     """Palauttaa joukkueen viimeisimmän pelatun pelin id:n."""
-    return sorted(scrape_team_games(team))[-1]
+    if team:
+        return sorted(scrape_team_games(team))[-1]
+    elif pid:
+        return sorted(scrape_player_games(pid))[-1]
 
 
 def get_pid(name):
@@ -222,6 +234,7 @@ def test():
     """Testejä ja käyttöesimerkkejä."""
     assert get_pid("teemu selanne") == "500"
     assert scrape_ids()["teemu selanne"]["team"] == "ana"
+    assert not "g" in scrape_ids()["tuukka rask"]  # Maalivahdilla ei maaleja.
 
     gid = get_latest_game("pit")
     game = scrape_game(gid)
@@ -230,3 +243,39 @@ def test():
     else:
         opponent = game["home_team"]
     assert get_latest_game(opponent) == gid
+
+
+def get_average_toi(pid):
+    """Lasketaan pelaajan peliajan keskiarvo."""
+    games = scrape_player_games(pid)
+    total_toi = 0
+    for gid in games:
+        print "Skreipataan ottelu", gid
+        data = scrape_game(gid)
+        if games[gid]["opponent"].startswith("@"):
+            team = "away"
+        else:
+            team = "home"
+        player = "skaters" if pid in data[team]["skaters"] else "goalies"
+        total_toi += toi_to_sec(data[team][player][pid]["toi"])  # Maalivahdit?
+    return total_toi / len(games)
+
+
+def toi_to_sec(toi):
+    """Konvertoidaan peliaika sekunteiksi.
+
+    >>> toi_to_sec("22:18")
+    1338
+    """
+    splits = toi.split(":")
+    return int(splits[0]) * 60 + int(splits[1])
+
+
+def sec_to_toi(sec):
+    """Sekunnit peliajaksi.
+
+    >>> sec_to_toi("1234")
+    "20:34"
+    """
+    sec = int(sec)
+    return "%d:%d" % (sec / 60, sec % 60)
