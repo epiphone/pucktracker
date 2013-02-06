@@ -1,5 +1,4 @@
-pucktracker
-===========
+# Pucktracker
 
 ITKS545 harjoitustyö
-Web-sovellus NHL-tilastojen seuraamista varten. 
+Web-sovellus NHL-tilastojen seuraamista varten.
