@@ -5,6 +5,7 @@
 import lxml.html as html
 import time
 import datetime as dt
+import logging
 
 MONTHS = ["", "jan", "feb", "mar", "apr", "may", "jun",
           "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -46,7 +47,8 @@ def scrape_ids():
         t0 = time.time()
         root = html.parse(url0)
         t1 = time.time() - t0
-        print "Haettiin html ja muokattiin lxml-objektiksi ajassa", t1
+        logging.info(
+            "Haettiin html ja muokattiin lxml-objektiksi ajassa " + str(t1))
 
         t0 = time.time()
         ids = {}
@@ -67,25 +69,21 @@ def scrape_ids():
         all_ids = dict(all_ids.items() + ids.items())
 
     t1 = time.time() - t0
-    print "Objektista parsettiin data ajassa", t1
+    logging.info("Objektista parsettiin data ajassa" + str(t1))
 
     CACHE_IDS = all_ids
     return all_ids
 
 
-def scrape_player_games(pid, season="2013"):
-    """Palauttaa dictionaryn jossa avaimena joukkueen PELATTUJEN otteluiden
-    id:t, arvona ottelun 'nimi' (esim. Boston Bruins vs Winnipeg Jets)."""
+def scrape_player_games(pid, year="2013"):
+    """Palauttaa pelaajan pelatut pelit. Paluuarvona dictionary, jonka avaimena
+    ottelun id, arvona pelaajan tilastot kyseisestä pelistä."""
     pid = str(pid)
-    try:
-        return CACHE_PLAYER_GAMES[pid]
-    except KeyError:
-        print "Pelaajan otteluita ei löytynyt välimuistista, skreipataan..."
-
-    url = "http://sports.yahoo.com/nhl/players/%s/gamelog" % pid
+    url = "http://sports.yahoo.com/nhl/players/%s/gamelog?year=%s" % (pid, year)
     t0 = time.time()
     root = html.parse(url)
-    print "Haettiin HTML ja luotiin lxml-objekti ajassa", time.time() - t0
+    logging.info(
+        "Haettiin HTML ja luotiin lxml-objekti ajassa" + str(time.time() - t0))
 
     t0 = time.time()
     games = {}
@@ -96,27 +94,21 @@ def scrape_player_games(pid, season="2013"):
             game[GAME_LOG_COLUMNS[i]] = td.text_content().strip()
         games[gid] = game  # games == {"123":{"opponent":"asd","g":4,...}, "124":{...}, ...}
 
-    print "Skreipattiin data ajassa", time.time() - t0
+    logging.info("Skreipattiin data ajassa " + str(time.time() - t0))
     CACHE_PLAYER_GAMES[pid] = games
     return games
 
 
-def scrape_team_games(team, season="2013"):
+def scrape_team_games(team, year="2013"):
     """Palauttaa dictionaryn jossa avaimena joukkueen PELATTUJEN otteluiden
     id:t, arvona ottelun 'nimi' (esim. Boston Bruins vs Winnipeg Jets)."""
     team = team.lower()
     if not team in TEAMS:
         raise Exception("Virheellinen joukkueen nimi.")
 
-    # Jos ottelut löytyvät välimuistista, palautetaan ne:
-    try:
-        return CACHE_TEAM_GAMES[team]
-    except KeyError:
-        print "Joukkueen otteluita ei löytynyt välimuistista, skreipataan..."
-
     # Muuten skreipataan otteluohjelma ja tallennetaan välimuistiin:
     url = """http://sports.yahoo.com/nhl/teams/%s
-          /schedule?view=print_list&season=%s""" % (team, season)
+          /schedule?view=print_list&season=%s""" % (team, year)
     t0 = time.time()
 
     root = html.parse(url)
@@ -130,7 +122,7 @@ def scrape_team_games(team, season="2013"):
         games[gid] = row.xpath("td")[1].text_content().strip()
 
     t1 = time.time() - t0
-    print "Haettiin html ja parsettiin ajassa", t1
+    logging.info("Haettiin html ja parsettiin ajassa" + str(t1))
 
     # Oikeasti tällä välimuistilla olisi jonkinlainen umpeutumisaika.
     CACHE_TEAM_GAMES[team] = games
@@ -142,14 +134,16 @@ def scrape_game(gid):
     try:
         return CACHE_GAMES[gid]
     except KeyError:
-        print "Ottelua ei löytynyt välimuistista, skreipataan..."
+        logging.info("Ottelua ei löytynyt välimuistista, skreipataan...")
     t0 = time.time()
     url = "http://sports.yahoo.com/nhl/boxscore?gid=" + gid
     try:
         root = html.parse(url)
     except IOError:  # 404
         return None
-    print "Haettiin HTML ja luotiin lxml-objekti ajassa", time.time() - t0
+    logging.info(
+        "Haettiin HTML ja luotiin lxml-objekti ajassa "
+        + str(time.time() - t0))
 
     t0 = time.time()
     game = {}
@@ -213,7 +207,7 @@ def scrape_game(gid):
             team_skaters[pid] = skater
         game[team] = dict(goalies=team_goalies, skaters=team_skaters)
 
-    print "Skreipattiin data ajassa", time.time() - t0
+    logging.info("Skreipattiin data ajassa " + str(time.time() - t0))
     CACHE_GAMES[gid] = game
     return game
 
@@ -234,13 +228,14 @@ def scrape_schedule(season="20122013", playoffs=False):
     global CACHE_SCHEDULE
     if CACHE_SCHEDULE:
         return CACHE_SCHEDULE
-    print "Otteluohjelmaa ei loytynyt valimuistista, skreipataan..."
+    logging.info("Otteluohjelmaa ei loytynyt valimuistista, skreipataan...")
     t0 = time.time()
     url = "http://nhl.com/ice/schedulebyseason.htm?season=%s"
     if playoffs:
         url += "&gameType=3"
     root = html.parse(url)
-    print "Haettiin html ja luotiin lxml-objekti ajassa", time.time() - t0
+    logging.info("Haettiin html ja luotiin lxml-objekti ajassa " +
+                 str(time.time() - t0))
 
     t0 = time.time()
     schedule = {team: [] for team in TEAMS}
@@ -262,7 +257,7 @@ def scrape_schedule(season="20122013", playoffs=False):
         schedule[home_team].append(game)
         schedule[away_team].append(game)
 
-    print "Skreipattiin data ajassa", time.time() - t0
+    logging.info("Skreipattiin data ajassa " + str(time.time() - t0))
     CACHE_SCHEDULE = schedule
     return schedule
 
@@ -274,7 +269,7 @@ def get_next_game(team=None, pid=None):
     """
     if team:
         return sorted(scrape_schedule()[team], key=lambda x: x["time"])[0]
-    print "kesken"  # TODO
+    return "kesken"
 
 
 def get_latest_game(team=None, pid=None):
