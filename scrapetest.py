@@ -4,10 +4,20 @@
 
 import lxml.html as html
 import time
+import datetime as dt
 
+MONTHS = ["", "jan", "feb", "mar", "apr", "may", "jun",
+          "jul", "aug", "sep", "oct", "nov", "dec"]
 TEAMS = ["njd", "nyi", "nyr", "phi", "pit", "bos", "buf", "mon", "ott", "tor",
          "car", "fla", "tam", "was", "wpg", "chi", "cob", "det", "nas", "stl",
          "cgy", "col", "edm", "min", "van", "ana", "dal", "los", "pho", "san"]
+CITIES = ["new jersey", "ny islanders", "ny rangers", "philadelphia",
+          "pittsburgh", "boston", "buffalo", u"montréal", "ottawa", "toronto",
+          "carolina", "florida", "tampa bay", "washington", "winnipeg",
+          "chicago", "columbus", "detroit", "nashville", "st. louis",
+          "calgary", "colorado", "edmonton", "minnesota", "vancouver",
+          "anaheim", "dallas", "los angeles", "phoenix", "san jose"]
+
 # Eri sivuilta poimitaan erilaisia tilastoja:
 GAME_LOG_COLUMNS = ["opponent", "result", "g", "a", "pts", "+/-", "pim",
                     "ppg", "hits", "bks", "ppa", "shg", "sha", "gw", ",gt",
@@ -19,6 +29,7 @@ CACHE_IDS = {}
 CACHE_GAMES = {}
 CACHE_TEAM_GAMES = {}
 CACHE_PLAYER_GAMES = {}
+CACHE_SCHEDULE = {}
 
 
 def scrape_ids():
@@ -207,12 +218,70 @@ def scrape_game(gid):
     return game
 
 
+def scrape_schedule(season="20122013", playoffs=False):
+    """Skreippaa kauden tulevien pelien alkamisajat ja joukkueet.
+
+    Paluuarvo on muotoa
+    {"ana": [
+        {"time": "2012-02-06 21:30:00", "home":"ana", "away":"bos"},
+        {"time": "2012-02-07 16:00:00", "home":"cal", "away":"ana"},
+        ...],
+     "bos": [
+        {"time": "2012-02-06 21:30:00", "home:"ana", "away":"bos"},
+        ...],
+     ...}
+    """
+    global CACHE_SCHEDULE
+    if CACHE_SCHEDULE:
+        return CACHE_SCHEDULE
+    print "Otteluohjelmaa ei loytynyt valimuistista, skreipataan..."
+    t0 = time.time()
+    url = "http://nhl.com/ice/schedulebyseason.htm?season=%s"
+    if playoffs:
+        url += "&gameType=3"
+    root = html.parse(url)
+    print "Haettiin html ja luotiin lxml-objekti ajassa", time.time() - t0
+
+    t0 = time.time()
+    schedule = {team: [] for team in TEAMS}
+    rows = root.xpath("//div[@class='contentBlock']/table[1]/tbody/tr")
+    for row in rows:
+        if row.xpath("td[4]/*"):
+            date_str = row.xpath("td[1]/div[1]/text()")[0][4:]
+            time_str = row.xpath("td[4]/div[1]/text()")[0].replace(" ET", "")
+            datetime_str = str(str_to_date(date_str + " " + time_str))
+        else:
+            # Joidenkin pelien alkamisaika ei ole tiedossa (pvm on), mitäköhän
+            # niille tekisi?
+            datetime_str = ""
+        home_city = row.xpath("td[2]")[0].text_content().lower()
+        away_city = row.xpath("td[3]")[0].text_content().lower()
+        home_team = TEAMS[CITIES.index(home_city)]
+        away_team = TEAMS[CITIES.index(away_city)]
+        game = {"time": datetime_str, "home": home_team, "away": away_team}
+        schedule[home_team].append(game)
+        schedule[away_team].append(game)
+
+    print "Skreipattiin data ajassa", time.time() - t0
+    CACHE_SCHEDULE = schedule
+    return schedule
+
+
+def get_next_game(team=None, pid=None):
+    """Palauttaa dictionaryn, jossa joukkueen/pelaajan seuraavan pelin
+    alkamisaika, kotijoukkue ja vierasjoukkue. Esim:
+    {"time": "2013-02-28 10:30:00", "home":"ana", "away":"bos"}}
+    """
+    if team:
+        return sorted(scrape_schedule()[team], key=lambda x: x["time"])[0]
+    print "kesken"  # TODO
+
+
 def get_latest_game(team=None, pid=None):
-    """Palauttaa joukkueen viimeisimmän pelatun pelin id:n."""
+    """Palauttaa joukkueen/pelaajan viimeisimmän pelatun pelin id:n."""
     if team:
         return sorted(scrape_team_games(team))[-1]
-    elif pid:
-        return sorted(scrape_player_games(pid))[-1]
+    return sorted(scrape_player_games(pid))[-1]
 
 
 def get_pid(name):
@@ -262,7 +331,7 @@ def get_average_toi(pid):
 
 
 def toi_to_sec(toi):
-    """Konvertoidaan peliaika sekunteiksi.
+    """Peliaka sekunteiksi.
 
     >>> toi_to_sec("22:18")
     1338
@@ -274,8 +343,33 @@ def toi_to_sec(toi):
 def sec_to_toi(sec):
     """Sekunnit peliajaksi.
 
-    >>> sec_to_toi("1234")
-    "20:34"
+    >>> print sec_to_toi("1234")
+    20:34
     """
     sec = int(sec)
     return "%d:%d" % (sec / 60, sec % 60)
+
+
+def str_to_date(datetime_str, zone=-5):
+    """Ottaa merkkijonon muotoa "FEB 6, 2013 7:30 PM", palauttaa
+    datetime-objektin. Zone-parametri määrittää merkkijonon aikavyöhykkeen;
+    Jos zone on -5, paluuarvoon lisätään 5 tuntia jolloin paluuarvon aika-
+    vyöhyke on GMT+-0.
+
+    >>> print str_to_date("FEB 6, 2013 7:30 PM", zone=-1)
+    2013-02-06 20:30:00
+    >>> print str_to_date("FEB 28, 2013 12:00 AM", zone=0)
+    2013-02-28 00:00:00
+    """
+    format = "%b %d, %Y %I:%M %p"
+    return dt.datetime.strptime(datetime_str, format) - dt.timedelta(hours=zone)
+
+
+def isostr_to_date(datetime_str):
+    """Ottaa ISO-formatoidun merkkijonon, palauttaa datetime-objektin.
+
+    >>> print isostr_to_date("2013-02-28 16:12:00")
+    2013-02-28 16:12:00
+    """
+    format = "%Y-%m-%d %H:%M:%S"
+    return dt.datetime.strptime(datetime_str, format)
