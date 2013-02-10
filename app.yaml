@@ -6,7 +6,7 @@ threadsafe: true
 
 handlers:
 - url: /.*
-  script: apiapp.app
+  script: apiapp.gae_app
 
 libraries:
 - name: lxml
