@@ -24,7 +24,10 @@ AUTHORIZE_URL = f.readline().strip().split("=")[-1]
 ACCESS_TOKEN_URL = f.readline().strip().split("=")[-1]
 f.close()
 if os.environ.get("SERVER_SOFTWARE", "").startswith("Development"):
-    CALLBACK_URL = "http:// 130.234.180.42:8080/login"  # Tähän joku fiksumpi tapa.
+    import socket
+    # ip = socket.gethostbyname(socket.gethostname())
+    ip = "130.234.180.42"
+    CALLBACK_URL = "http://" + ip + ":8080/login"
 else:
     CALLBACK_URL = "http://pucktracker.appspot.com/login"
 
@@ -159,7 +162,7 @@ class Index:
 class Player:
     def GET(self, pid):
         """Palauttaa pelaajan valitun kauden pelatut pelit tilastoineen."""
-        year = web.input(year=None).year or "2013"
+        year = web.input(year="2012").year
         data = scraper.scrape_player_games(pid, year)
         web.header("Content-Type", "application/json")
         return json.dumps(data)
@@ -168,7 +171,7 @@ class Player:
 class Team:
     def GET(self, team):
         """Palauttaa joukkueen valitun kauden pelatut pelit."""
-        year = web.input(year=None).year or "2013"
+        year = web.input(year="2012").year
         data = scraper.scrape_team_games(team, year)
         web.header("Content-Type", "application/json")
         return json.dumps(data)

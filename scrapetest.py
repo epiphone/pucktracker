@@ -6,7 +6,7 @@ from lxml import html
 import time
 import datetime as dt
 import logging
-from google.appengine.api import urlfetch
+from google.appengine.api import urlfetch, memcache
 
 MONTHS = ["", "jan", "feb", "mar", "apr", "may", "jun",
           "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -27,20 +27,11 @@ GAME_LOG_COLUMNS = ["opponent", "result", "g", "a", "pts", "+/-", "pim",
 BOXSCORE_COLUMNS_GOALIE = ["sa", "ga", "sv", "sv%", "pim", "toi"]
 BOXSCORE_COLUMNS = ["g", "a", "pts", "+/-", "pim", "s", "bs", "hits", "fw",
                     "fl", "fo%", "shifts", "toi"]
-CACHE_IDS = {}
-CACHE_GAMES = {}
-CACHE_TEAM_GAMES = {}
-CACHE_PLAYER_GAMES = {}
-CACHE_SCHEDULE = {}
 
 
 def scrape_ids():
     """Palauttaa dictionaryn jossa avaimena pelaajan nimi, arvona
     joukkue, id ja koko kauden tilastot."""
-    global CACHE_IDS
-    if CACHE_IDS:
-        return CACHE_IDS
-
     url = "http://sports.yahoo.com/nhl/stats/byposition?pos="
     all_ids = {}
     for param in ["C,RW,LW,D", "G"]:
@@ -72,85 +63,90 @@ def scrape_ids():
 
     t1 = time.time() - t0
     logging.info("Objektista parsettiin data ajassa" + str(t1))
-
-    CACHE_IDS = all_ids
     return all_ids
 
 
-def scrape_player_games(pid, year="2013"):
+def scrape_player_games(pid, year="2012"):
     """Palauttaa pelaajan pelatut pelit. Paluuarvona dictionary, jonka avaimena
     ottelun id, arvona pelaajan tilastot kyseisestä pelistä."""
-    pid = str(pid)
+    games = memcache.get(pid + year)
+    if games:
+        logging.info("scrape_player_games(%s, %s) - Loytyi valimuistista."
+            % (pid, year))
+        return games
+    logging.info("scrape_player_games(%s, %s) - Ei loytynyt valimuistista."
+            % (pid, year))
     url = "http://sports.yahoo.com/nhl/players/%s/gamelog?year=%s" % (pid, year)
     t0 = time.time()
-    page = urlfetch.fetch(url)
-    root = html.fromstring(page.content)
-    logging.info(
-        "Haettiin HTML ja luotiin lxml-objekti ajassa" + str(time.time() - t0))
+    response = urlfetch.fetch(url)
+    t0 = time.time() - t0
+    if response.status_code != 200:
+        raise web.notfound()
 
-    t0 = time.time()
+    t1 = time.time()
+    root = html.fromstring(response.content)
     games = {}
-    for tr in root.xpath("//table/tr[@class='ysprow1' or @class='ysprow2']")[:-1]:
+    rows = root.xpath("//table/tr[@class='ysprow1' or @class='ysprow2' and position() < last()]")
+    for row in rows:
         game = {}
-        gid = tr.xpath("td/a/@href")[0].split("gid=")[-1]
-        for i, td in enumerate(tr.xpath("td")[1:-1]):
+        gid = row.xpath("td/a/@href")[0].split("gid=")[-1]
+        for i, td in enumerate(row.xpath("td")[1:-1]):
             game[GAME_LOG_COLUMNS[i]] = td.text_content().strip()
         games[gid] = game  # games == {"123":{"opponent":"asd","g":4,...}, "124":{...}, ...}
 
-    logging.info("Skreipattiin data ajassa " + str(time.time() - t0))
-    CACHE_PLAYER_GAMES[pid] = games
+    t1 = time.time() - t1
+    logging.info("""scrape_player_games(%s, %s):
+                 Haettiin HTML ajassa %s
+                 Skreipattiin data ajassa %s"""
+                 % (pid, year, str(t0), str(t1)))
+    memcache.add(pid + year, games, 60 * 60)
     return games
 
 
-def scrape_team_games(team, year="2013"):
+def scrape_team_games(team, year="2012"):
     """Palauttaa dictionaryn jossa avaimena joukkueen PELATTUJEN otteluiden
-    id:t, arvona ottelun 'nimi' (esim. Boston Bruins vs Winnipeg Jets)."""
+    id:t, arvona ottelun 'nimi' (esim. 'Boston Bruins vs Boston (0-1-2)')."""
     team = team.lower()
     if not team in TEAMS:
-        raise Exception("Virheellinen joukkueen nimi.")
+        # raise Exception("Virheellinen joukkueen nimi.")
+        raise web.notfound()
 
-    # Muuten skreipataan otteluohjelma ja tallennetaan välimuistiin:
-    url = """http://sports.yahoo.com/nhl/teams/%s
-          /schedule?view=print_list&season=%s""" % (team, year)
+    url = ("http://sports.yahoo.com/nhl/teams/%s/schedule?"
+           "view=print_list&season=%s") % (team, year)
     t0 = time.time()
+    response = urlfetch.fetch(url)
+    t0 = time.time() - t0
+    if response.status_code != 200:
+        raise web.notfound()
 
-    page = urlfetch.fetch(url)
-    root = html.fromstring(page.content)
-    rows = root.xpath("//ul/li[position()>4]//table/tbody/tr")
+    t1 = time.time()
+    root = html.fromstring(response.content)
+    rows = root.xpath("//tbody/tr[td[3]/a[contains(@href, 'recap')]]")
     games = {}
     for row in rows:
-        href = row.xpath("td[3]/a")[0].attrib["href"]
-        if not "recap?gid=" in href:
-            break
+        href = row.xpath("td[3]/a/@href")[0]
         gid = href.split("gid=")[-1]  # TODO entä jos gid:n jälkeen toinen parametri?
         games[gid] = row.xpath("td")[1].text_content().strip()
 
-    t1 = time.time() - t0
-    logging.info("Haettiin html ja parsettiin ajassa" + str(t1))
-
-    # Oikeasti tällä välimuistilla olisi jonkinlainen umpeutumisaika.
-    CACHE_TEAM_GAMES[team] = games
+    t1 = time.time() - t1
+    logging.info("""scrape_team_games(%s, %s):
+                 Haettiin HTML ajassa %s
+                 Skreipattiin data ajassa %s"""
+                 % (team, year, str(t0), str(t1)))
     return games
 
 
 def scrape_game(gid):
     """Palauttaa dictionaryn, jossa hirveä läjä dataa ottelusta."""
-    try:
-        return CACHE_GAMES[gid]
-    except KeyError:
-        logging.info("Ottelua ei löytynyt välimuistista, skreipataan...")
     t0 = time.time()
     url = "http://sports.yahoo.com/nhl/boxscore?gid=" + gid
-    try:
-        page = urlfetch.fetch(url)
-        root = html.fromstring(page.content)
-    except IOError:  # 404
-        return None
-    logging.info(
-        "Haettiin HTML ja luotiin lxml-objekti ajassa "
-        + str(time.time() - t0))
+    response = urlfetch.fetch(url)
+    t0 = time.time() - t0
+    if response.status_code != 200:
+        raise web.notfound()
 
-    t0 = time.time()
+    t1 = time.time()
+    root = html.fromstring(response.content)
     game = {}
     # Ottelun tulos:
     game["away_team"] = root.xpath("//div[@class='away']//a")[0].attrib["href"].split("/")[-1]
@@ -212,8 +208,10 @@ def scrape_game(gid):
             team_skaters[pid] = skater
         game[team] = dict(goalies=team_goalies, skaters=team_skaters)
 
-    logging.info("Skreipattiin data ajassa " + str(time.time() - t0))
-    CACHE_GAMES[gid] = game
+    t1 = time.time() - t1
+    logging.info("""scrape_game(%s):
+                 Haettiin HTML ajassa %s
+                 Skreipattiin data ajassa %s""" % (gid, str(t0), str(t1)))
     return game
 
 
@@ -230,10 +228,6 @@ def scrape_schedule(season="20122013", playoffs=False):
         ...],
      ...}
     """
-    global CACHE_SCHEDULE
-    if CACHE_SCHEDULE:
-        return CACHE_SCHEDULE
-    logging.info("Otteluohjelmaa ei loytynyt valimuistista, skreipataan...")
     t0 = time.time()
     url = "http://nhl.com/ice/schedulebyseason.htm?season=%s"
     if playoffs:
