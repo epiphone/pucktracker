@@ -2,10 +2,11 @@
 # Screippaustesti
 
 
-import lxml.html as html
+from lxml import html
 import time
 import datetime as dt
 import logging
+from google.appengine.api import urlfetch
 
 MONTHS = ["", "jan", "feb", "mar", "apr", "may", "jun",
           "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -45,7 +46,8 @@ def scrape_ids():
     for param in ["C,RW,LW,D", "G"]:
         url0 = url + param
         t0 = time.time()
-        root = html.parse(url0)
+        page = urlfetch.fetch(url)
+        root = html.fromstring(page.content)
         t1 = time.time() - t0
         logging.info(
             "Haettiin html ja muokattiin lxml-objektiksi ajassa " + str(t1))
@@ -81,7 +83,8 @@ def scrape_player_games(pid, year="2013"):
     pid = str(pid)
     url = "http://sports.yahoo.com/nhl/players/%s/gamelog?year=%s" % (pid, year)
     t0 = time.time()
-    root = html.parse(url)
+    page = urlfetch.fetch(url)
+    root = html.fromstring(page.content)
     logging.info(
         "Haettiin HTML ja luotiin lxml-objekti ajassa" + str(time.time() - t0))
 
@@ -111,7 +114,8 @@ def scrape_team_games(team, year="2013"):
           /schedule?view=print_list&season=%s""" % (team, year)
     t0 = time.time()
 
-    root = html.parse(url)
+    page = urlfetch.fetch(url)
+    root = html.fromstring(page.content)
     rows = root.xpath("//ul/li[position()>4]//table/tbody/tr")
     games = {}
     for row in rows:
@@ -138,7 +142,8 @@ def scrape_game(gid):
     t0 = time.time()
     url = "http://sports.yahoo.com/nhl/boxscore?gid=" + gid
     try:
-        root = html.parse(url)
+        page = urlfetch.fetch(url)
+        root = html.fromstring(page.content)
     except IOError:  # 404
         return None
     logging.info(
@@ -233,7 +238,8 @@ def scrape_schedule(season="20122013", playoffs=False):
     url = "http://nhl.com/ice/schedulebyseason.htm?season=%s"
     if playoffs:
         url += "&gameType=3"
-    root = html.parse(url)
+    page = urlfetch.fetch(url)
+    root = html.fromstring(page.content)
     logging.info("Haettiin html ja luotiin lxml-objekti ajassa " +
                  str(time.time() - t0))
 
