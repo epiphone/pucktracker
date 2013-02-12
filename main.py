@@ -163,7 +163,7 @@ class Player:
     def GET(self, pid):
         """Palauttaa pelaajan valitun kauden pelatut pelit tilastoineen."""
         year = web.input(year="2012").year
-        data = scraper.scrape_player_games(pid, year)
+        data = scraper.scrape_games_by_player(pid, year)
         web.header("Content-Type", "application/json")
         return json.dumps(data)
 
@@ -172,7 +172,7 @@ class Team:
     def GET(self, team):
         """Palauttaa joukkueen valitun kauden pelatut pelit."""
         year = web.input(year="2012").year
-        data = scraper.scrape_team_games(team, year)
+        data = scraper.scrape_games_by_team(team, year)
         web.header("Content-Type", "application/json")
         return json.dumps(data)
 

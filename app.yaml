@@ -11,3 +11,7 @@ handlers:
 libraries:
 - name: lxml
   version: latest
+
+builtins:
+- deferred: on
+- remote_api: on

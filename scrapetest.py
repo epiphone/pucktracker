@@ -1,13 +1,48 @@
 # -*-coding:utf-8-*-
 # Screippaustesti
+# TODO tyhjien palautusten sijaan virheilmoituksia?
 
 
 from lxml import html
 import time
 import datetime as dt
 import logging
-from google.appengine.api import urlfetch, memcache
+import sys
+# Jos ohjelmaa ajetaan itsenäisesti, ei voida käyttää app enginen moduuleita;
+# Urlfetch-, Memcache- ja Deferred-luokat mahdollistavat skreippausfunktioiden
+# testaamisen ilman App engineä.
+try:
+    from google.appengine.api import urlfetch, memcache
+    from google.appengine.ext import deferred
+except ImportError:
+    logging.getLogger().setLevel(logging.DEBUG)
+    import urllib2
 
+    class Urlfetch:
+        def fetch(self, url):
+            response = urllib2.urlopen(url)
+
+            class Response:
+                def __init__(self, content, status_code):
+                    self.content = content
+                    self.status_code = status_code
+            return Response(response.read(), response.getcode())
+
+    class Memcache:
+        def get(self, *args, **kwargs):
+            pass
+
+        def add(self, *args, **kwargs):
+            pass
+
+    class Deferred:
+        def defer(self, *args, **kwargs):
+            pass
+    urlfetch = Urlfetch()
+    memcache = Memcache()
+
+CURRENT_SEASON = "2012"
+PLAYOFFS = False
 MONTHS = ["", "jan", "feb", "mar", "apr", "may", "jun",
           "jul", "aug", "sep", "oct", "nov", "dec"]
 TEAMS = ["njd", "nyi", "nyr", "phi", "pit", "bos", "buf", "mon", "ott", "tor",
@@ -29,19 +64,68 @@ BOXSCORE_COLUMNS = ["g", "a", "pts", "+/-", "pim", "s", "bs", "hits", "fw",
                     "fl", "fo%", "shifts", "toi"]
 
 
-def scrape_ids():
-    """Palauttaa dictionaryn jossa avaimena pelaajan nimi, arvona
-    joukkue, id ja koko kauden tilastot."""
-    url = "http://sports.yahoo.com/nhl/stats/byposition?pos="
+def scrape_players(query=""):
+    """Skreippaa kaikki pelaajat, joiden nimi vastaa hakuehtoa. Oletuksena
+    haetaan kaikki pelaajat. Paluuarvona dictionary, jossa avaimena
+    pelaajan id, arvoina nimi, pelipaikka ja joukkue."""
+    players = memcache.get("query" + query)
+    if players is not None:
+        return players
+
+    url = "http://sports.yahoo.com/nhl/players?type=lastname&first=1&query="
+    t0 = time.time()
+    response = urlfetch.fetch(url + query)
+    t0 = time.time() - t0
+    if response.status_code != 200:
+        return None
+
+    t1 = time.time()
+    root = html.fromstring(response.content)
+    rows = root.xpath("//table//tr[contains(@class, 'ysprow') and count(td)=3]")
+    players = {}
+    for row in rows:
+        tds = row.getchildren()
+        pid = tds[0].getchildren()[0].attrib["href"].split("/")[-1]
+        name = tds[0].text_content().strip()
+        pos = tds[1].text
+        team = tds[2].getchildren()[0].attrib["href"].split("/")[-1]
+        players[pid] = dict(name=name, pos=pos, team=team)
+
+    memcache.add("query" + query, players, 60 * 60 * 24)
+    logging.info("""scrape_players(%s):
+                 Haettiin HTML ajassa %f
+                 Skreipattiin data ajassa %f"""
+                 % (query, t0, time.time() - t1))
+    return players
+
+
+def scrape_players_and_stats(year="2012", playoffs=False,
+    positions=["C", "RW", "LW", "D", "G"]):
+    """Skreippaa valitun kauden kaikki pelaajat tilastoineen.
+    Paluuarvona dictionary jossa avaimena pelaajan id, arvona
+    joukkue, nimi ja koko kauden tilastot dictionaryssa."""
+    if year > CURRENT_SEASON or (year == CURRENT_SEASON and playoffs != PLAYOFFS):
+        return {}
+    url = "http://sports.yahoo.com/nhl/stats/byposition?pos=%s&year=%s"
+    year = "postseason_" + year if playoffs else "season_" + year
     all_ids = {}
-    for param in ["C,RW,LW,D", "G"]:
-        url0 = url + param
-        t0 = time.time()
-        page = urlfetch.fetch(url)
-        root = html.fromstring(page.content)
-        t1 = time.time() - t0
-        logging.info(
-            "Haettiin html ja muokattiin lxml-objektiksi ajassa " + str(t1))
+
+    positions = map(str.upper, positions)
+    if any(pos not in ["C", "RW", "LW", "D", "G"] for pos in positions):
+        return {}
+    if "G" in positions:  # Maalivahdit täytyy skreipata eri sivulta.
+        if len(positions) > 1:
+            positions.remove("G")
+            positions = [",".join(positions), "G"]
+    else:
+        positions = [",".join(positions)]
+    for position in positions:
+        url0 = url % (position, year)
+        print url0
+        response = urlfetch.fetch(url0)
+        if response.status_code != 200:
+            return {}
+        root = html.fromstring(response.content)
 
         t0 = time.time()
         ids = {}
@@ -51,24 +135,25 @@ def scrape_ids():
         for row in rows[1:]:
             name = row.xpath("td/a")[0].text_content().lower()
             pid = row.xpath("td/a")[0].attrib["href"].split("/")[-1]
-            stats = {"pid": pid}
+            stats = {"name": name}
             i = 0
             for td in row.xpath("td")[1:]:
                 text = td.text_content().strip().lower()
                 if text != "":
                     stats[columns[i]] = text
                     i += 1
-            ids[name] = stats
+            ids[pid] = stats
         all_ids = dict(all_ids.items() + ids.items())
-
-    t1 = time.time() - t0
-    logging.info("Objektista parsettiin data ajassa" + str(t1))
     return all_ids
 
 
-def scrape_player_games(pid, year="2012"):
+def scrape_games_by_player(pid, year="2012"):
     """Palauttaa pelaajan pelatut pelit. Paluuarvona dictionary, jonka avaimena
     ottelun id, arvona pelaajan tilastot kyseisestä pelistä."""
+    pid = str(pid)
+    if year > CURRENT_SEASON:
+        return {}
+
     games = memcache.get(pid + year)
     if games:
         logging.info("scrape_player_games(%s, %s) - Loytyi valimuistista."
@@ -76,6 +161,7 @@ def scrape_player_games(pid, year="2012"):
         return games
     logging.info("scrape_player_games(%s, %s) - Ei loytynyt valimuistista."
             % (pid, year))
+
     url = "http://sports.yahoo.com/nhl/players/%s/gamelog?year=%s" % (pid, year)
     t0 = time.time()
     response = urlfetch.fetch(url)
@@ -86,7 +172,7 @@ def scrape_player_games(pid, year="2012"):
     t1 = time.time()
     root = html.fromstring(response.content)
     games = {}
-    rows = root.xpath("//table/tr[@class='ysprow1' or @class='ysprow2' and position() < last()]")
+    rows = root.xpath("//table/tr[contains(@class, 'ysprow') and position() < last()]")
     for row in rows:
         game = {}
         gid = row.xpath("td/a/@href")[0].split("gid=")[-1]
@@ -95,21 +181,29 @@ def scrape_player_games(pid, year="2012"):
         games[gid] = game  # games == {"123":{"opponent":"asd","g":4,...}, "124":{...}, ...}
 
     t1 = time.time() - t1
-    logging.info("""scrape_player_games(%s, %s):
-                 Haettiin HTML ajassa %s
-                 Skreipattiin data ajassa %s"""
-                 % (pid, year, str(t0), str(t1)))
-    memcache.add(pid + year, games, 60 * 60)
+    logging.info("""scrape_games_by_player(%s, %s):
+                 Haettiin HTML ajassa %f
+                 Skreipattiin data ajassa %f"""
+                 % (pid, year, t0, t1))
+    # Deferred kutsuu add_cache-funktiota asynkronisesti:
+    deferred.defer(add_cache, key=pid + year, value=games)
     return games
 
 
-def scrape_team_games(team, year="2012"):
+def scrape_games_by_team(team, year="2012"):
     """Palauttaa dictionaryn jossa avaimena joukkueen PELATTUJEN otteluiden
     id:t, arvona ottelun 'nimi' (esim. 'Boston Bruins vs Boston (0-1-2)')."""
     team = team.lower()
-    if not team in TEAMS:
-        # raise Exception("Virheellinen joukkueen nimi.")
-        raise web.notfound()
+    if not team in TEAMS or year > CURRENT_SEASON:
+        return {}
+
+    games = memcache.get(team + year)
+    if games:
+        logging.info("scrape_player_games(%s, %s) - Loytyi valimuistista."
+            % (team, year))
+        return games
+    logging.info("scrape_player_games(%s, %s) - Ei loytynyt valimuistista."
+            % (team, year))
 
     url = ("http://sports.yahoo.com/nhl/teams/%s/schedule?"
            "view=print_list&season=%s") % (team, year)
@@ -129,15 +223,27 @@ def scrape_team_games(team, year="2012"):
         games[gid] = row.xpath("td")[1].text_content().strip()
 
     t1 = time.time() - t1
-    logging.info("""scrape_team_games(%s, %s):
-                 Haettiin HTML ajassa %s
-                 Skreipattiin data ajassa %s"""
-                 % (team, year, str(t0), str(t1)))
+    logging.info("""scrape_games_by_team(%s, %s):
+                 Haettiin HTML ajassa %f
+                 Skreipattiin data ajassa %f"""
+                 % (team, year, t0, t1))
+    # Deferred kutsuu add_cache-funktiota asynkronisesti:
+    deferred.defer(add_cache, key=team + year, value=games)
     return games
 
 
 def scrape_game(gid):
     """Palauttaa dictionaryn, jossa hirveä läjä dataa ottelusta."""
+    gid = str(gid)
+
+    game = memcache.get(gid)
+    if game:
+        logging.info("scrape_game(%s) - Loytyi valimuistista."
+            % (gid))
+        return game
+    logging.info("scrape_game(%s) - Ei loytynyt valimuistista."
+            % (gid))
+
     t0 = time.time()
     url = "http://sports.yahoo.com/nhl/boxscore?gid=" + gid
     response = urlfetch.fetch(url)
@@ -210,8 +316,9 @@ def scrape_game(gid):
 
     t1 = time.time() - t1
     logging.info("""scrape_game(%s):
-                 Haettiin HTML ajassa %s
-                 Skreipattiin data ajassa %s""" % (gid, str(t0), str(t1)))
+                 Haettiin HTML ajassa %f
+                 Skreipattiin data ajassa %f""" % (gid, t0, t1))
+    memcache.add(gid, game)
     return game
 
 
@@ -228,16 +335,19 @@ def scrape_schedule(season="20122013", playoffs=False):
         ...],
      ...}
     """
-    t0 = time.time()
+    schedule = memcache.get("schedule")
+    if schedule is not None:
+        return schedule
+
     url = "http://nhl.com/ice/schedulebyseason.htm?season=%s"
     if playoffs:
         url += "&gameType=3"
-    page = urlfetch.fetch(url)
-    root = html.fromstring(page.content)
-    logging.info("Haettiin html ja luotiin lxml-objekti ajassa " +
-                 str(time.time() - t0))
-
     t0 = time.time()
+    page = urlfetch.fetch(url)
+    t0 = time.time() - t0
+
+    t1 = time.time()
+    root = html.fromstring(page.content)
     schedule = {team: [] for team in TEAMS}
     rows = root.xpath("//div[@class='contentBlock']/table[1]/tbody/tr")
     for row in rows:
@@ -246,8 +356,8 @@ def scrape_schedule(season="20122013", playoffs=False):
             time_str = row.xpath("td[4]/div[1]/text()")[0].replace(" ET", "")
             datetime_str = str(str_to_date(date_str + " " + time_str))
         else:
-            # Joidenkin pelien alkamisaika ei ole tiedossa (pvm on), mitäköhän
-            # niille tekisi?
+            # Joidenkin pelien alkamiskellonaika ei ole tiedossa (pvm on),
+            # mitäköhän niille tekisi?
             datetime_str = ""
         home_city = row.xpath("td[2]")[0].text_content().lower()
         away_city = row.xpath("td[3]")[0].text_content().lower()
@@ -257,8 +367,10 @@ def scrape_schedule(season="20122013", playoffs=False):
         schedule[home_team].append(game)
         schedule[away_team].append(game)
 
-    logging.info("Skreipattiin data ajassa " + str(time.time() - t0))
-    CACHE_SCHEDULE = schedule
+    logging.info("""scrape_schedule():
+                 Haettiin HTML ajassa %f
+                 Skreipattiin data ajassa %f""" % (t0, time.time() - t1))
+    memcache.add("schedule", schedule, 60 * 60 * 12)
     return schedule
 
 
@@ -267,62 +379,47 @@ def get_next_game(team=None, pid=None):
     alkamisaika, kotijoukkue ja vierasjoukkue. Esim:
     {"time": "2013-02-28 10:30:00", "home":"ana", "away":"bos"}}
     """
-    if team:
-        return sorted(scrape_schedule()[team], key=lambda x: x["time"])[0]
-    return "kesken"
+    if pid and not team:
+        team = scrape_players()[pid]["team"]
+    return min(scrape_schedule()[team], key=lambda x: x["time"])
 
 
 def get_latest_game(team=None, pid=None):
     """Palauttaa joukkueen/pelaajan viimeisimmän pelatun pelin id:n."""
     if team:
-        return sorted(scrape_team_games(team))[-1]
-    return sorted(scrape_player_games(pid))[-1]
+        return sorted(scrape_games_by_team(team))[-1]
+    return sorted(scrape_games_by_player(pid))[-1]
 
 
-def get_pid(name):
-    """Palauttaa nimeä vastaavan id:n tai listan suosituksista, jos nimeä
-    ei löydy."""
-    name = name.lower().strip()
-    ids = scrape_ids()
-    try:
-        return ids[name]["pid"]
-    except KeyError:
-        suggestions = {}
-        for key in ids:
-            if name in key:
-                suggestions[key] = ids[key]["pid"]
-        return suggestions
-
-
-def test():
-    """Testejä ja käyttöesimerkkejä."""
-    assert get_pid("teemu selanne") == "500"
-    assert scrape_ids()["teemu selanne"]["team"] == "ana"
-    assert not "g" in scrape_ids()["tuukka rask"]  # Maalivahdilla ei maaleja.
-
-    gid = get_latest_game("pit")
-    game = scrape_game(gid)
-    if game["home_team"] == "pit":
-        opponent = game["away_team"]
+def add_cache(key, value):
+    """Lisää arvon välimuistiin, määrittää vanhenemisajan otteluohjelman
+    mukaan. Tallennettava arvo voi olla joko pelaajan tai joukkueen pelatut
+    pelit."""
+    ident, year = key[:-4], key[-4:]
+    if year != CURRENT_SEASON:
+        # Edellisten kausien pelattujen pelien tiedot eivät vanhene:
+        memcache.set(key, value)
     else:
-        opponent = game["home_team"]
-    assert get_latest_game(opponent) == gid
-
-
-def get_average_toi(pid):
-    """Lasketaan pelaajan peliajan keskiarvo."""
-    games = scrape_player_games(pid)
-    total_toi = 0
-    for gid in games:
-        print "Skreipataan ottelu", gid
-        data = scrape_game(gid)
-        if games[gid]["opponent"].startswith("@"):
-            team = "away"
+        # Muuten asetetaan vanhenemisaika seuraavan ottelun mukaan:
+        previous = memcache.get(key + "b")
+        if previous != None and len(value) == previous:
+            # Jos arvo ei ole muuttunut, laitetaan vanhenemisajaksi 10 minuuttia:
+            memcache.set(key, value, 60 * 10)
         else:
-            team = "home"
-        player = "skaters" if pid in data[team]["skaters"] else "goalies"
-        total_toi += toi_to_sec(data[team][player][pid]["toi"])  # Maalivahdit?
-    return total_toi / len(games)
+            # Arvo on muuttunut, selvitetään seuraavan ottelun ajankohta:
+            if ident.isalpha():
+                next_game_time = get_next_game(team=ident)["time"]
+            else:
+                next_game_time = get_next_game(pid=ident)["time"]
+            # Välimuistin arvo vanhenee 2 tuntia pelin alkamisen jälkeen:
+            game_end_time = isostr_to_date(next_game_time) + dt.timedelta(
+                hours=2)
+            time_diff = (game_end_time - dt.datetime.utcnow()).seconds
+            memcache.set(key, value, time_diff)
+            memcache.set(key + "b", len(value))
+            logging.info("""Tallennettiin valimuistiin
+                         Avain %s
+                         Vanhenemisaika %ds""" % (key, time_diff))
 
 
 def toi_to_sec(toi):
