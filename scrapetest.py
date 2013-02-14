@@ -420,7 +420,7 @@ def add_cache(key, value):
             # Välimuistin arvo vanhenee 2 tuntia pelin alkamisen jälkeen:
             game_end_time = isostr_to_date(next_game_time) + dt.timedelta(
                 hours=2)
-            time_diff = (game_end_time - dt.datetime.utcnow()).seconds
+            time_diff = (game_end_time - dt.datetime.utcnow()).total_seconds()
             memcache.set(key, value, time_diff)
             memcache.set(key + "b", len(value))
             logging.info("""Tallennettiin valimuistiin
