@@ -73,8 +73,10 @@ def scrape_players(query=""):
         return players
 
     url = "http://sports.yahoo.com/nhl/players?type=lastname&first=1&query="
+    query0 = query.replace(' ', '+')  # TODO useiden välilyöntien käsittely tarpeellista?
+
     t0 = time.time()
-    response = urlfetch.fetch(url + query)
+    response = urlfetch.fetch(url + query0)
     t0 = time.time() - t0
     if response.status_code != 200:
         return None
@@ -106,19 +108,23 @@ def scrape_players_and_stats(year="2012", playoffs=False,
     joukkue, nimi ja koko kauden tilastot dictionaryssa."""
     if year > CURRENT_SEASON or (year == CURRENT_SEASON and playoffs != PLAYOFFS):
         return {}
+
     url = "http://sports.yahoo.com/nhl/stats/byposition?pos=%s&year=%s"
     year = "postseason_" + year if playoffs else "season_" + year
     all_ids = {}
 
     positions = map(str.upper, positions)
+
     if any(pos not in ["C", "RW", "LW", "D", "G"] for pos in positions):
-        return {}
+        return {}  # Virheellinen pelipaikka
+
     if "G" in positions:  # Maalivahdit täytyy skreipata eri sivulta.
-        if len(positions) > 1:
+        if len(positions) > 1:  # Jos haetaan maalivahtien lisäksi muita pelipaikkoja..
             positions.remove("G")
             positions = [",".join(positions), "G"]
     else:
         positions = [",".join(positions)]
+
     for position in positions:
         url0 = url % (position, year)
         print url0
