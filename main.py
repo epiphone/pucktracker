@@ -3,7 +3,7 @@
 
 import web
 import json
-import scrapetest as scraper
+import scraper
 from uuid import uuid4
 import time
 import hmac
@@ -14,6 +14,7 @@ from google.appengine.api import urlfetch
 import urlparse
 from gaesessions import get_current_session
 import os
+import logging
 
 # Luetaan oAuth-isännän (Twitter) tiedot:
 f = open("twitter-tiedot.txt")
@@ -35,7 +36,9 @@ urls = (
     "/", "Index",
     "/login", "Login",
     "/api/players/(\d+)", "Player",
+    "/api/players",       "SearchPlayers",
     "/api/teams/(\w+)",   "Team",
+    "/api/games",         "Games",
     "/api/games/(\d+)",   "Game"
 )
 
@@ -141,10 +144,10 @@ class Index:
         web.header("Content-type", "text/html")
         return """<html><head><meta charset="UTF-8"></head><body>
                <h3>Kokeile esim.</h3>
-               <a href="/api/players/500?year=2011">
+               <a href="/api/games?pid=500?year=2011">
                  Teemu Selänteen kauden 2011-2012 pelatut ottelut tilastoineen.
                </a><br>
-               <a href="/api/teams/bos">
+               <a href="/api/games?team=bos">
                  Boston Bruinsin tämän kauden pelatut pelit.
                </a><br>
                <a href="/api/games/2012061108">
@@ -161,20 +164,39 @@ class Index:
 
 class Player:
     def GET(self, pid):
-        """Palauttaa pelaajan valitun kauden pelatut pelit tilastoineen."""
-        year = web.input(year="2012").year
-        data = scraper.scrape_games_by_player(pid, year)
-        web.header("Content-Type", "application/json")
-        return json.dumps(data)
+        """Palauttaa pelaajan valitun kauden tilastot, tai jos kautta ei ole
+        määritelty, koko uran tilastot."""
+        pass  # TODO
+
+
+class SearchPlayers:
+    def GET(self):
+        """Palauttaa listan pelaajista, joiden nimi vastaa hakuehtoa.
+        Tyhjä hakuehto palauttaa kaikki pelaajat."""
+        pass  # TODO
 
 
 class Team:
     def GET(self, team):
         """Palauttaa joukkueen valitun kauden pelatut pelit."""
-        year = web.input(year="2012").year
-        data = scraper.scrape_games_by_team(team, year)
+        pass  # TODO
+
+
+class Games:
+    def GET(self):
+        """Palauttaa tietyn joukkueen tai pelaajan tietyllä kaudella pelatut
+        ottelut."""
+        inp = web.input(team="", pid="", year="2012")
+        team, pid, year = inp.team, inp.pid, inp.year
         web.header("Content-Type", "application/json")
-        return json.dumps(data)
+
+        if team:
+            data = scraper.scrape_games_by_team(team, year)
+            return json.dumps(data)
+        elif pid:
+            data = scraper.scrape_games_by_player(pid, year)
+            return json.dumps(data)
+        return "{}"
 
 
 class Game:
