@@ -37,7 +37,7 @@ urls = (
     "/login", "Login",
     "/api/players/(\d+)", "Player",
     "/api/players",       "SearchPlayers",
-    "/api/teams/(\w+)",   "Team",
+    "/api/teams/(\w*)",   "Team",
     "/api/games",         "Games",
     "/api/games/(\d+)",   "Game"
 )
@@ -88,7 +88,7 @@ def send_signed_request(url, token=None, callback=None, secret=""):
 
 
 def escape(string):
-    """Percent-encodes a given string."""
+    """Url-enkoodaa annetun merkkijonon."""
     return urllib2.quote(string, "")
 
 
@@ -144,7 +144,7 @@ class Index:
         web.header("Content-type", "text/html")
         return """<html><head><meta charset="UTF-8"></head><body>
                <h3>Kokeile esim.</h3>
-               <a href="/api/games?pid=500?year=2011">
+               <a href="/api/games?pid=500&year=2011">
                  Teemu Selänteen kauden 2011-2012 pelatut ottelut tilastoineen.
                </a><br>
                <a href="/api/games?team=bos">
@@ -152,7 +152,13 @@ class Index:
                </a><br>
                <a href="/api/games/2012061108">
                  Kauden 2011-2012 Stanley Cup-finaalin tiedot.
-               </a>
+               </a><br>
+               <a href="/api/teams/edm?year=2010">
+                 Edmontonin joukkuetilastot kaudelta 2010-11.
+               </a><br>
+               <a href="/api/players?query=smith">
+                 Kaikki pelaajat, joiden nimestä löytyy "smith".
+               </a><br>
                <form action="/login" method="POST">
                 <input type="submit" value="Kirjaudu Twitterillä"/>
                </form>
@@ -165,21 +171,41 @@ class Index:
 class Player:
     def GET(self, pid):
         """Palauttaa pelaajan valitun kauden tilastot, tai jos kautta ei ole
-        määritelty, koko uran tilastot."""
-        pass  # TODO
+        määritelty, koko uran tilastot (sisältää myös yksittäiset kaudet)."""
+        year = web.input(year=None).year
+        if year:
+            # TODO
+            pass
+
+        data = scraper.scrape_career(pid)
+        web.header("Content-Type", "application/json")
+        return json.dumps(data)
 
 
 class SearchPlayers:
     def GET(self):
         """Palauttaa listan pelaajista, joiden nimi vastaa hakuehtoa.
         Tyhjä hakuehto palauttaa kaikki pelaajat."""
-        pass  # TODO
+        query = web.input(query="").query
+        data = scraper.scrape_players(query)
+        web.header("Content-Type", "application/json")
+        return json.dumps(data)
 
 
 class Team:
     def GET(self, team):
-        """Palauttaa joukkueen valitun kauden pelatut pelit."""
-        pass  # TODO
+        """Palauttaa joukkueen valitun kauden tilastot. Jos joukkuetta ei ole
+        määritelty, palautetaan kaikki joukkueet."""
+        year = web.input(year="season_2012").year
+        if not "season_" in year:
+            year = "season_" + year
+        data = scraper.scrape_standings(year)
+        if team:
+            if team not in scraper.TEAMS:
+                return "{}"
+            data = data[team]
+        web.header("Content-Type", "application/json")
+        return json.dumps(data)
 
 
 class Games:
