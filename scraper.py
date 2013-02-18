@@ -63,10 +63,6 @@ CITIES = ["new jersey", "ny islanders", "ny rangers", "philadelphia",
           "chicago", "columbus", "detroit", "nashville", "st. louis",
           "calgary", "colorado", "edmonton", "minnesota", "vancouver",
           "anaheim", "dallas", "los angeles", "phoenix", "san jose"]
-# TODO maalivahdin game log-tilastot
-GAME_LOG_COLUMNS = ["opponent", "result", "g", "a", "pts", "+/-", "pim",
-                    "ppg", "hits", "bks", "ppa", "shg", "sha", "gw", ",gt",
-                    "sog", "pct"]
 BOXSCORE_COLUMNS_GOALIE = ["sa", "ga", "sv", "sv%", "pim", "toi"]
 BOXSCORE_COLUMNS = ["g", "a", "pts", "+/-", "pim", "s", "bs", "hits", "fw",
                     "fl", "fo%", "shifts", "toi"]
@@ -233,14 +229,17 @@ def scrape_games_by_player(pid, year="2012"):
 
     t1 = time.time()
     root = html.fromstring(response.content)
+    header = root.xpath("//tr[@class='ysptblthbody1']")[0]
+    columns = [td.text.strip().lower() for td in header.getchildren()[1:-1]]
     games = {}
+
     rows = root.xpath("//table/tr[contains(@class, 'ysprow') and position() < last()]")
     for row in rows:
-        game = {}
         gid = row.xpath("td/a/@href")[0].split("gid=")[-1]
+        game = {}
         for i, td in enumerate(row.xpath("td")[1:-1]):
-            game[GAME_LOG_COLUMNS[i]] = td.text_content().strip()
-        games[gid] = game  # games == {"123":{"opponent":"asd","g":4,...}, "124":{...}, ...}
+            game[columns[i]] = td.text_content().strip()
+        games[gid] = game
 
     t1 = time.time() - t1
     logging.info("""scrape_games_by_player(%s, %s):
