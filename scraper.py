@@ -77,7 +77,7 @@ def scrape_players(query=""):
     """Skreippaa kaikki pelaajat, joiden nimi vastaa hakuehtoa. Oletuksena
     haetaan kaikki pelaajat. Paluuarvona dictionary, jossa avaimena
     pelaajan id, arvoina nimi, pelipaikka ja joukkue."""
-    query = re.sub("\s+", "+", query.strip().lower())
+    query = re.sub("\s+", " ", query.strip().lower())
     players = memcache.get("players")
     if players is not None:
         logging.info("scrape_players(%s) - Loytyi valimuistista." % query)
@@ -446,6 +446,8 @@ def scrape_schedule(season="20122013", playoffs=False):
 def scrape_standings(year="season_" + CURRENT_SEASON):
     """Palauttaa dictionaryn, jossa avaimena joukkueen tunnus, arvona
     joukkueen tilastot (gp,w,l,otl...), konferenssi ja divisioona."""
+    if not "season_" in year:
+        year = "season_" + year
     standings = memcache.get("standings" + year)
     if standings is not None:
         logging.info("scrape_standings(%s) - Loytyi valimuistista."
