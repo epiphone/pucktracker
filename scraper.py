@@ -308,17 +308,14 @@ def scrape_games_by_team(team, year="2012"):
 def scrape_game(gid):
     """Palauttaa dictionaryn, jossa hirveä läjä dataa ottelusta."""
     gid = str(gid)
-
     game = memcache.get(gid)
     if game:
-        logging.info("scrape_game(%s) - Loytyi valimuistista."
-            % (gid))
+        logging.info("scrape_game(%s) - Loytyi valimuistista." % gid)
         return game
-    logging.info("scrape_game(%s) - Ei loytynyt valimuistista."
-            % (gid))
+    logging.info("scrape_game(%s) - Ei loytynyt valimuistista." % gid)
 
-    t0 = time.time()
     url = "http://sports.yahoo.com/nhl/boxscore?gid=" + gid
+    t0 = time.time()
     response = urlfetch.fetch(url)
     t0 = time.time() - t0
     if response.status_code != 200:
@@ -327,16 +324,17 @@ def scrape_game(gid):
     t1 = time.time()
     root = html.fromstring(response.content)
     game = {}
+
     # Ottelun tulos:
-    game["away_team"] = root.xpath("//div[@class='away']//a")[0].attrib["href"].split("/")[-1]
-    game["home_team"] = root.xpath("//div[@class='home']//a")[0].attrib["href"].split("/")[-1]
+    game["away_team"] = root.xpath("//div[@class='away']//a/@href")[0].split("/")[-1]
+    game["home_team"] = root.xpath("//div[@class='home']//a/@href")[0].split("/")[-1]
     game["away_score"] = root.xpath("//div[@class='away']/*")[0].text_content().strip()
     game["home_score"] = root.xpath("//div[@class='home']/*")[0].text_content().strip()
 
-    # Maalit ja mahd. shootout:
+    # Varsinaisen peliajan ja mahd. jatkoajan maalit:
     periods = root.xpath("(//div[count(h5)>2])[1]/table")
     goals, shootout = [], []
-    for i, period in enumerate(periods[:3]):  # Varsinaisen peliajan maalit
+    for i, period in enumerate(periods[:4]):
         for tr in period.xpath("tbody/tr[count(td)>3]"):
             tds = tr.xpath("td")
             goal = {}
@@ -346,46 +344,39 @@ def scrape_game(gid):
             goal["desc"] = tds[2].text_content().strip()
             goal["score"] = tds[3].text_content().strip()
             goals.append(goal)
-    if len(periods) > 3:
-        if len(periods[3].xpath("tbody/tr[count(td)>3]")) != 0:  # Jatkoaika
-            goal = {}
-            goal["period"] = 4
-            goal["time"] = tds[0].text_content().strip()
-            goal["team"] = tds[1].xpath("a/@href")[0].split("/")[-1]
-            goal["desc"] = tds[2].text_content().strip()
-            goal["score"] = tds[3].text_content().strip()
-            goals.append(goal)
-        else:  # Shootout
-            for tr in periods[4].xpath("tbody/tr"):
-                attempt = {}
-                attempt["team"] = tr.xpath("td/a/@href")[0].split("/")[-1]
-                attempt["desc"] = tr.xpath("td[last()]")[0].text_content().strip()
-                shootout.append(attempt)
+    # Shootoutin maalit:
+    if len(periods) == 5:
+        for tr in periods[4].xpath("tbody/tr"):
+            attempt = {}
+            attempt["team"] = tr.xpath("td/a/@href")[0].split("/")[-1]
+            attempt["desc"] = tr.xpath("td[last()]")[0].text_content().strip()
+            shootout.append(attempt)
     game["goals"], game["shootout"] = goals, shootout
 
     # Pelaajakohtaiset tilastot:
     all_goalies = root.xpath("//div[contains(@class, 'goalies')]/table")
     all_skaters = root.xpath("//div[contains(@class, 'skaters')]/table")
+    goalies, skaters = {}, {}
     for i, team in enumerate(["away", "home"]):
-        team_goalies = {}
         # Maalivahdit:
         for tr in all_goalies[i].xpath("tbody/tr"):
             goalie = {}
             pid = tr.xpath(".//a/@href")[0].split("/")[-1]  # Id
             goalie["name"] = tr.xpath(".//a")[0].text       # Nimi
+            goalie["team"] = team                           # Joukkue (away/home)
             for j, td in enumerate(tr.xpath("td")[1:]):     # Tilastot
                 goalie[BOXSCORE_COLUMNS_GOALIE[j]] = td.text_content().strip()
-            team_goalies[pid] = goalie
-        # Loput:
-        team_skaters = {}
+            goalies[pid] = goalie
+        # Kenttäpelaajat:
         for tr in all_skaters[i].xpath("tbody/tr"):
             skater = {}
             pid = tr.xpath(".//a/@href")[0].split("/")[-1]  # Id
             skater["name"] = tr.xpath(".//a")[0].text       # Nimi
+            skater["team"] = team                           # Joukkue (away/home)
             for k, td in enumerate(tr.xpath("td")[1:]):     # Tilastot
                 skater[BOXSCORE_COLUMNS[k]] = td.text_content().strip()
-            team_skaters[pid] = skater
-        game[team] = dict(goalies=team_goalies, skaters=team_skaters)
+            skaters[pid] = skater
+        game["skaters"], game["goalies"] = skaters, goalies
 
     t1 = time.time() - t1
     logging.info("""scrape_game(%s):
@@ -511,8 +502,8 @@ def get_next_game(team=None, pid=None):
 def get_latest_game(team=None, pid=None):
     """Palauttaa joukkueen/pelaajan viimeisimmän pelatun pelin id:n."""
     if team:
-        return sorted(scrape_games_by_team(team))[-1]
-    return sorted(scrape_games_by_player(pid))[-1]
+        return max(scrape_games_by_team(team))
+    return max(scrape_games_by_player(pid))
 
 
 def add_cache(key, value, check):
@@ -526,6 +517,7 @@ def add_cache(key, value, check):
     - pelaajan kauden x tilastot         (avain: "stats_5002012")
     - pelaajan koko uran tilastot        (avain: "stats_500")
     - joukkueen kauden x tilastot        (avain: "stats_ana2012")
+    TODO
     """
     postfix = key.split("_")[1]
     if len(postfix) > 4:
