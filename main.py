@@ -10,11 +10,11 @@ import hmac
 import base64
 import hashlib
 import urllib2
-from google.appengine.api import urlfetch
 import urlparse
-from gaesessions import get_current_session
 import os
 import logging
+from google.appengine.api import urlfetch
+from gaesessions import get_current_session
 
 # Luetaan oAuth-isännän (Twitter) tiedot:
 f = open("twitter-tiedot.txt")
@@ -42,7 +42,8 @@ urls = (
     "/api/games/(\d+)",   "Game"
 )
 
-app = web.application(urls, globals())
+web.config.debug = True
+app = web.application(urls, globals(), autoreload=False)
 gae_app = app.gaerun()  # Tämä takaa GAE-yhteensopivuuden.
 
 
