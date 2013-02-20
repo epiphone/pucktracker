@@ -385,7 +385,7 @@ def scrape_game(gid):
     return game
 
 
-def scrape_schedule(season="20122013", playoffs=False):
+def scrape_schedule():
     """Skreippaa kauden tulevien pelien alkamisajat ja joukkueet.
 
     Paluuarvo on muotoa
@@ -400,14 +400,13 @@ def scrape_schedule(season="20122013", playoffs=False):
     """
     schedule = memcache.get("schedule")
     if schedule is not None:
-        logging.info("scrape_schedule(%s, %s) - Loytyi valimuistista."
-            % (season, str(playoffs)))
+        logging.info("scrape_schedule() - Loytyi valimuistista.")
         return schedule
-    logging.info("scrape_schedule(%s, %s) - Ei loytynyt valimuistista."
-            % (season, str(playoffs)))
+    logging.info("scrape_schedule() - Ei loytynyt valimuistista.")
 
-    url = "http://nhl.com/ice/schedulebyseason.htm?season=%s"
-    if playoffs:
+    season = CURRENT_SEASON + str(int(CURRENT_SEASON) + 1)
+    url = "http://nhl.com/ice/schedulebyseason.htm?season=" + season
+    if PLAYOFFS:
         url += "&gameType=3"
     t0 = time.time()
     response = urlfetch.fetch(url)

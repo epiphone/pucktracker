@@ -39,7 +39,8 @@ urls = (
     "/api/players",       "SearchPlayers",
     "/api/teams/(\w*)",   "Team",
     "/api/games",         "Games",
-    "/api/games/(\d+)",   "Game"
+    "/api/games/(\d+)",   "Game",
+    "/api/schedule",      "Schedule"
 )
 
 web.config.debug = True
@@ -142,6 +143,7 @@ class Login:
 
 class Index:
     def GET(self):
+        """Esimerkkejä API:n käytöstä, mallin vuoksi."""
         web.header("Content-type", "text/html")
         return """<html><head><meta charset="UTF-8"></head><body>
                <h3>Kokeile esim.</h3>
@@ -231,4 +233,20 @@ class Game:
         """Palauttaa valitun ottelun tiedot."""
         data = scraper.scrape_game(gid)
         web.header("Content-Type", "application/json")
+        return json.dumps(data)
+
+
+class Schedule:
+    def GET(self):
+        """Palauttaa valitun joukkueen/pelaajan nykyisen kauden
+        tulevat ottelut (kotijoukkue, vierasjoukkue, aika)."""
+        inp = web.input(team=None, pid=None)
+        team, pid = inp.team, inp.pid
+        web.header("Content-Type", "application/json")
+
+        if pid and not team:
+            team = scraper.scrape_players()[pid]["team"]
+        if team not in scraper.TEAMS:
+            return "{}"  # TODO virheilmoitus?
+        data = scraper.scrape_schedule()[team]
         return json.dumps(data)
