@@ -29,12 +29,36 @@ except ImportError:
                     self.status_code = status_code
             return Response(response.read(), response.getcode())
 
-    class Memcache:
-        def get(self, *args, **kwargs):
-            pass
 
-        def add(self, *args, **kwargs):
-            pass
+    class Memcache:
+        '''Dummy class for testing memcache without gae itself'''
+        def __init__(self):
+            self.store = {}
+
+        def get(self, key):
+            '''Returns requested key'''
+            if key in self.store:
+                print str(key) + " - Löytyi välimuistista"
+                return self.store[key]["value"]
+            else:
+                print str(key) + " - Ei löytynyt välimuistista"
+                return None
+
+        def set(self, key, value, expires=None):
+            '''Set value to memcache'''
+            self.store[key] = {"value": value, "expires": expires}
+
+        def add(self, key, value, expires=None):
+            '''Set value to memcache'''
+            self.store[key] = {"value": value, "expires": expires}
+
+        def get_expires(key):
+            if key in self.store:
+                return self.store[key]["expires"]
+            else:
+                print "Kaaos dummy memcachessa"
+                return None
+
 
     class Deferred:
         def defer(self, *args, **kwargs):
