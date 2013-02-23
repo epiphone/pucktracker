@@ -5,11 +5,6 @@ Tiedoston rakenne:
 - Luokka jokaiselle testattavalle funktiolle
     - Funktio jokaiselle testitapaukselle
 
-### TODO
-- Oma Branch testailua varten
--
-- ...
-
 
 # This is an empty test-case snippet
 class Test(TestCase):
@@ -53,16 +48,24 @@ class Test_scrape_players(TestCase):
             self.assertEqual(True, (all_players[player]['team'] in TEAMS))
 
     def test_cache_is_same(self):
-        print "TODO: Do memcache tests with gae's tools"
-        # print "test_cache_is_same"
-        # sleeptime = 10
-        # noncached = scrape_players("teemu+selanne")
+        print "test_cache_is_same"
+        noncached = scrape_players("teemu+selanne")
+        # sleeptime = 2
 
         # print "sleeping for %s sec" % sleeptime
         # time.sleep(sleeptime)
+        cached = scrape_players("teemu+selanne")
+        self.assertEqual(noncached, cached)
 
-        # cached = scrape_players("teemu+selanne")
-        # self.assertEqual(noncached, cached)
+
+    # def test_cache_is_faster(self):
+    #     print "test_cache_is_faster"
+
+    #     noncached = scrape_players("teemu+selanne")
+
+    #     cached = scrape_players("teemu+selanne")
+
+    #     self.assertEqual(true, t_cache_hit < t_scrape_site)
 
 
 '''
@@ -70,6 +73,7 @@ class Test_scrape_players(TestCase):
 class Test_scrape_players_and_stats(TestCase):
     def test_(self):
         self.assertEqual()
+
 
 
 class Test_scrape_career(TestCase):
@@ -80,7 +84,6 @@ class Test_scrape_career(TestCase):
 class Test_scrape_games_by_player(TestCase):
     def test_(self):
         self.assertEqual()
-
 
 
 class Test_scrape_games_by_team(TestCase):
@@ -139,21 +142,25 @@ class Test_isostr_to_date(TestCase):
 '''
 
 
-# class Memcache:
-#     "For emulating gae's memcache"
+# class Memcache():
+#     '''For emulating gae's memcache'''
+
+#     def __init__(self):
 #         self.store = {}
 
-#         def get(self, key):
-#             if key in self.store:
-#                 return self.store[key]["value"]
-#             else:
-#                 return None
+#     def get(self, key):
+#         '''Returns requested key'''
+#         if key in self.store:
+#             return self.store[key]["value"]
+#         else:
+#             return None
 
-#         def set(self, key, value, expires=None):
-#             self.store[key] = {"value": value, "expires": expires}
+#     def set(self, key, value, expires=None):
+#         '''Set value to memcache'''
+#         self.store[key] = {"value": value, "expires": expires}
 
-#         def get_expires(key):
-#             if key in self.store:
-#                 return self.store[key]["expires"]
-#             else:
-#                 throw exception? tai jotain
+#     def get_expires(key):
+#         if key in self.store:
+#             return self.store[key]["expires"]
+#         else:
+#             print "Kaaos dummy memcachessa"
