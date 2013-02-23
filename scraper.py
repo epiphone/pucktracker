@@ -38,10 +38,8 @@ except ImportError:
         def get(self, key):
             '''Returns requested key'''
             if key in self.store:
-                print str(key) + " - Löytyi välimuistista"
                 return self.store[key]["value"]
             else:
-                print str(key) + " - Ei löytynyt välimuistista"
                 return None
 
         def set(self, key, value, expires=None):
