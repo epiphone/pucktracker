@@ -168,10 +168,15 @@ def scrape_players_and_stats(year="2012", playoffs=False,
     else:
         positions = [",".join(positions)]
 
+    query = "\n"
+    t0 = time.time()
     # Suoritetaan kahdesti jos yhtä aikaa pelaajia ja maalivahteja
     for position in positions:
         url0 = url % (position, year)
+
+        query = query + str(url0) + "\n"
         print "skreippaus urli: " + url0
+
         response = urlfetch.fetch(url0)
 
         # Jos vastaus ok, jatketaan
@@ -180,7 +185,7 @@ def scrape_players_and_stats(year="2012", playoffs=False,
             return {}
         root = html.fromstring(response.content)
 
-        t0 = time.time()
+        t1 = time.time()
         ids = {}
         rows = root.xpath("//table[count(tr)>10]/tr")
         columns = [el.text_content().strip().lower() for el in
@@ -199,7 +204,8 @@ def scrape_players_and_stats(year="2012", playoffs=False,
             ids[pid] = stats
         all_ids = dict(all_ids.items() + ids.items())
 
-    logging.info("Lisätään memcacheen..")
+    logging.info("""Haettu sivu/sivut: %sHaettiin HTML ja skreipattiin data ja ajassa %d""" % (query, time.time() - t0))
+
     memcache.add("pstats", all_ids, 60 * 60 * 24)
 
     # Lisätään memcacheen assynkronisesti TODO..
