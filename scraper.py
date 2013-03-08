@@ -29,7 +29,6 @@ except ImportError:
                     self.status_code = status_code
             return Response(response.read(), response.getcode())
 
-
     class Memcache:
         '''Dummy class for testing memcache without gae itself'''
         def __init__(self):
@@ -56,7 +55,6 @@ except ImportError:
             else:
                 print "Kaaos dummy memcachessa"
                 return None
-
 
     class Deferred:
         def defer(self, *args, **kwargs):
@@ -151,8 +149,10 @@ def scrape_players_and_stats(year="2012", playoffs=False,
     if any(pos not in ["C", "RW", "LW", "D", "G"] for pos in positions):
         return {}  # Virheellinen pelipaikka
 
-    if "G" in positions:  # Maalivahdit täytyy skreipata eri sivulta.
-        if len(positions) > 1:  # Jos haetaan maalivahtien lisäksi muita pelipaikkoja.
+# Maalivahdit täytyy skreipata eri sivulta.
+    if "G" in positions:
+        # Jos haetaan maalivahtien lisäksi muita pelipaikkoja.
+        if len(positions) > 1:
             positions.remove("G")
             positions = [",".join(positions), "G"]
     else:
@@ -169,7 +169,8 @@ def scrape_players_and_stats(year="2012", playoffs=False,
         t0 = time.time()
         ids = {}
         rows = root.xpath("//table[count(tr)>10]/tr")
-        columns = [el.text_content().strip().lower() for el in rows[0].xpath("td[*]")]
+        columns = [el.text_content().strip().lower() for el in
+                   rows[0].xpath("td[*]")]
         columns = columns[1:]
         for row in rows[1:]:
             name = row.xpath("td/a")[0].text_content().lower()
@@ -212,7 +213,8 @@ def scrape_career(pid):
         season = {}
         tds = row.iterchildren()
         year = tds.next().text_content().strip().split("-")[0].lower()
-        season = {col: tds.next().text_content().strip().lower() for col in columns}
+        season = {col: tds.next().text_content().strip().lower() for
+                  col in columns}
         seasons[year] = season
 
     t1 = time.time() - t1

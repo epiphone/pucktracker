@@ -134,7 +134,8 @@ class Login:
         # Tallennetaan Request Token ja Secret session-objektiin:
         session = get_current_session()
         session["oauth_token"] = oauth_token
-        session["oauth_token_secret"] = oauth_token_secret  # Huono idea tallentaa sessioon?
+        # Huono idea tallentaa sessioon?
+        session["oauth_token_secret"] = oauth_token_secret
 
         # Ohjataan käyttäjä Twitterin kirjautumissivulle:
         url = AUTHORIZE_URL + "?oauth_token=" + oauth_token

@@ -14,9 +14,11 @@ from google.appengine.api import memcache
 from google.appengine.ext import db
 
 # Configurable cookie options
-COOKIE_NAME_PREFIX = "DgU"  # identifies a cookie as being one used by gae-sessions (so you can set cookies too)
+# identifies a cookie as being one used by gae-sessions (so you can set cookies too)
+COOKIE_NAME_PREFIX = "DgU"
 COOKIE_PATH = "/"
-DEFAULT_COOKIE_ONLY_THRESH = 10240  # 10KB: GAE only allows ~16000B in HTTP header - leave ~6KB for other info
+# 10KB: GAE only allows ~16000B in HTTP header - leave ~6KB for other info
+DEFAULT_COOKIE_ONLY_THRESH = 10240
 DEFAULT_LIFETIME = datetime.timedelta(days=7)
 
 # constants
@@ -27,7 +29,8 @@ EXPIRE_COOKIE_FMT = ' %s=; expires=Wed, 01-Jan-1970 00:00:00 GMT; Path=' + COOKI
 COOKIE_FMT = ' ' + COOKIE_NAME_PREFIX + '%02d="%s"; %sPath=' + COOKIE_PATH + '; HttpOnly'
 COOKIE_FMT_SECURE = COOKIE_FMT + '; Secure'
 COOKIE_DATE_FMT = '%a, %d-%b-%Y %H:%M:%S GMT'
-COOKIE_OVERHEAD = len(COOKIE_FMT % (0, '', '')) + len('expires=Xxx, xx XXX XXXX XX:XX:XX GMT; ') + 150  # 150=safety margin (e.g., in case browser uses 4000 instead of 4096)
+# 150=safety margin (e.g., in case browser uses 4000 instead of 4096)
+COOKIE_OVERHEAD = len(COOKIE_FMT % (0, '', '')) + len('expires=Xxx, xx XXX XXXX XX:XX:XX GMT; ') + 150
 MAX_DATA_PER_COOKIE = MAX_COOKIE_LEN - COOKIE_OVERHEAD
 
 _tls = threading.local()
@@ -112,7 +115,8 @@ class Session(object):
                 else:
                     self.data = None  # data is in memcache/db: load it on-demand
             else:
-                logging.warn('cookie with invalid sig received from %s: %s' % (os.environ.get('REMOTE_ADDR'), b64pdump))
+                logging.warn('cookie with invalid sig received from %s: %s' %
+                            (os.environ.get('REMOTE_ADDR'), b64pdump))
         except (CookieError, KeyError, IndexError, TypeError):
             # there is no cookie (i.e., no session) or the cookie is invalid
             self.terminate(False)
@@ -277,11 +281,14 @@ class Session(object):
     def __clear_data(self):
         """Deletes this session from memcache and the datastore."""
         if self.sid:
-            memcache.delete(self.sid, namespace='')  # not really needed; it'll go away on its own
+            # not really needed; it'll go away on its own
+            memcache.delete(self.sid, namespace='')
             try:
                 db.delete(self.db_key)
             except:
-                pass  # either it wasn't in the db (maybe cookie/memcache-only) or db is down => cron will expire it
+                # either it wasn't in the db (maybe cookie/memcache-only)
+                # or db is down => cron will expire it
+                pass
 
     def __retrieve_data(self):
         """Sets the data associated with this session after retrieving it from
@@ -335,7 +342,8 @@ class Session(object):
             # latest data will only be in the backend, so expire data cookies we set
             self.cookie_data = ''
 
-        memcache.set(self.sid, pdump, namespace='', time=self.get_expiration())  # may fail if memcache is down
+        # may fail if memcache is down
+        memcache.set(self.sid, pdump, namespace='', time=self.get_expiration())
 
         # persist the session to the datastore
         if dirty is Session.DIRTY_BUT_DONT_PERSIST_TO_DB or self.no_datastore:
@@ -446,7 +454,9 @@ class SessionMiddleware(object):
     memcache/datastore latency which is critical for small sessions.  Larger
     sessions are kept in memcache+datastore instead.  Defaults to 10KB.
     """
-    def __init__(self, app, cookie_key, lifetime=DEFAULT_LIFETIME, no_datastore=False, cookie_only_threshold=DEFAULT_COOKIE_ONLY_THRESH):
+    def __init__(self, app, cookie_key, lifetime=DEFAULT_LIFETIME,
+                 no_datastore=False,
+                 cookie_only_threshold=DEFAULT_COOKIE_ONLY_THRESH):
         self.app = app
         self.lifetime = lifetime
         self.no_datastore = no_datastore
@@ -459,7 +469,10 @@ class SessionMiddleware(object):
 
     def __call__(self, environ, start_response):
         # initialize a session for the current user
-        _tls.current_session = Session(lifetime=self.lifetime, no_datastore=self.no_datastore, cookie_only_threshold=self.cookie_only_thresh, cookie_key=self.cookie_key)
+        _tls.current_session = Session(lifetime=self.lifetime,
+                                       no_datastore=self.no_datastore,
+                                       cookie_only_threshold=self.cookie_only_thresh,
+                                       cookie_key=self.cookie_key)
 
         # create a hook for us to insert a cookie into the response headers
         def my_start_response(status, headers, exc_info=None):
