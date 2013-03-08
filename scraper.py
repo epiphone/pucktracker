@@ -131,38 +131,52 @@ def scrape_players(query=""):
     return {k: v for k, v in players.items() if query in v["name"].lower()}
 
 
-# TODO lajittelut eri tilastojen mukaan, loggaukset, memcache
+# TODO lajittelut eri tilastojen mukaan, loggaukset
 def scrape_players_and_stats(year="2012", playoffs=False,
     positions=["C", "RW", "LW", "D", "G"]):
     """Skreippaa valitun kauden kaikki pelaajat tilastoineen.
     Paluuarvona dictionary jossa avaimena pelaajan id, arvona
     joukkue, nimi ja koko kauden tilastot dictionaryssa."""
+
+    pstats = memcache.get("pstats")
+    if pstats is not None:
+        logging.info("scrape_players_and_stats() - Loytyi valimuistista.")
+        return pstats
+    logging.info("scrape_players_and_stats() - Ei loytynyt valimuistista.")
+
     if year > CURRENT_SEASON or (year == CURRENT_SEASON and playoffs != PLAYOFFS):
         return {}
 
+# Urlin muodostus skreippausta varten
     url = "http://sports.yahoo.com/nhl/stats/byposition?pos=%s&year=%s"
     year = "postseason_" + year if playoffs else "season_" + year
     all_ids = {}
 
     positions = map(str.upper, positions)
 
+    # Virheellinen pelipaikka
     if any(pos not in ["C", "RW", "LW", "D", "G"] for pos in positions):
-        return {}  # Virheellinen pelipaikka
+        return {}
 
-# Maalivahdit täytyy skreipata eri sivulta.
+    # Maalivahdit täytyy skreipata eri sivulta.
     if "G" in positions:
         # Jos haetaan maalivahtien lisäksi muita pelipaikkoja.
         if len(positions) > 1:
             positions.remove("G")
+            # G
             positions = [",".join(positions), "G"]
     else:
         positions = [",".join(positions)]
 
+    # Suoritetaan kahdesti jos yhtä aikaa pelaajia ja maalivahteja
     for position in positions:
         url0 = url % (position, year)
-        print url0
+        print "skreippaus urli: " + url0
         response = urlfetch.fetch(url0)
+
+        # Jos vastaus ok, jatketaan
         if response.status_code != 200:
+        # muuten palautetaan tyhjää
             return {}
         root = html.fromstring(response.content)
 
@@ -184,6 +198,13 @@ def scrape_players_and_stats(year="2012", playoffs=False,
                     i += 1
             ids[pid] = stats
         all_ids = dict(all_ids.items() + ids.items())
+
+    logging.info("Lisätään memcacheen..")
+    memcache.add("pstats", all_ids, 60 * 60 * 24)
+
+    # Lisätään memcacheen assynkronisesti TODO..
+    # deferred.defer(add_cache, key="pstats", value=all_ids, check=check)
+
     return all_ids
 
 
