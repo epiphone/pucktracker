@@ -1,0 +1,4 @@
+# kielletään crawlereilta hakemisto, sen sisältämät tiedostot ja alihakemistot
+User-agent: Googlebot
+User-agent: MSNBot
+Disallow: /api/

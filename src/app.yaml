@@ -4,16 +4,6 @@ runtime: python27
 api_version: 1
 threadsafe: true  # TODO ok?
 
-handlers:
-- url: /favicon.ico
-  static_files: application/static/img/favicon.ico
-  upload: application/static/img/favicon.ico
-
-- url: .*
-  script: application.app
-
-- url: /static
-  static_dir: application/static
 
 libraries:
 - name: lxml
@@ -22,3 +12,25 @@ libraries:
 builtins:
 - deferred: on
 - remote_api: on
+
+
+handlers:
+- url: /favicon.ico
+  static_files: application/static/img/favicon.ico
+  upload: application/static/img/favicon.ico
+
+- url: /robots.txt
+  static_files: application/static/robots.txt
+  upload: application/static/robots.txt
+
+- url: /gae_mini_profiler/static
+  static_dir: gae_mini_profiler/static
+
+- url: /gae_mini_profiler/.*
+  script: gae_mini_profiler.main.application
+
+- url: /static
+  static_dir: application/static
+
+- url: .*
+  script: application.app
