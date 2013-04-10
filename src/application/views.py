@@ -138,16 +138,3 @@ def schedule():
     # "/api/games",         "Games",
     # "/api/games/(\d+)",   "Game",
     # "/api/schedule",      "Schedule"
-
-
-## Error handlers
-# Handle 404 errors
-@app.errorhandler(404)
-def page_not_found(e):
-    return "404 - Resource not found", 404
-
-
-# Handle 500 errors
-@app.errorhandler(500)
-def server_error(e):
-    return "500 - Server error", 500
