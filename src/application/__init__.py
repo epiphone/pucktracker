@@ -1,5 +1,9 @@
+"""
+Initialize Flask app
+
+"""
 from flask import Flask
-from flask_debugtoolbar import DebugToolbarExtension
+# from flask_debugtoolbar import DebugToolbarExtension
 from werkzeug.debug import DebuggedApplication
 
 # Debug stuff
@@ -7,12 +11,12 @@ from werkzeug.debug import DebuggedApplication
 app = Flask('application')
 app.config.from_object('application.settings')
 
-# Werkzeug Debugger (only enabled when DEBUG=True)
-if app.debug:
-    app = DebuggedApplication(app, evalex=True)
+# Enable jinja2 loop controls extension
+app.jinja_env.add_extension('jinja2.ext.loopcontrols')
+
 
 # Flask-DebugToolbar (only enabled when DEBUG=True)
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 
 ### Set up pages ###
 
@@ -30,3 +34,7 @@ def page_not_found(e):
 @app.errorhandler(500)
 def server_error(e):
     return "500 - Server error", 500
+
+# Werkzeug Debugger (only enabled when DEBUG=True)
+if app.debug:
+    app = DebuggedApplication(app, evalex=True)

@@ -8,15 +8,12 @@
     :copyright: (c) 2010 by the Jinja Team.
     :license: BSD, see LICENSE for more details.
 """
-import os
-import time
-import tempfile
 import unittest
 
 from jinja2.testsuite import JinjaTestCase
 
 from jinja2 import Environment, Undefined, DebugUndefined, \
-     StrictUndefined, UndefinedError, Template, meta, \
+     StrictUndefined, UndefinedError, meta, \
      is_undefined, Template, DictLoader
 from jinja2.utils import Cycler
 
@@ -171,6 +168,22 @@ class StreamingTestCase(JinjaTestCase):
 
 
 class UndefinedTestCase(JinjaTestCase):
+
+    def test_stopiteration_is_undefined(self):
+        def test():
+            raise StopIteration()
+        t = Template('A{{ test() }}B')
+        assert t.render(test=test) == 'AB'
+        t = Template('A{{ test().missingattribute }}B')
+        self.assert_raises(UndefinedError, t.render, test=test)
+
+    def test_undefined_and_special_attributes(self):
+        try:
+            Undefined('Foo').__dict__
+        except AttributeError:
+            pass
+        else:
+            assert False, "Expected actual attribute error"
 
     def test_default_undefined(self):
         env = Environment(undefined=Undefined)

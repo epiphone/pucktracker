@@ -10,7 +10,7 @@ Important: Place your keys in the secret_keys.py module,
 # from sercret_keys import TODO
 
 DEBUG = True
-# SECRET_KEY = 'dev_key_h8hfne89vm'
+SECRET_KEY = 'development_key'
 # CSRF_ENABLED = True
 # CSRF_SESSION_LKEY = 'dev_key_h8asSNJ9s9=+'
 

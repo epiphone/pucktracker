@@ -85,8 +85,8 @@ class FilterTestCase(JinjaTestCase):
         )
         out = tmpl.render()
         assert out == (
-            '100 Bytes|1.0 KB|1.0 MB|1.0 GB|1000.0 GB|'
-            '100 Bytes|1000 Bytes|976.6 KiB|953.7 MiB|931.3 GiB'
+            '100 Bytes|0.0 kB|0.0 MB|0.0 GB|0.0 TB|100 Bytes|'
+            '1000 Bytes|1.0 KiB|0.9 MiB|0.9 GiB'
         )
 
     def test_first(self):
@@ -127,6 +127,13 @@ class FilterTestCase(JinjaTestCase):
         env2 = Environment(autoescape=True)
         tmpl = env2.from_string('{{ ["<foo>", "<span>foo</span>"|safe]|join }}')
         assert tmpl.render() == '&lt;foo&gt;<span>foo</span>'
+
+    def test_join_attribute(self):
+        class User(object):
+            def __init__(self, username):
+                self.username = username
+        tmpl = env.from_string('''{{ users|join(', ', 'username') }}''')
+        assert tmpl.render(users=map(User, ['foo', 'bar'])) == 'foo, bar'
 
     def test_last(self):
         tmpl = env.from_string('''{{ foo|last }}''')
@@ -204,15 +211,37 @@ class FilterTestCase(JinjaTestCase):
         tmpl = env.from_string('''{{ [1, 2, 3, 4, 5, 6]|sum }}''')
         assert tmpl.render() == '21'
 
+    def test_sum_attributes(self):
+        tmpl = env.from_string('''{{ values|sum('value') }}''')
+        assert tmpl.render(values=[
+            {'value': 23},
+            {'value': 1},
+            {'value': 18},
+        ]) == '42'
+
+    def test_sum_attributes_nested(self):
+        tmpl = env.from_string('''{{ values|sum('real.value') }}''')
+        assert tmpl.render(values=[
+            {'real': {'value': 23}},
+            {'real': {'value': 1}},
+            {'real': {'value': 18}},
+        ]) == '42'
+
     def test_abs(self):
         tmpl = env.from_string('''{{ -1|abs }}|{{ 1|abs }}''')
-        return tmpl.render() == '1|1'
+        assert tmpl.render() == '1|1', tmpl.render()
 
-    def test_round(self):
+    def test_round_positive(self):
         tmpl = env.from_string('{{ 2.7|round }}|{{ 2.1|round }}|'
-                               "{{ 2.1234|round(2, 'floor') }}|"
+                               "{{ 2.1234|round(3, 'floor') }}|"
                                "{{ 2.1|round(0, 'ceil') }}")
-        return tmpl.render() == '3.0|2.0|2.1|3.0'
+        assert tmpl.render() == '3.0|2.0|2.123|3.0', tmpl.render()
+
+    def test_round_negative(self):
+        tmpl = env.from_string('{{ 21.3|round(-1)}}|'
+                               "{{ 21.3|round(-1, 'ceil')}}|"
+                               "{{ 21.3|round(-1, 'floor')}}")
+        assert tmpl.render() == '20.0|30.0|20.0',tmpl.render()
 
     def test_xmlattr(self):
         tmpl = env.from_string("{{ {'foo': 42, 'bar': 23, 'fish': none, "
@@ -228,8 +257,21 @@ class FilterTestCase(JinjaTestCase):
         assert tmpl.render() == '[1, 2, 3]|[3, 2, 1]'
 
     def test_sort2(self):
-        tmpl = env.from_string('{{ "".join(["c", "A", "b", "D"]|sort(false, true)) }}')
+        tmpl = env.from_string('{{ "".join(["c", "A", "b", "D"]|sort) }}')
         assert tmpl.render() == 'AbcD'
+
+    def test_sort3(self):
+        tmpl = env.from_string('''{{ ['foo', 'Bar', 'blah']|sort }}''')
+        assert tmpl.render() == "['Bar', 'blah', 'foo']"
+
+    def test_sort4(self):
+        class Magic(object):
+            def __init__(self, value):
+                self.value = value
+            def __unicode__(self):
+                return unicode(self.value)
+        tmpl = env.from_string('''{{ items|sort(attribute='value')|join }}''')
+        assert tmpl.render(items=map(Magic, [3, 2, 4, 1])) == '1234'
 
     def test_groupby(self):
         tmpl = env.from_string('''
@@ -244,6 +286,39 @@ class FilterTestCase(JinjaTestCase):
             "2: 2, 3",
             "3: 3, 4",
             ""
+        ]
+
+    def test_groupby_tuple_index(self):
+        tmpl = env.from_string('''
+        {%- for grouper, list in [('a', 1), ('a', 2), ('b', 1)]|groupby(0) -%}
+            {{ grouper }}{% for x in list %}:{{ x.1 }}{% endfor %}|
+        {%- endfor %}''')
+        assert tmpl.render() == 'a:1:2|b:1|'
+
+    def test_groupby_multidot(self):
+        class Date(object):
+            def __init__(self, day, month, year):
+                self.day = day
+                self.month = month
+                self.year = year
+        class Article(object):
+            def __init__(self, title, *date):
+                self.date = Date(*date)
+                self.title = title
+        articles = [
+            Article('aha', 1, 1, 1970),
+            Article('interesting', 2, 1, 1970),
+            Article('really?', 3, 1, 1970),
+            Article('totally not', 1, 1, 1971)
+        ]
+        tmpl = env.from_string('''
+        {%- for year, list in articles|groupby('date.year') -%}
+            {{ year }}{% for x in list %}[{{ x.title }}]{% endfor %}|
+        {%- endfor %}''')
+        assert tmpl.render(articles=articles).split('|') == [
+            '1970[aha][interesting][really?]',
+            '1971[totally not]',
+            ''
         ]
 
     def test_filtertag(self):
@@ -273,10 +348,6 @@ class FilterTestCase(JinjaTestCase):
         assert tmpl.render() == '<div>foo</div>'
         tmpl = env.from_string('{{ "<div>foo</div>" }}')
         assert tmpl.render() == '&lt;div&gt;foo&lt;/div&gt;'
-
-    def test_sort2(self):
-        tmpl = env.from_string('''{{ ['foo', 'Bar', 'blah']|sort }}''')
-        assert tmpl.render() == "['Bar', 'blah', 'foo']"
 
 
 def suite():
