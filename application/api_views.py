@@ -36,7 +36,7 @@ URL                 FUNKTIO           KUVAUS
 @oauth_provider.require_oauth()
 def protected():
     """Testataan OAuthia."""
-    return "Autorisointi onnistui"
+    return "Autorisointi onnistui!"
 
 
 @app.route('/api')
