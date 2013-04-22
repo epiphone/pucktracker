@@ -14,12 +14,14 @@ from google.appengine.api import users
 """
 Url-reititys:
 
-URL                 FUNKTIO           KUVAUS
-/                   index             Oletussivu
-/login              login             Kirjautuminen Google Accountsin kautta
-/after_login        create_or_login   Tarkastetaan onko kyseessä ensimmäinen kirjautuminen
-/create_profile     create_profile    Profiilin luonti
-/profile            edit_profile      Profiilin muokkaaminen
+|       URL       |     Funktio     |                        Kuvaus                        |
+|-----------------|-----------------|------------------------------------------------------|
+| /               | index           | Oletussivu                                           |
+| /login          | login           | Kirjautuminen Google Accountsin kautta               |
+| /after_login    | create_or_login | Tarkastetaan onko kyseessä ensimmäinen kirjautuminen |
+| /create_profile | create_profile  | Profiilin luonti                                     |
+| /profile        | edit_profile    | Profiilin muokkaaminen                               |
+
 """
 
 
