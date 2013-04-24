@@ -2,6 +2,7 @@
 
 ITKS545 harjoitustyö
 Web-sovellus NHL-tilastojen seuraamista varten.
+RESTful API + OAuth1.0a provider + Mobile client application 
 
 ## API
 
@@ -46,9 +47,13 @@ Web-sovellus NHL-tilastojen seuraamista varten.
 
 ### Top-listat
 
-    GET /api/top/players?sort=g&order=asc&year=1994&count=100&pos=LW&team=ana
+    GET /api/top/players?sort=g&year=[post]1994&goalies=false
 
-- Hakee parhaat pelaajat parametrien mukaisesti
+- Hakee parhaat pelaajat parametrien mukaisesti:
+    -  Vuosi ja playoffit/kausi
+    -  Järjestäminen tietyn attribuutit mukaan
+    -  Joko maalivahdit tai sitten kaikki muut pelaajat
+
 
     GET /api/top/teams?sort=w&order=asc&year=1994&count=10
 
@@ -69,7 +74,7 @@ Web-sovellus NHL-tilastojen seuraamista varten.
 - Tuodaan parametreinä joukkueID/pelaajaID joka halutaan poistaa käyttäjän seurannasta.
 - Tunnistautumis-token.
 
-## Tietokanta
+### Tietokanta
 Palvelimen tietokantaan tallennetaan pelkästään tieto käyttäjistä ja heidän preferensseistään.
 
     Käyttäjä(OauthID, players[], teams[], lastLogin)
@@ -77,7 +82,7 @@ Palvelimen tietokantaan tallennetaan pelkästään tieto käyttäjistä ja heid�
 - lastLogin: kertoo milloin käyttäjä käytti sovellusta viimeksi, jotta voidaan hakea häntä kiinnostavat uudet tapahtumat ohjelman käynnistyessä.
 - Ehkä tieto kunkin pelaajan/joukkueen uusimmasta nähdystä ottelusta. Toisaalta lastLoginillakin sen voisi selvittää, pitää miettiä vaatii vähemmän datapyyntöjä.
 
-## Välimuisti
+### Välimuisti
 
 - Pelaajien kauden pelatut pelit löytyvät avaimella **[pelaajan id][kausi]** 
     - **5002012** hakee pelaajan *500* kauden 2012-13 pelatut pelit
