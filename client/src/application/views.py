@@ -91,6 +91,7 @@ def index():
     """
     if "oauth_token" in session:
         return render_template("start.html",authorized=True)
+
     else:
         return render_template("start.html",authorized=False)
 
