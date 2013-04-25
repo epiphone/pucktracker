@@ -1,6 +1,5 @@
 # -*-coding:utf-8-*-
 """
-views.py
 URL-reititykset ja sivut API:n osalta.
 
 Aleksi Pekkala & Jarkko Saltiola
@@ -50,11 +49,13 @@ def players(player_id):
     """Palauttaa pelaajan valitun kauden tilastot, tai jos kautta ei ole
     määritelty, koko uran tilastot (sisältää myös yksittäiset kaudet)."""
     if player_id:
-        year = request.args.get('year', '')
+        year = request.args.get("year", "")
         if year:
             logger.debug("TODO Haetaan pelaajan '%s' kautta '%s'" % (player_id, year))
-        logger.debug("TODO Haetaan pelaajan '%s' kaikki kaudet" % player_id)
-        data = scraper.scrape_career(player_id)
+            data = scraper.scrape_career(player)
+        else:
+            logger.debug("TODO Haetaan pelaajan '%s' kaikki kaudet" % player_id)
+            data = scraper.scrape_career(player_id)
         return jsonify(data)  # jsonify asettaa content-typen automaattisesti
 
 
