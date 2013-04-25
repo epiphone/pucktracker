@@ -1,6 +1,5 @@
 # -*-coding:utf-8-*-
 """
-views.py
 URL-reititykset ja sivut API:n osalta.
 
 Aleksi Pekkala & Jarkko Saltiola
