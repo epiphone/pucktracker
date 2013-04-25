@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-
+<!-- Jinja2 template, jquery-mobile page -->
 <html>
   <head>
+    <!-- Setup scripts and jqm -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PT-Client</title>
@@ -13,16 +14,18 @@
   </head>
 
   <body>
+    <!-- Jquery mobile page -->
     <div data-role="page">
+      <!-- Header (same for all pages)-->
+      <div data-role="header">
+        <h1> Pucktracker </h1>
+      </div>
 
-    <div data-role="header">
-        <h1 class="myTitle">Pucktracker </h1>
-    </div><!-- /header -->
+      <div data-role="content">
 
-    {% block header %}
-    <link rel="stylesheet" href="style.css" />
-    <title>{% block title %}{% endblock %} - My Webpage</title>
-    {% endblock %}
+        {% block content %} {% endblock %}
+
+      </div>
 
     </div>
 
