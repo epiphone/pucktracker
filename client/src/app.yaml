@@ -1,0 +1,28 @@
+application: alvianpe
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /favicon.ico
+  static_files: application/static/img/favicon.ico
+  upload: application/static/img/favicon.ico
+
+- url: /robots.txt
+  static_files: application/static/robots.txt
+  upload: application/static/robots.txt
+
+- url: /static
+  static_dir: static
+- url: .*
+  script: application.app
+
+libraries:
+- name: jinja2
+  version: latest
+- name: markupsafe
+  version: latest
+
+builtins:
+- deferred: on
