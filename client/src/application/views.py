@@ -90,9 +90,9 @@ def index():
     käyttäjää kehotetaan kirjautumaan sisään.
     """
     if "oauth_token" in session:
-        return "Olet autorisoitu."
+        return render_template("start.html",authorized=True)
     else:
-        return "Et ole autorisoitu."
+        return render_template("start.html",authorized=False)
 
 
 @app.route("/login")
