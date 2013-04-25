@@ -216,6 +216,7 @@ def scrape_players_and_stats(year="2012", playoffs=False,
 def scrape_career(pid):
     """Palauttaa pelaajan kausittaiset tilastot sekä uran kokonaistilastot.
 
+    Palauttaa dictionaryn, jossa avaimina vuodet (ja "career")
     """
     pid = str(pid)
     # Haetaan välimuistista:
