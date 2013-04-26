@@ -96,6 +96,25 @@ def index():
         return render_template("start.html",authorized=False)
 
 
+@app.route("/player")
+def player():
+    return render_template("player.html")
+
+@app.route("/game")
+def game():
+    return render_template("game.html")
+
+@app.route("/team")
+def team():
+    return render_template("team.html")
+
+@app.route("/search")
+def search():
+    return render_template("search.html")
+
+
+# OAuth sivut
+
 @app.route("/login")
 def login():
     """Haetaan Request Token OAuth-providerilta, ohjataan
