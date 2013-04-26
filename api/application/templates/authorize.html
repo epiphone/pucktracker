@@ -1,3 +1,7 @@
+<h1>Pucktracker OAuth Provider</h1>
+
+<p>Do you want to authorize <strong>{{ client.name }}</strong> - {{ client.description }}</p>
+
 <form method="POST" action="/authorize">
     <input type="hidden" name="oauth_token" value="{{ token }}"/>
     <input type="submit" name="authorized" value="Authorize"/>

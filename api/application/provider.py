@@ -38,8 +38,17 @@ class GAEProvider(OAuthProvider):
             return self.authorized(token)
         else:
             # TODO: Authenticate client
-            token = request.args.get(u"oauth_token")
-            return render_template(u"authorize.html", token=token)
+            token = request.args.get(u"oauth_token", None)
+            if token is None:
+                return "oauth_token needed", 400
+            req_token = RequestToken.query(
+                RequestToken.token == token).get()
+            client = req_token.client.get()
+            return render_template(
+                u"authorize.html",
+                token=token,
+                req_token=req_token,
+                client=client)
 
     @require_login
     def register(self):
