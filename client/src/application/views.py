@@ -100,9 +100,48 @@ def index():
 def player():
     return render_template("player.html")
 
-@app.route("/game")
-def game():
-    return render_template("game.html")
+@app.route("/game/<int:game_id>")
+def game(game_id):
+    # TODO:Hae pelin tiedot apilta
+
+    # Muuta json python-olioksi
+
+    # Build list of goal-objects
+
+    # Build list of player-
+    home_team = "JYP"
+    home_score = 99
+    away_team = "BOS"
+    away_score = 4
+    goals = [{"period": 1,
+              "desc": "Dustin Brown 8 (power play) (Assists: Drew Doughty 11, Mike Richards 10)",
+              "team": "los",
+              "time": "11:03",
+              "score": "0 - 1"},
+             {
+               "period": 2,
+               "desc": "Adam Henrique 5 (Assists: Petr Sykora 3, Alexei Ponikarovsky 8)",
+               "team": "njd",
+               "time": "18:45",
+               "score": "1 - 4"
+             },
+             {
+               "period": 3,
+               "desc": "Trevor Lewis 3 (empty net) (Assists: Dwight King 3, Jarret Stoll 3)",
+               "team": "los",
+               "time": "16:15",
+               "score": "1 - 5"
+             }]
+
+    players = ["seppo", "viljami", "eevertti"]
+
+    return render_template("game.html", home_team=home_team ,
+                                        home_score=home_score ,
+                                        away_team=away_team ,
+                                        away_score=away_score,
+                                        goals=goals,
+                                        players=players )
+
 
 @app.route("/team")
 def team():

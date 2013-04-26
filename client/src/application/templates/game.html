@@ -3,7 +3,22 @@
 
 <h1>Ottelun tiedot</h1>
 
+<h3>Koti</h3>
+<p>{{home_team}}: {{home_score}}</p>
 
+<h3>Vieras</h3>
+<p>{{away_team}}: {{away_score}}</p>
+
+<h3>Maalit</h3>
+{% for goal in goals %}
+  <p>{{ goal.desc }}</p>
+{% endfor %}
+
+<h3>Pelaajakohtaiset tilastot</h3>
+
+{% for player in players %}
+  <h4>{{ player }}</h4>
+{% endfor %}
 
 <p><a data-rel="back" data-role="button" data-theme="b">Paluu</a></p>
 
