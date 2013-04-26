@@ -3,20 +3,33 @@
 
 <h1>Ottelun tiedot</h1>
 
-<h3>Koti</h3>
-<p>{{home_team}}: {{home_score}}</p>
+<!-- Score-display -->
+<div class="ui-grid-a">
+    <div class="ui-block-a">
+        <h3 class="centered-text">Koti</h3>
+        <div class="ui-bar ui-bar-a score-display centered-text">
+            <p class="big-text"> {{game.home_score}}</p>
+        </div>
+    </div>
+    <div class="ui-block-b">
+        <h3 class="centered-text">Vieras</h3>
+        <div class="ui-bar ui-bar-a score-display centered-text">
+            <p class="big-text"> {{game.away_score}}</p>
+        </div>
+    </div>
 
-<h3>Vieras</h3>
-<p>{{away_team}}: {{away_score}}</p>
+</div><!-- /Score-display -->
+
+
 
 <h3>Maalit</h3>
-{% for goal in goals %}
+{% for goal in game.goals %}
   <p>{{ goal.desc }}</p>
 {% endfor %}
 
 <h3>Pelaajakohtaiset tilastot</h3>
 
-{% for player in players %}
+{% for player in game.players %}
   <h4>{{ player }}</h4>
 {% endfor %}
 
