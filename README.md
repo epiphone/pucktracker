@@ -19,18 +19,17 @@ RESTful API + OAuth1.0a provider + Mobile client application
 
     GET /api/players?query=teemu+selanne
 
-- Palauttaa [listan pelaajista joiden nimi vastaa hakuehtoa](http://pucktracker.appspot.com/api/players?query=teemu+selanne).
+- Palauttaa [pelaajat joiden nimi vastaa hakuehtoa](http://pucktracker.appspot.com/api/players?query=teemu+selanne).
 - Tyhjä hakuehto palauttaa kaikki pelaajat
 
-### Joukkueen kausittaiset tilastot
+### Joukkueiden kausittaiset tilastot
 
-    GET /api/teams/ana?year=2012
+    GET /api/teams?team=ana&year=2012
 
-- Hakee [joukkueen ana tilastot kaudelta 2012](http://pucktracker.appspot.com/api/teams/ana?year=2012).
-- Jos joukkuetta ei ole määritelty, haetaan kaikki joukkueet.
+- Hakee [joukkueen ana tilastot kaudelta 2012](http://pucktracker.appspot.com/api/teams?team=ana&year=2012).
+- Jos joukkuetta ei ole määritelty, haetaan kaikki joukkueet (eli sarjataulukko).
 - year-parametri on oletuksena nykyinen kausi
-
-### Sarjataulukko (Joukkueiden top-lista)
+- team-parametri on jokin seuraavista: njd, nyi, nyr, phi, pit, bos, buf, mon, ott, tor, car, fla, tam, was, wpg, chi, cob, det, nas, stl, cgy, col, edm, min, van, ana, dal, los, pho, san
 
 ### Yksittäisen ottelun tiedot
 
@@ -44,6 +43,8 @@ RESTful API + OAuth1.0a provider + Mobile client application
 
 - Hakee [joukkueen pit kauden 2010-11 pelatut ottelut](http://pucktracker.appspot.com/api/games?team=pit&year=2011).
 - year-parametri on oletuksena nykyinen kausi.
+- team-parametri on jokin seuraavista: njd, nyi, nyr, phi, pit, bos, buf, mon, ott, tor, car, fla, tam, was, wpg, chi, cob, det, nas, stl, cgy, col, edm, min, van, ana, dal, los, pho, san
+
 
 ### Pelaajan pelatut ottelut
 
@@ -51,23 +52,48 @@ RESTful API + OAuth1.0a provider + Mobile client application
 
 - Hakee [pelaajan ID=3737 kauden 2009-10 pelatut ottelut](http://pucktracker.appspot.com/api/games?pid=1453&year=2009).
 - year-parametri on oletuksena nykyinen kausi.
+- Huom! Jos api/games-urlissa on parametreina sekä "team" että "pid", käytetään "pid":tä
 
+### Joukkueen tulevat ottelut
 
-### Top-listat
+    GET /api/schedule?team=bos
 
-    GET /api/top/players?sort=g&year=[post]1994&goalies=false
+- Hakee joukkueen bos tämän kauden **tulevat** ottelut
 
-- Hakee parhaat pelaajat parametrien mukaisesti:
-    -  Vuosi ja playoffit/kausi
-    -  Järjestäminen tietyn attribuutit mukaan
-    -  Joko maalivahdit tai sitten kaikki muut pelaajat
+### Pelaajan tulevat ottelut
 
+    GET /api/schedule?pid=500
 
-    GET /api/top/teams?sort=w&order=asc&year=1994&count=10
+- Hakee joukkueen pelaajan ID=500 tämän kauden **tulevat** ottelut
+- Huom! Jos api/games-urlissa on parametreina sekä "team" että "pid", käytetään "pid":tä
 
-- Hakee parhaat joukkueet parametrien mukaisesti
+### Otteluohjelma
+
+    GET /api/schedule
+
+- Jos kumpaakaan (**pid** tai **team**) parametria ei ole määritelty, haetaan kaikki tulevat ottelut.
+
+### Top-pelaajat
+
+    GET /api/top?sort=ga&reverse=1&year=2008&goalies=1&playoffs=1&limit=10
+
+- Hakee [parhaat pelaajat parametrien mukaisesti](http://pucktracker.appspot.com/api/top?sort=g&reverse=1&year=2008&goalies=1&playoffs=1&limit=10):
+    -  year määrittää kauden, oletuksena nykyinen kausi
+    -  sort määrittää järjestyksen, vaihtoehdot ovat
+        - pelaajilla  name, team, gp, g, a, pts, +/-, pim, hits, bks, fw, fl, fo%, ppg, ppa, shg, sha, gw, sog, pct
+            - oletuksena **pts**
+        - maalivahdeilla name, team, gp, gs, min, w, l, otl, ega, ga, gaa, sa, sv, sv%, so
+           - oletuksena **w**
+    -  goalies (arvo 0 tai 1) määrittää haetaanko maalivahteja; oletuksena ei haeta
+    - playoffs (0 tai 1) määrittää haetaanko valitun kauden playoffien top-listoja; oletuksena ei
+    - reverse (0 tai 1) määrittää järjestyksen suunnan, oletuksena reverse=1, eli suurin arvo ensin
+    - limit määrittää tulosten maksimimäärän, oletuksena 30
+- Huom! Paluuarvo on poikkeuksellisesti lista (TODO: turvallisuussyy?)
+
+TODO: tästä eteenpäin kesken
 
 ### Käyttäjät
+
     GET /api/user/95932984(?token=???)
 
 - Palauttaa käyttäjän seuraamat pelaajat ja joukkueet
