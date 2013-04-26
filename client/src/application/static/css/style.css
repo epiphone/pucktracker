@@ -1,1 +1,22 @@
 /* Pucktracker-asiakassovelluksen prototyyppi */
+
+/*General*/
+.centered-text {
+    /*min-height: 10em;*/
+    /*display: table-cell;*/
+    /*vertical-align: middle;*/
+    text-align: center;
+}
+
+/*Page specific */
+
+/*  /game  */
+.score-display{
+    height:60px;
+}
+.big-text{
+    font-size:50px;
+    vertical-align: middle;
+    margin-top:0px;
+    /*padding-bottom: 10px;*/
+}
