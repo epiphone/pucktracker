@@ -14,13 +14,19 @@
   </head>
 
   <body>
+
     <!-- Jquery mobile page -->
     <div data-role="page">
       <!-- Header (same for all pages)-->
       <div data-role="header">
         <h1> Pucktracker </h1>
+
+        <!-- 'home' and 'search' buttons -->
+        <a data-direction="reverse" data-iconpos="notext" data-icon="home" href="/" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" title="Home"></a>
+        <a data-transition="fade" data-iconpos="notext" data-icon="search" href="/search" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="f" title="Search"></a>
       </div>
 
+      <!-- Page content (depends on child template) -->
       <div data-role="content">
 
         {% block content %} {% endblock %}
@@ -28,15 +34,5 @@
       </div>
 
     </div>
-
-    <!-- <h2>Jinja2 Template</h2>
-    <form method="post">
-      <label>Username
-        <input type="text" name="name" value="{{name}}">
-      </label>
-      <input type="submit">
-    </form> -->
-
   </body>
-
 </html>
