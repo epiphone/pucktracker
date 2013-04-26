@@ -11,7 +11,7 @@ RESTful API + OAuth1.0a provider + Mobile client application
 
     GET /api/players/500?year=2012
 
-- Hakee [pelaajan ID=500 kauden 2012-13 tilastot]((http://pucktracker.appspot.com/api/players/12?year=2012).
+- Hakee [pelaajan ID=500 kauden 2012-13 tilastot](http://pucktracker.appspot.com/api/players/12?year=2012).
 - year-parametri on joko vuosi tai "career" uratilastoja varten.
 - Jos year-parametria ei määritellä, haetaan joka vuoden tilastot sekä uratilastot.
 
