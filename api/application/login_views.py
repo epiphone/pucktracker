@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-login_views.py
 URL-reititykset ja sivut OAuth providerin osalta.
 
 TODO: siistimistä ja kommentteja

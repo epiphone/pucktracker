@@ -1,49 +1,57 @@
 # Pucktracker
 
-ITKS545 harjoitustyö
+ITKS545 harjoitustyö - Aleksi Pekkala & Jarkko Saltiola
+
 Web-sovellus NHL-tilastojen seuraamista varten.
-RESTful API + OAuth1.0a provider + Mobile client application 
+RESTful API + OAuth1.0a provider + Mobile client application
 
 ## API
 
-### Pelaaja
+### Pelaajan kausittaiset tilastot
 
-    GET /api/players/12?year=season_2012
-- Hakee pelaajan ID=12 kauden 2012-13 koko kauden tilastot.
-- year-parametri on joko “season_yyyy” tai “postseason_yyyy”
-    - http://sports.yahoo.com/nhl/stats/byposition?pos=C,RW,LW,D
-- Jos year-parametria ei määritellä, haetaan koko uran tilastot (career totals)
-    - http://sports.yahoo.com/nhl/players/4241/career;_ylt=ArHnXt2clBGdpOHBilYYZfJivLYF
+    GET /api/players/500?year=2012
 
-<!-- palauttaa listan kaikista pelaajan kausista 1991-2005 -->
+- Hakee [pelaajan ID=500 kauden 2012-13 tilastot]((http://pucktracker.appspot.com/api/players/12?year=2012).
+- year-parametri on joko vuosi tai "career" uratilastoja varten.
+- Jos year-parametria ei määritellä, haetaan joka vuoden tilastot sekä uratilastot.
+
+### Pelaajien haku nimen perusteella
 
     GET /api/players?query=teemu+selanne
 
-- Palauttaa listan pelaajista joiden nimi vastaa hakuehtoa.
-    - http://sports.yahoo.com/nhl/players?query=teemu+selänne&type=lastname&first=1
+- Palauttaa [listan pelaajista joiden nimi vastaa hakuehtoa](http://pucktracker.appspot.com/api/players?query=teemu+selanne).
+- Tyhjä hakuehto palauttaa kaikki pelaajat
 
-### Joukkue
+### Joukkueen kausittaiset tilastot
+
     GET /api/teams/ana?year=2012
-- Hakee joukkueen ana tilastot kaudelta 2012.
-    - http://sports.yahoo.com/nhl/standings?year=season_2012
+
+- Hakee [joukkueen ana tilastot kaudelta 2012](http://pucktracker.appspot.com/api/teams/ana?year=2012).
 - Jos joukkuetta ei ole määritelty, haetaan kaikki joukkueet.
+- year-parametri on oletuksena nykyinen kausi
 
+### Sarjataulukko (Joukkueiden top-lista)
 
-### Ottelu
+### Yksittäisen ottelun tiedot
 
     GET /api/games/2012010395
-- Hakee tietyn ottelun tiedot.
-- http://sports.yahoo.com/nhl/boxscore?gid=2013021013
+
+- Hakee [ottelun tiedot id:n perusteella](http://pucktracker.appspot.com/api/games/2012010395).
+
+### Joukkueen pelatut ottelut
 
     GET /api/games?team=pit&year=2011
-- Hakee joukkueen pit kauden 2010-11 pelatut ottelut.
-    - http://sports.yahoo.com/nhl/teams/pit/schedule?view=print_list&season=2011
+
+- Hakee [joukkueen pit kauden 2010-11 pelatut ottelut](http://pucktracker.appspot.com/api/games?team=pit&year=2011).
 - year-parametri on oletuksena nykyinen kausi.
 
-    GET /api/games?pid=3737
+### Pelaajan pelatut ottelut
 
-- Hakee pelaajan ID=3737 nykyisen kauden pelatut ottelut.
-    - http://sports.yahoo.com/nhl/players/3737/gamelog
+    GET /api/games?pid=1453&year=2009
+
+- Hakee [pelaajan ID=3737 kauden 2009-10 pelatut ottelut](http://pucktracker.appspot.com/api/games?pid=1453&year=2009).
+- year-parametri on oletuksena nykyinen kausi.
+
 
 ### Top-listat
 
@@ -84,7 +92,7 @@ Palvelimen tietokantaan tallennetaan pelkästään tieto käyttäjistä ja heid�
 
 ### Välimuisti
 
-- Pelaajien kauden pelatut pelit löytyvät avaimella **[pelaajan id][kausi]** 
+- Pelaajien kauden pelatut pelit löytyvät avaimella **[pelaajan id][kausi]**
     - **5002012** hakee pelaajan *500* kauden 2012-13 pelatut pelit
 - Joukkueiden pelatut pelit vastaavasti avaimella **[joukkueen tunnus][kausi]**,
     - **tam2011** hakee joukkueen *tam* pelit kaudelta 2010-2011
