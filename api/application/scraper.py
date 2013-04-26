@@ -14,6 +14,10 @@ Yleisesti funktiot palauttavat
 Google App Enginen kautta käytettäessä skreipperi hyödyntää
 App Enginen memcached-välimuistia.
 
+TODO:
+- testaa next_game
+- testaa add_cache
+
 Aleksi Pekkala
 """
 
@@ -88,12 +92,6 @@ CITIES = ["new jersey", "ny islanders", "ny rangers", "philadelphia",
           "chicago", "columbus", "detroit", "nashville", "st. louis",
           "calgary", "colorado", "edmonton", "minnesota", "vancouver",
           "anaheim", "dallas", "los angeles", "phoenix", "san jose"]
-BOXSCORE_COLUMNS_GOALIE = ["sa", "ga", "sv", "sv%", "pim", "toi"]
-BOXSCORE_COLUMNS = ["g", "a", "pts", "+/-", "pim", "s", "bs", "hits", "fw",
-                    "fl", "fo%", "shifts", "toi"]
-STANDINGS_COLUMNS = ["gp", "w", "l", "otl", "pts", "gf", "ga",
-                     "diff", "home", "road", "last10", "streak"]
-
 GOALIE_STATS = ["name", "team", "gp", "gs", "min", "w", "l", "otl", "ega",
                 "ga", "gaa", "sa", "sv", "sv%", "so"]
 PLAYER_STATS = ["name", "team", "gp", "g", "a", "pts", "+/-", "pim", "hits",
@@ -371,26 +369,31 @@ def scrape_games_by_team(team, year=SEASON):
 
 
 def scrape_game(gid):
-    """Palauttaa dictionaryn, jossa hirveä läjä dataa ottelusta."""
-    gid = str(gid)
+    """
+    Skreippaa yksittäisen ottelun tiedot.
+
+    Palauttaa dictionaryn, jossa joukkueet, pelaajakohtaiset tilastot,
+    maalit, shootout-tilastot, sekä ottelun loppulukemat.
+    """
     game = memcache.get(gid)
     if game:
-        logging.debug("scrape_game(%s) - Loytyi valimuistista." % gid)
         return game
-    logging.debug("scrape_game(%s) - Ei loytynyt valimuistista." % gid)
 
     url = URL_YAHOO + "/boxscore?gid=" + gid
     t0 = time.time()
-    response = urlfetch.fetch(url)
-    t0 = time.time() - t0
-    if response.status_code != 200:
-        raise web.notfound()
+    try:
+        response = urlfetch.fetch(url)
+        t0 = time.time() - t0
+        if response.status_code != 200:
+            return None
+    except:
+        return None
 
     t1 = time.time()
     root = html.fromstring(response.content)
     game = {}
 
-    # Ottelun tulos:
+    # Ottelun joukkueet ja tulos:
     game["away_team"] = root.xpath("//div[@class='away']//a/@href")[0].split("/")[-1]
     game["home_team"] = root.xpath("//div[@class='home']//a/@href")[0].split("/")[-1]
     game["away_score"] = root.xpath("//div[@class='away']/*")[0].text_content().strip()
@@ -421,64 +424,63 @@ def scrape_game(gid):
     # Pelaajakohtaiset tilastot:
     all_goalies = root.xpath("//div[contains(@class, 'goalies')]/table")
     all_skaters = root.xpath("//div[contains(@class, 'skaters')]/table")
+    goalie_cols = all_goalies[0].xpath("thead/tr/th")[1:]
+    skater_cols = all_skaters[0].xpath("thead/tr/th")[1:]
+
     goalies, skaters = {}, {}
     for i, team in enumerate(["away", "home"]):
         # Maalivahdit:
         for tr in all_goalies[i].xpath("tbody/tr"):
             goalie = {}
-            pid = tr.xpath(".//a/@href")[0].split("/")[-1]  # Id
+            pid = tr.xpath("*[1]//a/@href")[0].split("/")[-1]  # Id
             goalie["name"] = tr.xpath(".//a")[0].text       # Nimi
             goalie["team"] = team                           # Joukkue (away/home)
             for j, td in enumerate(tr.xpath("td")[1:]):     # Tilastot
-                goalie[BOXSCORE_COLUMNS_GOALIE[j]] = td.text_content().strip()
+                col = goalie_cols[j].text_content().strip().lower()
+                goalie[col] = parse_stat_value(td)
             goalies[pid] = goalie
         # Kenttäpelaajat:
         for tr in all_skaters[i].xpath("tbody/tr"):
             skater = {}
-            pid = tr.xpath(".//a/@href")[0].split("/")[-1]  # Id
+            pid = tr.xpath("*[1]//a/@href")[0].split("/")[-1]  # Id
             skater["name"] = tr.xpath(".//a")[0].text       # Nimi
             skater["team"] = team                           # Joukkue (away/home)
             for k, td in enumerate(tr.xpath("td")[1:]):     # Tilastot
-                skater[BOXSCORE_COLUMNS[k]] = td.text_content().strip()
+                col = skater_cols[k].text_content().strip().lower()
+                skater[col] = parse_stat_value(td)
             skaters[pid] = skater
         game["skaters"], game["goalies"] = skaters, goalies
 
     t1 = time.time() - t1
-    logging.debug("""scrape_game(%s):
-                 Haettiin HTML ajassa %.2fs
-                 Skreipattiin data ajassa %.2fs""" % (gid, t0, t1))
+    log_done("scrape_game", t0, t1, gid)
     memcache.set(gid, game)
     return game
 
 
 def scrape_schedule():
-    """Skreippaa kauden tulevien pelien alkamisajat ja joukkueet.
+    """
+    Skreippaa kauden tulevien pelien alkamisajat ja joukkueet.
+    Huom! ei skreippaa jo pelattuja otteluita.
 
-    Paluuarvo on muotoa
-    {"ana": [
-        {"time": "2012-02-06 21:30:00", "home":"ana", "away":"bos"},
-        {"time": "2012-02-07 16:00:00", "home":"cal", "away":"ana"},
-        ...],
-     "bos": [
-        {"time": "2012-02-06 21:30:00", "home:"ana", "away":"bos"},
-        ...],
-     ...}
+    Palauttaa dictionaryn, jossa avaimena joukkueen tunnus,
+    arvoina dictionaryssä ottelun alkamisaika sekä joukkueet.
     """
     schedule = memcache.get("schedule")
     if schedule is not None:
-        logging.debug("scrape_schedule() - Loytyi valimuistista.")
         return schedule
-    logging.debug("scrape_schedule() - Ei loytynyt valimuistista.")
 
     season = SEASON + str(int(SEASON) + 1)
     url = "http://nhl.com/ice/schedulebyseason.htm?season=" + season
     if PLAYOFFS:
         url += "&gameType=3"
     t0 = time.time()
-    response = urlfetch.fetch(url)
-    t0 = time.time() - t0
-    if response.status_code != 200:
-        raise web.notfound()
+    try:
+        response = urlfetch.fetch(url)
+        t0 = time.time() - t0
+        if response.status_code != 200:
+            return None
+    except:
+        return None
 
     t1 = time.time()
     root = html.fromstring(response.content)
@@ -508,8 +510,12 @@ def scrape_schedule():
 
 
 def scrape_standings(year="season_" + SEASON):
-    """Palauttaa dictionaryn, jossa avaimena joukkueen tunnus, arvona
-    joukkueen tilastot (gp,w,l,otl...), konferenssi ja divisioona."""
+    """
+    Skreippaa sarjataulukon.
+
+    Palauttaa dictionaryn, jossa avaimena joukkueen tunnus, arvona
+    joukkueen tilastot (gp,w,l,otl...), konferenssi sekä divisioona.
+    """
     if not "season_" in year:
         year = "season_" + year
     standings = memcache.get("standings" + year)
@@ -528,7 +534,9 @@ def scrape_standings(year="season_" + SEASON):
 
     t1 = time.time()
     root = html.fromstring(response.content)
-    rows = root.xpath("//tr/td[1]/table/tr/td[1]//tr[contains(@class, 'ysprow')]")
+    table = root.xpath("//tr[count(td)=3]/td[1]/table[2]")[0]
+    rows = table.xpath("tr[contains(@class, 'ysprow')]")
+    columns = table.getchildren()[1].getchildren()[1:]
     standings = {}
 
     for i, row in enumerate(rows):
@@ -537,13 +545,14 @@ def scrape_standings(year="season_" + SEASON):
         team_stats["conf"] = CONFERENCES[i / 15]
         tds = row.iterchildren()
         team = tds.next().xpath("a/@href")[0].split("/")[-1]
-        for column in STANDINGS_COLUMNS:
-            team_stats[column] = tds.next().text_content().strip()
+        for column in columns:
+            col = column.text_content().strip().lower()
+            team_stats[col] = parse_stat_value(tds.next())
         standings[team] = team_stats
 
     t1 = time.time() - t1
     log_done("scrape_standings", t0, t1, year)
-    expires = 60 * 15 if year == SEASON else 0
+    expires = 60 * 30 if year == SEASON else 0
     memcache.set("standings" + year, standings, expires)
     return standings
 
@@ -626,8 +635,8 @@ def add_cache(key, value, check):
         time_diff = (game_end_time - datetime.utcnow()).total_seconds()
         memcache.set(key, value, time_diff)
         memcache.set(key + "check", check)
-        logging.debug("""add_cache(%s)
-                     Vanhenemisaika %ds""" % (key, time_diff))
+        logging.info("""add_cache(%s)
+                     Vanhenemisaika %.1fmin""" % (key, time_diff / 60.0))
 
 
 def parse_stat_value(value):
@@ -636,7 +645,11 @@ def parse_stat_value(value):
     merkkijonona, tyhjiöarvona, kokonais-tai liukulukuna.
     """
     value_str = value.text_content().strip().lower()
-    if value_str.isdigit() or value_str.startswith("-"):
+    if not value_str:
+        return None
+    if value_str == "-":
+        return 0.0  # FO%-sarakkeeseen voi olla merkitty pelkkä viiva
+    if value_str.isdigit() or value_str[0] in ["-", "+"]:
         return int(value_str)
     if value_str.startswith("."):
         return float(value_str)
@@ -698,6 +711,7 @@ def isostr_to_date(datetime_str):
 
 
 def test():
+    """Muutama testi debuggausta varten."""
     players = scrape_players("jarome iginla")
     assert len(players) == 1
     pid = players.keys()[0]
@@ -707,4 +721,16 @@ def test():
     games = scrape_games_by_team("ana", "2011")
     game = games[sorted(games.keys())[0]]
     assert game["opponent"].lower().startswith("phoenix")
+    gid1 = sorted(games.keys())[0]
+    assert gid1 == "2011092025"
+    gid2 = "2013042522"
+    g1, g2 = scrape_game(gid1), scrape_game(gid2)
+    assert g1["skaters"]["500"]["shifts"] == 23
+    assert g1["goals"][-1]["desc"].startswith("Petteri")
+    assert g2["skaters"]["5346"]["take"] == 0
+    standings = scrape_standings("2011")
+    assert standings["nyr"]["w"] == 51
+    assert standings["tam"]["home"] == "25-14-2"
+    assert standings["ana"]["conf"] == "west"
+    assert standings["det"]["div"] == "central"
     print "Tests OK"
