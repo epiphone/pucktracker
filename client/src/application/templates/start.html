@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- When user has not signed in, tell him to do so -->
+{% if (authorized == False) %}
+
+<p>Hei, et ole kirjautuneena sisään. Valitse mitä haluat tehdä:</p>
+<p><a href="/login" data-role="button">Kirjaudu sisään</a></p>
+
+{% endif %}
+
+<!-- When user has signed in, return personalized "dashboard" -->
+{% if (authorized == True) %}
+
+    <!-- TODO get some data over here -->
+    <p>Jos olisit kirjautuneena niin näyttäisi tältä:</p>
+    <h1>Bla bla..</h1>
+
+{% endif %}
+
+{% endblock %}
