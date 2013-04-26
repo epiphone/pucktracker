@@ -161,7 +161,7 @@ def scrape_players(query=""):
 
 
 def scrape_player_stats(year=SEASON, playoffs=False, goalies=False,
-    order="pts", reverse=False):
+    order="pts", reverse=True):
     """
     Skreippaa valitun kauden kaikki pelaajat tilastoineen.
 
@@ -170,22 +170,25 @@ def scrape_player_stats(year=SEASON, playoffs=False, goalies=False,
     Paluuarvona lista dictionaryjä, joissa
     pelaajan id, nimi, joukkue ja kauden tilastot.
     """
-    cache_key = "pstats"
     if goalies:
         pos = "G"
         columns = GOALIE_STATS
-        if order not in GOALIE_STATS:
+        if not order or order not in GOALIE_STATS:
             order = GOALIE_STAT_DEFAULT
-        cache_key += "_goalies"
+        cache_key = "pstats_goalies"
     else:
         pos = "C,RW,LW,D"
         columns = PLAYER_STATS
-        if order not in PLAYER_STATS:
+        if not order or order not in PLAYER_STATS:
             order = PLAYER_STAT_DEFAULT
+        cache_key = "pstats_players"
+
+    # Järjestysfunktio
+    sort_func = lambda x: -999 if x[order] is None else x[order]
 
     pstats = memcache.get(cache_key)
     if pstats is not None:
-        return sorted(pstats, key=lambda x: x[order], reverse=reverse)
+        return sorted(pstats, key=sort_func, reverse=reverse)
 
     if int(year) > int(SEASON) or (year == SEASON and playoffs != PLAYOFFS):
         return None
@@ -207,10 +210,10 @@ def scrape_player_stats(year=SEASON, playoffs=False, goalies=False,
     stats = []
     for row in rows:
         stat = {}
-        stat["id"] = row.xpath("*[1]//@href")[0].split("/")[-1]
+        stat["pid"] = row.xpath("*[1]//@href")[0].split("/")[-1]
         columns_iter = iter(columns)
         for td in row.iterchildren():
-            stat_value = td.text_content().strip()
+            stat_value = td.text_content().strip().lower()
             if stat_value:
                 if stat_value.isdigit() or stat_value.startswith("-"):
                     stat_value = int(stat_value)
@@ -222,10 +225,9 @@ def scrape_player_stats(year=SEASON, playoffs=False, goalies=False,
         stats.append(stat)
 
     t1 = time.time() - t1
-    memcache.set(cache_key, stats, 60 * 10)
+    memcache.set(cache_key, stats, 60 * 15)
     log_done("scrape_players", t0, t1, year, playoffs, goalies)
-
-    return sorted(stats, key=lambda x: -999 if x[order] is None else x[order], reverse=reverse)
+    return sorted(stats, key=sort_func, reverse=reverse)
 
 
 def scrape_career(pid):
@@ -491,6 +493,7 @@ def scrape_schedule():
             date_str = row.xpath("td[1]/div[1]/text()")[0][4:]
             time_str = row.xpath("td[4]/div[1]/text()")[0].replace(" ET", "")
             datetime_str = str(str_to_date(date_str + " " + time_str))
+            datetime_str = datetime_str.split("+")[0]
         else:
             # Joidenkin pelien alkamiskellonaika ei ole tiedossa (pvm on),
             # mitäköhän niille tekisi?
@@ -560,18 +563,35 @@ def scrape_standings(year="season_" + SEASON):
 ### APUFUNKTIOT ###
 
 
-def get_next_game(team=None, pid=None):
-    """Palauttaa dictionaryn, jossa joukkueen/pelaajan seuraavan pelin
-    alkamisaika, kotijoukkue ja vierasjoukkue. Esim:
-    {"time": "2013-02-28 10:30:00", "home":"ana", "away":"bos"}}
+def get_next_games(team=None, pid=None):
     """
-    if pid and not team:
-        team = scrape_players()[pid]["team"]
-    return min(scrape_schedule()[team], key=lambda x: x["time"])
+    Palauttaa listan, jossa joukkueen/pelaajan tulevien otteluiden
+    alkamisaika, kotijoukkue ja vierasjoukkue.
+
+    Lista on järjestetty alkamisajan mukaan siten, että seuraavan pelin saa
+    helposti kutsumalla get_next_games(team="ana")[0].
+    """
+    if pid:
+        try:
+            team = scrape_players()[pid]["team"]
+        except KeyError:
+            return None
+        key = pid
+    elif team:
+        if not team in TEAMS:
+            return None
+        key = team
+    else:
+        return None
+
+    data = sorted(scrape_schedule()[team], key=lambda x: x["time"])
+    return {key: data}
 
 
 def get_latest_game(team=None, pid=None):
-    """Palauttaa joukkueen/pelaajan viimeisimmän pelatun pelin id:n."""
+    """
+    Palauttaa joukkueen/pelaajan viimeisimmän pelatun pelin id:n.
+    """
     if team:
         return max(scrape_games_by_team(team))
     return max(scrape_games_by_player(pid))
@@ -624,10 +644,17 @@ def add_cache(key, value, check):
         memcache.set(key, value, 60 * 10)
     else:
         # Arvo on muuttunut, selvitetään seuraavan ottelun ajankohta:
-        if ident.isalpha():
-            next_game_time = get_next_game(team=ident)["time"]
-        else:
-            next_game_time = get_next_game(pid=ident)["time"]
+        try:
+            if ident.isalpha():
+                next_game_time = get_next_games(team=ident)[0]["time"]
+            else:
+                next_game_time = get_next_games(pid=ident)[0]["time"]
+        # Jos seuraavaa ottelua ei löydy,
+        # asetetaan seuraavan ottelun ajankohdaksi nyt + 1 päivä:
+        except Exception as e:
+            logging.error("Seuraavaa ottelua ei löydetty. " + str(e))
+            dt = datetime.now() + timedelta(days=1)
+            next_game_time = str(dt)[:16]
 
         # Välimuistin arvo vanhenee 2 tuntia pelin alkamisen jälkeen:
         game_end_time = isostr_to_date(next_game_time) + timedelta(
@@ -706,6 +733,7 @@ def isostr_to_date(datetime_str):
     >>> print isostr_to_date("2013-02-28 16:12:00")
     2013-02-28 16:12:00
     """
+    logging.info("###DATETIME_STR### " + datetime_str)
     format = "%Y-%m-%d %H:%M:%S"
     return datetime.strptime(datetime_str, format)
 
