@@ -1,38 +1,86 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Ottelun tiedot</h1>
+    <h1>Ottelun tiedot</h1>
 
-<!-- Score-display -->
-<div class="ui-grid-a">
-    <div class="ui-block-a">
-        <h3 class="centered-text">Koti</h3>
-        <div class="ui-bar ui-bar-a score-display centered-text">
-            <p class="big-text"> {{game.home_score}}</p>
+    <!-- Score-display -->
+    <div class="ui-grid-a">
+        <div class="ui-block-a">
+            <h3 class="centered-text">Koti</h3>
+            <div class="ui-bar ui-bar-a score-display centered-text">
+                <p class="big-text"> {{home_score}}</p>
+            </div>
+            <h3 class="centered-text">{{home_team}}</h3>
         </div>
-    </div>
-    <div class="ui-block-b">
-        <h3 class="centered-text">Vieras</h3>
-        <div class="ui-bar ui-bar-a score-display centered-text">
-            <p class="big-text"> {{game.away_score}}</p>
+        <div class="ui-block-b">
+            <h3 class="centered-text">Vieras</h3>
+            <div class="ui-bar ui-bar-a score-display centered-text">
+                <p class="big-text"> {{away_score}}</p>
+            </div>
+            <h3 class="centered-text goal-display-team">{{away_team}}</h3>
         </div>
-    </div>
 
-</div><!-- /Score-display -->
-
+    </div><!-- /Score-display -->
 
 
-<h3>Maalit</h3>
-{% for goal in game.goals %}
-  <p>{{ goal.desc }}</p>
+    <table summary=​"Ottelussa tehdyt maalit taulukossa">​
+    <caption class="bottom-border">Maalit</caption>​
+    <thead>​
+    <tr>​
+        <th scope=​"col" class="bottom-border">Joukkue:​</th>​
+        <th scope=​"col" class="bottom-border">​Aika​:</th>​
+        <th scope=​"col" class="bottom-border">Erä:​</th>​
+        <th scope=​"col" class="bottom-border">Tulos:​</th>​
+        <th scope=​"col" class="bottom-border">Tekijä:​</th>​
+    </tr>​
+    </thead>​
+{% for goal in goals %}
+    <tr>​
+        <th scope=​"col">{{goal.team|upper}}</th>​
+        <th scope=​"col">{{goal.time}}</th>​
+        <th scope=​"col">{{goal.period}}</th>​
+        <th scope=​"col">{{goal.score}}​</th>​
+        <th scope=​"col">{{goal.desc}}</th>​
+    </tr>​
 {% endfor %}
 
-<h3>Pelaajakohtaiset tilastot</h3>
 
-{% for player in game.players %}
-  <h4>{{ player }}</h4>
+    <table summary=​"Tilastot pelaajittain">​
+    <caption class="bottom-border">Pelaajatilastot</caption>​
+    <thead>​
+    <tr>​
+        <th scope=​"col">Name</th>​
+        <th scope=​"col">Team</th>​
+        <th scope=​"col">TOI</th>​
+        <th scope=​"col">A</th>​
+        <th scope=​"col">PTS</th>​
+        <th scope=​"col">PIM</th>​
+        <th scope=​"col">Hits</th>​
+        <th scope=​"col">BS</th>​
+        <th scope=​"col">FW</th>​
+        <th scope=​"col">FL</th>​
+        <th scope=​"col">Shifts</th>​
+    </tr>​
+    </thead>​
+
+
+{% for skater in skaters %}
+   <tr>​
+        <th scope=​"col">{{skater.name}}</th>​
+        <th scope=​"col">{% if skater.team == "home" %} {{home_team}} {% else %} {{away_team}} {% endif %}</th>​
+        <th scope=​"col">{{skater.toi}}</th>​
+
+        <th scope=​"col">{{skater.a}}</th>​
+        <th scope=​"col">{{skater.pts}}</th>​
+
+        <th scope=​"col">{{skater.pim}}</th>​
+        <th scope=​"col">{{skater.hit}}</th>​
+        <th scope=​"col">{{skater.b}}</th>​
+        <th scope=​"col">{{skater.fw}}</th>​
+        <th scope=​"col">{{skater.fl}}</th>​
+
+        <th scope=​"col">{{skater.shift}}</th>​
+    </tr>
 {% endfor %}
-
-<p><a data-rel="back" data-role="button" data-theme="b">Paluu</a></p>
 
 {% endblock %}
