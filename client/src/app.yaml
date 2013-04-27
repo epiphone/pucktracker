@@ -13,11 +13,11 @@ handlers:
   static_files: application/static/robots.txt
   upload: application/static/robots.txt
 
+- url: /static
+  static_dir: application/static
+
 - url: .*
   script: application.app
-
-- url: /static
-  static_dir: static
 
 
 libraries:
