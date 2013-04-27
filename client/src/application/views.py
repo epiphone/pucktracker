@@ -25,8 +25,8 @@ def index():
         return render_template("start.html",authorized=True)  # TODO false
 
 
-@app.route("/player")
-def player():
+@app.route("/player/<int:player_id>")
+def player(player_id):
     return render_template("player.html")
 
 @app.route("/game/<int:game_id>")
@@ -70,8 +70,11 @@ def game(game_id):
     # Jinja template-engine osaa loopata tietorakenteen läpi ilman ongelmaa.
     skater_list = []
     for k,v in game['skaters'].iteritems():
-        v[id] = k
-        skater_list.append(v)
+        new_dict = v
+        new_dict['id'] = k
+        skater_list.append(new_dict)
+
+    skater_list = sorted(skater_list, key=lambda x: x["pts"], reverse=True)
 
     return render_template("game.html", home_team=home_team ,
                                         home_score=home_score ,
