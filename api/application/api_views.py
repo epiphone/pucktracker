@@ -11,6 +11,7 @@ from flask import render_template, request, jsonify, abort, Response
 from provider import GAEProvider
 import logging
 import json
+from models import AccessToken, ResourceOwner as User
 
 ### GLOBAALIT ###
 
@@ -234,3 +235,108 @@ def top():
     # pythonin omaa JSON-moduulia:
     data = json.dumps(data)
     return Response(data, mimetype="application/json")
+
+
+@app.route("/api/user", methods=["GET", "POST", "DELETE"])
+@oauth_provider.require_oauth()
+def user():
+    """
+    Hakee, lisää ja poistaa käyttäjän seuraamia pelaajia/joukkueita.
+
+    Vaatii OAuth-allekirjoitetun pyynnön.
+    """
+    # Poimitaan oauth token HTTP-pyynnön Authorization-headerista:
+    auth_header = request.headers.get("Authorization", None)
+    if not auth_header:
+        abort(500)
+
+    for param in auth_header.split():
+        if param.startswith("oauth_token"):
+            token = param.split("=")[-1][1:-2]
+            break
+
+    if not token:
+        abort(500)
+
+    # Haetaan tokenia vastaava käyttäjä:
+    try:
+        acc_token = AccessToken.query(AccessToken.token == token).get()
+        user = acc_token.resource_owner.get()
+        players, teams = user.players, user.teams
+    except KeyError:  # access tokenia tai käyttäjää ei löydy
+        abort(500)
+
+    if request.method == "GET":
+        # Palautetaan käyttäjän seuraamat pelaajat ja joukkueet:
+        try:
+            ids_only = int(request.args.get("ids_only", "0"))
+        except ValueError:
+            abort(400)
+
+        if ids_only:
+            # Palautetaan vain id:t:
+            return jsonify(dict(player=players, teams=teams))
+
+        # Palautetaan id:t ja tilastot:
+        ret = {}
+        if teams:
+            standings = scraper.scrape_standings()
+            if not standings:
+                abort(503)  # Service unavailable
+            if not all(team in standings for team in teams):
+                abort(400)  # Bad request - virheellinen joukkueen tunnus
+            for team in teams:
+                stats = standings[team]
+                gid = scraper.get_latest_game(team=team)
+                if not stats or not gid:
+                    ret[team] = dict(stats=None, latest_game=None)
+                else:
+                    latest_game = scraper.scrape_game(gid) if gid else None
+                    ret[team] = dict(stats=stats, latest_game=latest_game)
+
+        if players:
+            player_stats = scraper.scrape_player_stats()
+
+            for pid in players:
+                for pstat in player_stats:
+                    if pid == pstat["pid"]:
+                        gid = scraper.get_latest_game(pid=pid)
+                        if not gid:
+                            stats, latest_game = None, None
+                        else:
+                            latest_game = scraper.scrape_game(gid)
+                            stats = pstat
+                        ret[pid] = dict(stats=stats, latest_game=latest_game)
+                        break
+
+            # Seurattavaa pelaajaa ei löytynyt kenttäpelaajista,
+            # etsitään maalivahdeista:
+            goalie_stats = scraper.scrape_player_stats(goalies=True)
+
+            for pid in players:
+                if pid in ret:
+                    continue  # Pelaaja löytyi kenttäpelaajista
+                for pstat in goalie_stats:
+                    if pid == pstat["pid"]:
+                        gid = scraper.get_latest_game(pid=pid)
+                        if not gid:
+                            stats, latest_game = None, None
+                        else:
+                            latest_game = scraper.scrape_game(gid)
+                            stats = pstat
+                        ret[pid] = dict(stats=stats, latest_game=latest_game)
+                        break
+
+            # Jos pelaajaa ei löytynyt kenttäpelaajista eikä maalivahdeista,
+            # ei pelaaja ole pelannut yhdessäkään ottelussa nykyisellä kaudella
+            for pid in players:
+                if not pid in ret:
+                    ret[pid] = dict(stats=None, latest_game=None)
+
+        return jsonify(ret)
+
+    if request.method == "POST":
+        # Lisätään seurattava pelaaja tai joukkue:
+        if "pid" in request.form:
+            pid = request.form["pid"]
+            # TODO

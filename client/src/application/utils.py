@@ -1,6 +1,7 @@
 # coding:utf-8
 """
 Apufunktioita, mm. OAuth Client.
+
 """
 
 import json

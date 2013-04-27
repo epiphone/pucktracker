@@ -593,8 +593,12 @@ def get_latest_game(team=None, pid=None):
     Palauttaa joukkueen/pelaajan viimeisimmän pelatun pelin id:n.
     """
     if team:
-        return max(scrape_games_by_team(team))
-    return max(scrape_games_by_player(pid))
+        games = scrape_games_by_team(team)
+    elif pid:
+        games = scrape_games_by_player(pid)
+    if not games:
+        return None
+    return max(games)
 
 
 def add_cache(key, value, check):
