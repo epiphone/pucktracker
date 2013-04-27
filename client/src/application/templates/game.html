@@ -10,14 +10,14 @@
             <div class="ui-bar ui-bar-a score-display centered-text">
                 <p class="big-text"> {{home_score}}</p>
             </div>
-            <h3 class="centered-text">{{home_team}}</h3>
+            <h3 class="centered-text"><a href="/team/{{home_team}}">{{home_team|upper}}</a></h3>
         </div>
         <div class="ui-block-b">
             <h3 class="centered-text">Vieras</h3>
             <div class="ui-bar ui-bar-a score-display centered-text">
                 <p class="big-text"> {{away_score}}</p>
             </div>
-            <h3 class="centered-text goal-display-team">{{away_team}}</h3>
+            <h3 class="centered-text goal-display-team"><a href="/team/{{away_team|upper}}">{{away_team|upper}}</a></h3>
         </div>
 
     </div><!-- /Score-display -->
@@ -36,7 +36,7 @@
     </thead>​
 {% for goal in goals %}
     <tr>​
-        <th scope=​"col">{{goal.team|upper}}</th>​
+        <th scope=​"col">{{<a href="/team/{{goal.team}}">{{goal.team|upper}}</a></th>​
         <th scope=​"col">{{goal.time}}</th>​
         <th scope=​"col">{{goal.period}}</th>​
         <th scope=​"col">{{goal.score}}​</th>​
@@ -49,25 +49,25 @@
     <caption class="bottom-border">Pelaajatilastot</caption>​
     <thead>​
     <tr>​
-        <th scope=​"col">Name</th>​
-        <th scope=​"col">Team</th>​
-        <th scope=​"col">TOI</th>​
-        <th scope=​"col">A</th>​
-        <th scope=​"col">PTS</th>​
-        <th scope=​"col">PIM</th>​
-        <th scope=​"col">Hits</th>​
-        <th scope=​"col">BS</th>​
-        <th scope=​"col">FW</th>​
-        <th scope=​"col">FL</th>​
-        <th scope=​"col">Shifts</th>​
+        <th scope=​"col" class="bottom-border">Name</th>​
+        <th scope=​"col" class="bottom-border">Team</th>​
+        <th scope=​"col" class="bottom-border">TOI</th>​
+        <th scope=​"col" class="bottom-border">A</th>​
+        <th scope=​"col" class="bottom-border">PTS</th>​
+        <th scope=​"col" class="bottom-border">PIM</th>​
+        <th scope=​"col" class="bottom-border">Hits</th>​
+        <th scope=​"col" class="bottom-border">BS</th>​
+        <th scope=​"col" class="bottom-border">FW</th>​
+        <th scope=​"col" class="bottom-border">FL</th>​
+        <th scope=​"col" class="bottom-border">Shifts</th>​
     </tr>​
     </thead>​
 
 
 {% for skater in skaters %}
    <tr>​
-        <th scope=​"col">{{skater.name}}</th>​
-        <th scope=​"col">{% if skater.team == "home" %} {{home_team}} {% else %} {{away_team}} {% endif %}</th>​
+        <th scope=​"col"> <a href="/player/{{skater.id}}">{{skater.name}}</a></th>​
+        <th scope=​"col">{% if skater.team == "home" %} <a href="/team/{{home_team}}">{{home_team|upper}}</a> {% else %} <a href="/team/{{away_team}}">{{away_team|upper}}</a> {% endif %}</th>​
         <th scope=​"col">{{skater.toi}}</th>​
 
         <th scope=​"col">{{skater.a}}</th>​
