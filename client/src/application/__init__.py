@@ -1,6 +1,5 @@
 # -*-coding:utf-8-*-
 """
-__init__.py
 Alustaa Flask-sovelluksen.
 """
 

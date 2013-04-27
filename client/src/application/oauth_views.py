@@ -5,10 +5,42 @@ URL-reititykset ja sivut OAuthin osalta.
 
 from application import app
 from urlparse import parse_qs
-from flask import session, redirect, request
+from flask import session, redirect, request, render_template
 from settings import REQUEST_TOKEN_URL, ACCESS_TOKEN_URL, AUTHORIZE_URL
 from settings import CALLBACK_URL, API_URL
 from utils import fetch_from_api_signed
+
+
+# @app.before_request
+# def before_request():
+#     """
+#     Jokaisen HTTP-pyynnön alussa tarkistetaan onko käyttäjä kirjautunut,
+#     ja jos on, haetaan tietokannasta käyttäjän profiili ja liitetään se
+#     säiekohtaiseen g-muuttujaan, jonka kautta profiiliin päästään helposti
+#     käsiksi.
+#     """
+#     if request.endpoint in ["login", "callback"]:
+#         pass
+#     elif not ("oauth_token" in session and "oauth_token_secret" in session):
+#         return render_template("login.html")
+
+
+@app.route("/test_user")
+def test_user():
+    """
+    Testifunktio TODO: poista
+    """
+    if not "oauth_token" in session:
+        return "access token required"
+
+    token = session["oauth_token"]
+    token_s = session["oauth_token_secret"]
+    resp = fetch_from_api_signed(
+        url=API_URL + "/api/user",
+        token=token,
+        secret=token_s,
+        method="GET")
+    return str(resp.status_code) + "<br>" + resp.content
 
 
 @app.route("/login")
@@ -30,7 +62,7 @@ def login():
         return query_params["oauth_callback_confirmed"][0]  # TODO
     oauth_token = query_params["oauth_token"][0]
     oauth_token_secret = query_params["oauth_token_secret"][0]
-    assert oauth_token is not None and oauth_token_secret is not None
+    assert oauth_token and oauth_token_secret
 
     # Tallennetaan Request Token ja Secret sessioon:
     session["oauth_token"] = oauth_token
@@ -50,7 +82,10 @@ def callback():
     """
     oauth_token = request.args.get("oauth_token", "")
     oauth_verifier = request.args.get("oauth_verifier", "")
-    oauth_token_secret = session["oauth_token_secret"]
+    try:
+        oauth_token_secret = session["oauth_token_secret"]
+    except KeyError:
+        return "oauth_token_secretiä ei löydetty sessiosta"
     assert not any(x is None or x == "" for x in [oauth_token, oauth_verifier,
         oauth_token_secret])
 
