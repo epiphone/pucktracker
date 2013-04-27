@@ -11,11 +11,10 @@ from flask import Flask
 from werkzeug.debug import DebuggedApplication
 
 # Settings
-import settings
-
 app = Flask('application')
 app.config.from_object('application.settings')
 
+import oauth_views
 import views
 
 
