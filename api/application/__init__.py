@@ -16,6 +16,7 @@ app.config.from_object('application.settings')
 
 import api_views
 import login_views
+import cron_views
 
 ## Error handlers  # TODO: Tarviiko nämä määritellä erikseen?
 # Handle 404 errors

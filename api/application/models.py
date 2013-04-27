@@ -40,7 +40,6 @@ class RequestToken(ndb.Model):
     secret = ndb.StringProperty()
     callback = ndb.StringProperty()
 
-    # TODO: TTL
     client_id = ndb.StringProperty()
     client = ndb.KeyProperty(kind="Client")
 

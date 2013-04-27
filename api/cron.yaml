@@ -1,0 +1,4 @@
+cron:
+- description: Poistaa kaikki Noncet ja Tokenit
+  url: /cron/clean
+  schedule: every monday 05:00
