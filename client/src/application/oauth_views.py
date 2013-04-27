@@ -25,6 +25,32 @@ from utils import fetch_from_api_signed
 #         return render_template("login.html")
 
 
+@app.route("/test_user/<ident>")
+def test_add_pid(ident):
+    """
+    Testifunktio TODO: poista
+    """
+    if not "oauth_token" in session:
+        return "access token required"
+
+    if ident.isalpha():
+        data = dict(team=ident)
+    else:
+        data = dict(pid=ident)
+
+    # data["ids_only"] = request.args.get("ids_only", "0")
+
+    token = session["oauth_token"]
+    token_s = session["oauth_token_secret"]
+    resp = fetch_from_api_signed(
+        base_url=API_URL + "/api/user",
+        token=token,
+        secret=token_s,
+        method="POST",
+        data=data)
+    return str(resp.status_code) + "<br>" + resp.content
+
+
 @app.route("/test_user")
 def test_user():
     """
@@ -33,10 +59,13 @@ def test_user():
     if not "oauth_token" in session:
         return "access token required"
 
+    ids_only = request.args.get("ids_only", "0")
+
     token = session["oauth_token"]
     token_s = session["oauth_token_secret"]
     resp = fetch_from_api_signed(
-        url=API_URL + "/api/user",
+        base_url=API_URL + "/api/user",
+        # url_params=dict(ids_only=ids_only),
         token=token,
         secret=token_s,
         method="GET")
@@ -50,7 +79,7 @@ def login():
     """
     # Haetaan Request Token:
     resp = fetch_from_api_signed(
-        url=REQUEST_TOKEN_URL,
+        base_url=REQUEST_TOKEN_URL,
         callback=CALLBACK_URL)
     if resp.status_code != 200:
         # TODO 302 yms?
@@ -85,13 +114,16 @@ def callback():
     try:
         oauth_token_secret = session["oauth_token_secret"]
     except KeyError:
-        return "oauth_token_secretiä ei löydetty sessiosta"
+        return "oauth_token_secretiä ei löydetty sessiosta"  # TODO debug
     assert not any(x is None or x == "" for x in [oauth_token, oauth_verifier,
         oauth_token_secret])
 
     url = ACCESS_TOKEN_URL
-    resp = fetch_from_api_signed(url=url, token=oauth_token,
-        secret=oauth_token_secret, verifier=oauth_verifier)
+    resp = fetch_from_api_signed(
+        base_url=url,
+        token=oauth_token,
+        secret=oauth_token_secret,
+        verifier=oauth_verifier)
     if resp.status_code != 200:
         return "FAIL! status %d<br>%s" % (resp.status_code, resp.content)
     query_params = parse_qs(resp.content)
@@ -109,7 +141,7 @@ def protected():
     token = session["oauth_token"]
     token_s = session["oauth_token_secret"]
     resp = fetch_from_api_signed(
-        url=url,
+        base_url=url,
         token=token,
         secret=token_s,
         method="GET")

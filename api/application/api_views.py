@@ -244,6 +244,7 @@ def user():
     Hakee, lisää ja poistaa käyttäjän seuraamia pelaajia/joukkueita.
 
     Vaatii OAuth-allekirjoitetun pyynnön.
+    TODO välimuisti
     """
     # Poimitaan oauth token HTTP-pyynnön Authorization-headerista:
     auth_header = request.headers.get("Authorization", None)
@@ -266,77 +267,133 @@ def user():
     except KeyError:  # access tokenia tai käyttäjää ei löydy
         abort(500)
 
+    # Poimitaan ids_only-parametri joko urlista tai post-parametreista:
+    if "ids_only" in request.form:
+        ids_only = request.form["ids_only"]
+    else:
+        ids_only = request.args.get("ids_only", "0")
+    try:
+        ids_only = int(ids_only)
+    except ValueError:
+        abort(400)
+
     if request.method == "GET":
         # Palautetaan käyttäjän seuraamat pelaajat ja joukkueet:
-        try:
-            ids_only = int(request.args.get("ids_only", "0"))
-        except ValueError:
-            abort(400)
-
         if ids_only:
             # Palautetaan vain id:t:
             return jsonify(dict(player=players, teams=teams))
 
-        # Palautetaan id:t ja tilastot:
-        ret = {}
-        if teams:
-            standings = scraper.scrape_standings()
-            if not standings:
-                abort(503)  # Service unavailable
-            if not all(team in standings for team in teams):
-                abort(400)  # Bad request - virheellinen joukkueen tunnus
-            for team in teams:
-                stats = standings[team]
-                gid = scraper.get_latest_game(team=team)
-                if not stats or not gid:
-                    ret[team] = dict(stats=None, latest_game=None)
-                else:
-                    latest_game = scraper.scrape_game(gid) if gid else None
-                    ret[team] = dict(stats=stats, latest_game=latest_game)
-
-        if players:
-            player_stats = scraper.scrape_player_stats()
-
-            for pid in players:
-                for pstat in player_stats:
-                    if pid == pstat["pid"]:
-                        gid = scraper.get_latest_game(pid=pid)
-                        if not gid:
-                            stats, latest_game = None, None
-                        else:
-                            latest_game = scraper.scrape_game(gid)
-                            stats = pstat
-                        ret[pid] = dict(stats=stats, latest_game=latest_game)
-                        break
-
-            # Seurattavaa pelaajaa ei löytynyt kenttäpelaajista,
-            # etsitään maalivahdeista:
-            goalie_stats = scraper.scrape_player_stats(goalies=True)
-
-            for pid in players:
-                if pid in ret:
-                    continue  # Pelaaja löytyi kenttäpelaajista
-                for pstat in goalie_stats:
-                    if pid == pstat["pid"]:
-                        gid = scraper.get_latest_game(pid=pid)
-                        if not gid:
-                            stats, latest_game = None, None
-                        else:
-                            latest_game = scraper.scrape_game(gid)
-                            stats = pstat
-                        ret[pid] = dict(stats=stats, latest_game=latest_game)
-                        break
-
-            # Jos pelaajaa ei löytynyt kenttäpelaajista eikä maalivahdeista,
-            # ei pelaaja ole pelannut yhdessäkään ottelussa nykyisellä kaudella
-            for pid in players:
-                if not pid in ret:
-                    ret[pid] = dict(stats=None, latest_game=None)
-
+        # Palautetaan id:t sekä tilastot:
+        ret = get_players_and_teams(players, teams)
         return jsonify(ret)
 
     if request.method == "POST":
         # Lisätään seurattava pelaaja tai joukkue:
         if "pid" in request.form:
             pid = request.form["pid"]
-            # TODO
+            # Validoitaan pelaajan id:
+            all_players = scraper.scrape_players()
+            if not pid in all_players:
+                abort(400)
+
+            # Lisätään pid käyttäjän seurattavien pelaajien listalle:
+            players.append(pid)
+            user.players = players
+            user.put()
+
+            # Palautetaan päivittynyt seurantalista, kuten GET-pyynnössä:
+            if ids_only:
+                ret = dict(players=players, teams=teams)
+            else:
+                ret = get_players_and_teams(players, teams)
+            return jsonify(ret)
+
+        if "team" in request.form:
+            team = request.form["team"].lower()
+            # Validoitaan joukkueen tunnus
+            if not team in scraper.TEAMS:
+                abort(400)
+
+            # Lisätään joukkue käyttäjän seurattavien joukkueiden listalle:
+            teams.append(team)
+            user.teams = teams
+            user.put()
+
+            # Palautetaan päivittynyt seurantalista, kuten GET-pyynnössä:
+            if ids_only:
+                ret = dict(players=players, teams=teams)
+            else:
+                ret = get_players_and_teams(players, teams)
+            return jsonify(ret)
+
+        else:
+            abort(400)  # Lisättävä pelaaja tai joukkue tulee määrittää
+
+    if request.method == "PUT":
+        return "todo"
+
+
+def get_players_and_teams(players=None, teams=None):
+    """
+    Hakee valittujen pelaajien ja joukkueiden kauden tilastot sekä viimeisimmän
+    ottelut tiedot.
+
+    Jos pelaaja ei ole pelannut tällä kaudella yhtään ottelua, pelaajan osalta
+    palautetaan vain tyhjiöarvo.
+    """
+    ret = {}
+    if teams:
+        standings = scraper.scrape_standings()
+        if not standings:
+            abort(503)  # Service unavailable
+        if not all(team in standings for team in teams):
+            abort(400)  # Bad request - virheellinen joukkueen tunnus
+        for team in teams:
+            stats = standings[team]
+            gid = scraper.get_latest_game(team=team)
+            if not stats or not gid:
+                ret[team] = dict(stats=None, latest_game=None)
+            else:
+                latest_game = scraper.scrape_game(gid) if gid else None
+                ret[team] = dict(stats=stats, latest_game=latest_game)
+
+    if players:
+        player_stats = scraper.scrape_player_stats()
+
+        for pid in players:
+            for pstat in player_stats:
+                if pid == pstat["pid"]:
+                    gid = scraper.get_latest_game(pid=pid)
+                    if not gid:
+                        stats, latest_game = None, None
+                    else:
+                        latest_game = scraper.scrape_game(gid)
+                        stats = pstat
+                    ret[pid] = dict(stats=stats, latest_game=latest_game)
+                    break
+
+        # Seurattavaa pelaajaa ei löytynyt kenttäpelaajista,
+        # etsitään maalivahdeista:
+        goalie_stats = scraper.scrape_player_stats(goalies=True)
+
+        for pid in players:
+            if pid in ret:
+                continue  # Pelaaja löytyi kenttäpelaajista
+            for pstat in goalie_stats:
+                if pid == pstat["pid"]:
+                    gid = scraper.get_latest_game(pid=pid)
+                    if not gid:
+                        stats, latest_game = None, None
+                    else:
+                        latest_game = scraper.scrape_game(gid)
+                        stats = pstat
+                    ret[pid] = dict(stats=stats, latest_game=latest_game)
+                    break
+
+        # Jos pelaajaa ei löytynyt kenttäpelaajista eikä maalivahdeista,
+        # ei pelaaja ole pelannut yhdessäkään ottelussa nykyisellä kaudella
+        for pid in players:
+            if not pid in ret:
+                ret[pid] = dict(stats=None, latest_game=None)
+
+    return ret
