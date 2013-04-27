@@ -25,6 +25,32 @@ from utils import fetch_from_api_signed
 #         return render_template("login.html")
 
 
+@app.route("/test_user_remove/<ident>")
+def test_user_reset(ident):
+    """
+    Testifunktio TODO: poista
+    """
+    if not "oauth_token" in session:
+        return "access token required"
+
+    if ident.isalpha():
+        data = dict(team=ident)
+    else:
+        data = dict(pid=ident)
+
+    data["ids_only"] = request.args.get("ids_only", "0")
+
+    token = session["oauth_token"]
+    token_s = session["oauth_token_secret"]
+    resp = fetch_from_api_signed(
+        base_url=API_URL + "/api/user",
+        token=token,
+        secret=token_s,
+        method="DELETE",
+        url_params=data)
+    return str(resp.status_code) + "<br>" + resp.content
+
+
 @app.route("/test_user/<ident>")
 def test_add_pid(ident):
     """
@@ -38,7 +64,7 @@ def test_add_pid(ident):
     else:
         data = dict(pid=ident)
 
-    # data["ids_only"] = request.args.get("ids_only", "0")
+    data["ids_only"] = request.args.get("ids_only", "0")
 
     token = session["oauth_token"]
     token_s = session["oauth_token_secret"]
@@ -65,7 +91,7 @@ def test_user():
     token_s = session["oauth_token_secret"]
     resp = fetch_from_api_signed(
         base_url=API_URL + "/api/user",
-        # url_params=dict(ids_only=ids_only),
+        url_params=dict(ids_only=ids_only),
         token=token,
         secret=token_s,
         method="GET")

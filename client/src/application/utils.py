@@ -109,7 +109,8 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
         url=base_url,
         method=method,
         headers=headers,
-        payload=data)
+        payload=data,
+        deadline=30)
 
 
 def escape(text):

@@ -291,10 +291,14 @@ def user():
         # Lisätään seurattava pelaaja tai joukkue:
         if "pid" in request.form:
             pid = request.form["pid"]
+
             # Validoitaan pelaajan id:
+            if pid in players:
+                abort(400)  # Pelaaja on jo seurattavien listassa
+
             all_players = scraper.scrape_players()
             if not pid in all_players:
-                abort(400)
+                abort(400)  # pid:tä vastaavaa pelaajaa ei löydy
 
             # Lisätään pid käyttäjän seurattavien pelaajien listalle:
             players.append(pid)
@@ -311,8 +315,10 @@ def user():
         if "team" in request.form:
             team = request.form["team"].lower()
             # Validoitaan joukkueen tunnus
+            if team in teams:
+                abort(400)  # Joukkue on jo seurattavien listassa
             if not team in scraper.TEAMS:
-                abort(400)
+                abort(400)  # Epäkelpo joukkueen tunnus
 
             # Lisätään joukkue käyttäjän seurattavien joukkueiden listalle:
             teams.append(team)
@@ -329,8 +335,31 @@ def user():
         else:
             abort(400)  # Lisättävä pelaaja tai joukkue tulee määrittää
 
-    if request.method == "PUT":
-        return "todo"
+    if request.method == "DELETE":
+        # Poistetaan seurattava pelaaja tai joukkue:
+        pid = request.args.get("pid", None)
+        team = request.args.get("team", None)
+        if pid:
+            if not pid in players:
+                abort(400)  # pelaajaa ei löydy seurattavien listasta
+            players.remove(pid)
+            user.players = players
+
+        elif team:
+            if not team in teams:
+                abort(400)  # joukkuetta ei löydy seurattavien listasta
+            teams.remove(team)
+            user.teams = teams
+
+        else:
+            abort(400)  # joko poistettava pelaaja tai joukkue tulee määrittää
+
+        user.put()
+        if ids_only:
+            ret = dict(players=players, teams=teams)
+        else:
+            ret = get_players_and_teams(players, teams)
+        return jsonify(ret)
 
 
 def get_players_and_teams(players=None, teams=None):
