@@ -18,16 +18,16 @@
         <td> {{ client.client_key }} </td>
         <td> {{ client.secret }} </td>
         <td> {{ client.pubkey }} </td>
-    </tr>    
+    </tr>
     {% endfor %}
 </table>
 {% endif %}
 <h3> Register new client </h3>
 <form method="POST" action="/register">
-    <label>Title </label><input type="text" name="name"/>
-    <label>Description </label><input type="text" name="description"/>
-    <label>Callback URI </label><input type="text" name="callback"/>
-    <label>RSA public key </label><textarea name="pubkey"></textarea>
+    <label>Title </label><input type="text" name="name" required pattern=".{5,60}"/>
+    <label>Description </label><input type="text" name="description" required pattern=".{5,60}"/>
+    <label>Callback URI </label><input placeholder="http://callback.com/callback" type="text" name="callback" required pattern="https?://.+\..+"/>
+    <label>RSA public key </label><input name="pubkey" required pattern=".{5,60}"/>
     <br/>
     <button type="submit" class="btn">Register new client</button>
 </form>

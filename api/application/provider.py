@@ -1,20 +1,20 @@
 # -*-coding:utf-8-*-
 """
-provider.py
-OAuth Providerin implementointi Google App Enginelle,
-pohjautuu oauthlib-kirjastoon: https://github.com/idan/oauthlib
+OAuth Providerin implementointi Google App Enginelle.
+
+Perustuu flask-oauthprovider-kirjaston esimerkkiin:
+https://github.com/ib-lundgren/flask-oauthprovider
 
 TODO: siistimistä ja kommentit
 """
 
 
-from flask import request, render_template, g
+from flask import request, render_template, g, flash, url_for, redirect
 from flask.ext.oauthprovider import OAuthProvider
 from models import Client, Nonce, Callback
 from models import RequestToken, AccessToken
 from utils import require_login
 from google.appengine.ext import ndb
-import logging
 
 
 class GAEProvider(OAuthProvider):
@@ -25,7 +25,7 @@ class GAEProvider(OAuthProvider):
 
     @property
     def realms(self):
-        return [u"secret", u"trolling"]
+        return []
 
     @property
     def nonce_length(self):
@@ -37,13 +37,17 @@ class GAEProvider(OAuthProvider):
             token = request.form.get("oauth_token")
             return self.authorized(token)
         else:
-            # TODO: Authenticate client
             token = request.args.get(u"oauth_token", None)
             if token is None:
-                return "oauth_token needed", 400
+                return "oauth_token required", 400
             req_token = RequestToken.query(
                 RequestToken.token == token).get()
+            if req_token is None:
+                return "Request Token not found", 404
             client = req_token.client.get()
+            if client is None:
+                return "Client not found", 404
+
             return render_template(
                 u"authorize.html",
                 token=token,
@@ -56,14 +60,31 @@ class GAEProvider(OAuthProvider):
         if request.method == u'POST':
             client_key = self.generate_client_key()
             secret = self.generate_client_secret()
-            # TODO: input sanitisation?
+
             name = request.form.get(u"name")
             description = request.form.get(u"description")
             callback = request.form.get(u"callback")
             pubkey = request.form.get(u"pubkey")
-            # TODO: redirect?
-            # TODO: pubkey upload
-            # TODO: csrf
+
+            # Input validation:
+
+            params = [name, description, callback, pubkey]
+            if any(not param for param in params):
+                flash("Please fill all fields.")
+                return redirect(url_for("register"))
+
+            for param in params:
+                if len(param) < 5:
+                    flash("Input too short: " + param)
+                    return redirect(url_for("register"))
+                if len(param) > 60:
+                    flash("Input too long: ")
+                    return redirect(url_for("register"))
+
+            if not callback.startswith("http://"):
+                flash("Invalid callback url: " + callback)
+                return redirect(url_for("register"))
+
             info = {
                 u"client_key": client_key,
                 u"name": name,
@@ -79,21 +100,16 @@ class GAEProvider(OAuthProvider):
             client.put()
             return render_template(u"client.html", **info)
         else:
-            # clients = g.user.clients
             clients = Client.query(Client.resource_owner == g.user.key)
             return render_template(u"register.html", clients=clients)
 
     def validate_timestamp_and_nonce(self, client_key, timestamp, nonce,
             request_token=None, access_token=None):
-        # TODO:  Toimiiko oikein? demoproviderissa ja mongo_demoproviderissa
-        # erilaiset toteutukset. Nyt palautetaan False jos parametreja vastaava
-        # Nonce löytyy tietokannasta
         token = True
         req_token = True
         client = Client.query(Client.client_key == client_key).get()
 
         if client:
-            logging.info("timestamp: type(nonce) = " + str(type(nonce)))
             nonce = Nonce.query(
                 Nonce.nonce == nonce,
                 Nonce.timestamp == timestamp,
@@ -108,10 +124,8 @@ class GAEProvider(OAuthProvider):
                     token = nonce.access_token.get()
                     if token and token.token == access_token:
                         return False
-            logging.info("Timestamp + nonce validation: nonce not found")  # TODO poista
             return True
         else:
-            logging.info("Timestamp + nonce validation: client not found")  # TODO poista
             return False
 
     def validate_redirect_uri(self, client_key, redirect_uri=None):
@@ -126,7 +140,7 @@ class GAEProvider(OAuthProvider):
             else:
                 return False
 
-        except AttributeError:  # Client with a given client_key was not found
+        except AttributeError:  # Clientiä ei löytynyt
             return False
 
     def validate_client_key(self, client_key):
@@ -138,8 +152,6 @@ class GAEProvider(OAuthProvider):
     def validate_realm(self, client_key, access_token, uri=None, required_realm=None):
         if not required_realm:
             return True
-
-        # insert other check, ie on uri here
 
         client = Client.query(Client.client_key == client_key).get()
 
@@ -155,14 +167,17 @@ class GAEProvider(OAuthProvider):
 
     @property
     def dummy_client(self):
-        return u'dummy_client'
+        """
+        Jos OAuth-validointi epäonnistuu, se suoritetaan loppuun dummy-arvoilla
+        ajastushyökkäysten estämiseksi.
+        """
+        return u"dummy_client"
 
     @property
     def dummy_resource_owner(self):
-        return u'dummy_resource_owner'
+        return u"dummy_resource_owner"
 
     def validate_request_token(self, client_key, resource_owner_key):
-        # TODO: make client_key optional
         token = None
         if client_key:
             client = Client.query(Client.client_key == client_key).get()
