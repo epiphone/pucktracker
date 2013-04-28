@@ -1,8 +1,61 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Joukkueen tiedot</h1>
+     <a href="/" data-role="button">Lisää/Poista seurattavista</a>
+
+    <h1>Joukkueen tiedot</h1>
+
+    <div class="ui-grid-a">
+        <div class="ui-block-a">
+                <h2>{{name}}</h2>
+        </div>
+        <div class="ui-block-b">
+            <div class="ui-bar ui-bar-d picture-frame">
+                <p>Logo</p>
+            </div>
+        </div>
+    </div>
+
+
+<table>
+    <caption><h2>Kauden {{year}} tilastot</h2></caption>​
+<thead>
+    <tr>
+        <td class="bottom-border">GP</td>
+        <td class="bottom-border">W</td>
+        <td class="bottom-border">L</td>
+        <td class="bottom-border">T</td>
+        <td class="bottom-border">OTL</td>
+        <td class="bottom-border">Pts</td>
+        <td class="bottom-border">GF</td>
+        <td class="bottom-border">GA</td>
+        <td class="bottom-border">Diff</td>
+        <td class="bottom-border">Home</td>
+        <td class="bottom-border">Road</td>
+        <td class="bottom-border">Last 10</td>
+        <td class="bottom-border">Streak</td>
+    </tr>
+</thead>
+<tr>
+    <td>{{stats['gp']}}</td>
+    <td>{{stats['w']}}</td>
+    <td>{{stats['l']}}</td>
+    <td>{{stats['t']}}</td>
+    <td>{{stats['otl']}}</td>
+    <td>{{stats['pts']}}</td>
+    <td>{{stats['gf']}}</td>
+    <td>{{stats['ga']}}</td>
+    <td>{{stats['diff']}}</td>
+    <td>{{stats['home']}}</td>
+    <td>{{stats['road']}}</td>
+    <td>{{stats['last 10']}}</td>
+    <td>{{stats['streak']}}</td>
+</tr>
+
+
+</table>
+
 
 <p><a data-rel="back" data-role="button" data-theme="b">Paluu</a></p>
 
-{% endblock %}
+{% endblock %}s

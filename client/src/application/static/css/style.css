@@ -29,11 +29,13 @@ border-bottom: 1px solid #e3e3e3;
 }*/
 
 .bottom-border {
-    border-bottom:1px solid #e3e3e3
+    border-bottom:1px solid #e3e3e3;
+    font-weight: bold;
 }
 
 .top-border {
     border-top:1px solid #333333
+
 }
 
 

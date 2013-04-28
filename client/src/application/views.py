@@ -73,9 +73,15 @@ def player(player_id):
 
 @app.route("/team/", defaults={"team":""})
 @app.route("/team/<team>")
-def team(team):
+def team(team,year="2012"):
     if team:
-        return render_template("team.html")
+        logging.info("Haetaan joukkueen %s tiedot vuodelta %s" % (team,year))
+        stats = fetch_from_api("/api/json/teams?team=%s&year=%s" % (team,year))
+
+        return render_template("team.html",name=team,
+                                           stats=stats,
+                                           year=year
+                                           )
     return render_template("team_search.html")
 
 
