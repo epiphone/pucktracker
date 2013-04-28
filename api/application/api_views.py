@@ -11,7 +11,8 @@ from flask import render_template, request, jsonify, abort, Response
 from provider import GAEProvider
 import logging
 import json
-from models import AccessToken, ResourceOwner as User
+from models import AccessToken
+
 
 ### GLOBAALIT ###
 
@@ -40,13 +41,15 @@ def protected():
     return "Autorisointi onnistui!"
 
 
-@app.route('/api/')
+@app.route("/api/")
 def api_test():
-    """TODO tämä palauttamaan APIn dokumentaatio."""
-    return render_template("api_test.html")
+    """
+    API:n "juuri". Palauttaa API:n dokumentaation.
+    """
+    return render_template("api_documentation.html")
 
 
-@app.route("/api/players/<pid>")
+@app.route("/api/json/players/<pid>")
 def players(pid):
     """
     Palauttaa pelaajan valitun kauden tilastot, tai jos kautta ei ole
@@ -71,7 +74,7 @@ def players(pid):
     return jsonify(data)  # jsonify asettaa content-typen automaattisesti
 
 
-@app.route("/api/players")
+@app.route("/api/json/players")
 def search_players():
     """
     Palauttaa listan pelaajista, joiden nimi vastaa hakuehtoa.
@@ -89,7 +92,7 @@ def search_players():
     return jsonify(data)
 
 
-@app.route("/api/teams")
+@app.route("/api/json/teams")
 def team():
     """
     Palauttaa joukkueen valitun kauden tilastot.
@@ -115,7 +118,7 @@ def team():
     return jsonify(data)
 
 
-@app.route("/api/games/<int:gid>")
+@app.route("/api/json/games/<gid>")
 def game(gid):
     """
     Palauttaa yksittäisen ottelun tiedot.
@@ -131,7 +134,7 @@ def game(gid):
     return jsonify(data)
 
 
-@app.route("/api/games")
+@app.route("/api/json/games")
 def games():
     """
     Palauttaa valitun joukkueen tai pelaajan valitulla kaudella pelatut
@@ -163,7 +166,7 @@ def games():
     return jsonify(data)
 
 
-@app.route("/api/schedule")
+@app.route("/api/json/schedule")
 def schedule():
     """
     Palauttaa valitun joukkueen/pelaajan nykyisen kauden
@@ -196,7 +199,7 @@ def schedule():
     return jsonify(data)
 
 
-@app.route("/api/top")
+@app.route("/api/json/top")
 def top():
     """
     Hakee parametrien mukaan määritellyt pelaajat tilastoineen.
@@ -237,7 +240,7 @@ def top():
     return Response(data, mimetype="application/json")
 
 
-@app.route("/api/user", methods=["GET", "POST", "DELETE"])
+@app.route("/api/json/user", methods=["GET", "POST", "DELETE"])
 @oauth_provider.require_oauth()
 def user():
     """

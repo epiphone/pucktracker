@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>Pucktracker API Documentation</title>
+  <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+
+<h1 id="pucktracker">Pucktracker API</h1>
+
+<p>ITKS545 harjoitustyö - Aleksi Pekkala &amp; Jarkko Saltiola</p>
+
+<p>Web-sovellus NHL-tilastojen seuraamista varten.</p>
+
+<h3 id="pelaajan-kausittaiset-tilastot">Pelaajan kausittaiset tilastot</h3>
+
+<pre><code>GET /api/json/players/500?year=2012
+</code></pre>
+
+<ul>
+<li>Hakee <a href="http://pucktracker.appspot.com/api/json/players/500?year=2012">pelaajan ID=500 kauden 2012-13 tilastot</a>.</li>
+<li>year-parametri on joko vuosi tai "career" uratilastoja varten.</li>
+<li>Jos year-parametria ei määritellä, haetaan joka vuoden tilastot sekä uratilastot.</li>
+</ul>
+
+<h3 id="pelaajien-haku-nimen-perusteella">Pelaajien haku nimen perusteella</h3>
+
+<pre><code>GET /api/json/players?query=teemu+selanne
+</code></pre>
+
+<ul>
+<li>Palauttaa <a href="http://pucktracker.appspot.com/api/json/players?query=teemu+selanne">pelaajat joiden nimi vastaa hakuehtoa</a>.</li>
+<li>Tyhjä hakuehto palauttaa kaikki pelaajat.</li>
+</ul>
+
+<h3 id="joukkueiden-kausittaiset-tilastot">Joukkueiden kausittaiset tilastot</h3>
+
+<pre><code>GET /api/json/teams?team=ana&amp;year=2012
+</code></pre>
+
+<ul>
+<li>Hakee <a href="http://pucktracker.appspot.com/api/json/teams?team=ana&amp;year=2012">joukkueen ana tilastot kaudelta 2012</a>.</li>
+<li>Jos joukkuetta ei ole määritelty, haetaan kaikki joukkueet (eli sarjataulukko).</li>
+<li>year-parametri on oletuksena nykyinen kausi.</li>
+<li>team-parametri on jokin seuraavista: njd, nyi, nyr, phi, pit, bos, buf, mon, ott, tor, car, fla, tam, was, wpg, chi, cob, det, nas, stl, cgy, col, edm, min, van, ana, dal, los, pho, san.</li>
+<li>Huom! Sarjataulukkoa haettaessa joukkueet eivät ole missään erityisessä järjestyksessä; järjestäminen jää asiakkaan vastuulle.</li>
+</ul>
+
+<h3 id="yksittaisen-ottelun-tiedot">Yksittäisen ottelun tiedot</h3>
+
+<pre><code>GET /api/json/games/2013040318
+</code></pre>
+
+<ul>
+<li>Hakee <a href="http://pucktracker.appspot.com/api/json/games/2013040318">ottelun tiedot id:n perusteella</a>.</li>
+</ul>
+
+<h3 id="joukkueen-pelatut-ottelut">Joukkueen pelatut ottelut</h3>
+
+<pre><code>GET /api/json/games?team=pit&amp;year=2011
+</code></pre>
+
+<ul>
+<li>Hakee <a href="http://pucktracker.appspot.com/api/json/games?team=pit&amp;year=2011">joukkueen pit kauden 2010-11 pelatut ottelut</a>.</li>
+<li>year-parametri on oletuksena nykyinen kausi.</li>
+<li>team-parametri on jokin seuraavista: njd, nyi, nyr, phi, pit, bos, buf, mon, ott, tor, car, fla, tam, was, wpg, chi, cob, det, nas, stl, cgy, col, edm, min, van, ana, dal, los, pho, san.</li>
+</ul>
+
+<h3 id="pelaajan-pelatut-ottelut">Pelaajan pelatut ottelut</h3>
+
+<pre><code>GET /api/json/games?pid=1453&amp;year=2009
+</code></pre>
+
+<ul>
+<li>Hakee <a href="http://pucktracker.appspot.com/api/json/games?pid=1453&amp;year=2009">pelaajan ID=1453 kauden 2009-10 pelatut ottelut</a>.</li>
+<li>year-parametri on oletuksena nykyinen kausi.</li>
+<li>Huom! Jos api/games-urlissa on parametreina sekä "team" että "pid", käytetään "pid":tä.</li>
+</ul>
+
+<h3 id="joukkueen-tulevat-ottelut">Joukkueen tulevat ottelut</h3>
+
+<pre><code>GET /api/json/schedule?team=bos
+</code></pre>
+
+<ul>
+<li>Hakee <a href="http://pucktracker.appspot.com/api/json/schedule?team=bos">joukkueen bos tämän kauden <strong>tulevat</strong> ottelut.</a></li>
+</ul>
+
+<h3 id="pelaajan-tulevat-ottelut">Pelaajan tulevat ottelut</h3>
+
+<pre><code>GET /api/json/schedule?pid=500
+</code></pre>
+
+<ul>
+<li>Hakee <a href="http://pucktracker.appspot.com/api/json/schedule?pid=500">pelaajan ID=500 tämän kauden <strong>tulevat</strong> ottelut.</a></li>
+<li>Huom! Jos api/games-urlissa on parametreina sekä "team" että "pid", käytetään "pid":tä.</li>
+</ul>
+
+<h3 id="otteluohjelma">Otteluohjelma</h3>
+
+<pre><code>GET /api/json/schedule
+</code></pre>
+
+<ul>
+<li>Jos kumpaakaan (<strong>pid</strong> tai <strong>team</strong>) parametria ei ole määritelty, haetaan <a href="http://pucktracker.appspot.com/api/json/schedule">kaikki tulevat ottelut.</a></li>
+</ul>
+
+<h3 id="top-pelaajat">Top-pelaajat</h3>
+
+<pre><code>GET /api/json/top?sort=pim&amp;reverse=1&amp;year=2012&amp;goalies=0&amp;playoffs=0&amp;limit=10
+</code></pre>
+
+<ul>
+<li>Hakee <a href="http://pucktracker.appspot.com/api/json/top?sort=pim&amp;reverse=1&amp;year=2012&amp;goalies=0&amp;playoffs=0&amp;limit=10">parhaat pelaajat parametrien mukaisesti</a>:
+<ul>
+<li>year määrittää kauden, oletuksena nykyinen kausi.</li>
+<li>sort määrittää järjestyksen, vaihtoehdot ovat
+<ul>
+<li>pelaajilla  name, team, gp, g, a, pts, +/-, pim, hits, bks, fw, fl, fo%, ppg, ppa, shg, sha, gw, sog, pct
+<ul>
+<li>oletuksena <strong>pts</strong>.</li>
+</ul></li>
+<li>maalivahdeilla name, team, gp, gs, min, w, l, otl, ega, ga, gaa, sa, sv, sv%, so
+<ul>
+<li>oletuksena <strong>w</strong>.</li>
+</ul></li>
+</ul></li>
+<li>goalies (arvo 0 tai 1) määrittää haetaanko maalivahteja; oletuksena ei haeta.</li>
+<li>playoffs (0 tai 1) määrittää haetaanko valitun kauden playoffien top-listoja; oletuksena ei.</li>
+<li>reverse (0 tai 1) määrittää järjestyksen suunnan, oletuksena reverse=1, eli suurin arvo ensin.</li>
+<li>limit määrittää tulosten maksimimäärän, oletuksena 30.</li>
+</ul></li>
+<li>Huom! Paluuarvo on poikkeuksellisesti lista (TODO: turvallisuussyy?).</li>
+</ul>
+
+<h3 id="kayttajan-seuraamat-pelaajatjoukkueet">Käyttäjän seuraamat pelaajat/joukkueet</h3>
+
+<pre><code>GET /api/json/user?pids_only=1
+</code></pre>
+
+<ul>
+<li>Palauttaa käyttäjän seuraamat pelaajat ja joukkueet.</li>
+<li>Oletuksena palautetaan seurattavien pelaajien sekä joukkueiden nykyisen kauden tilastot sekä viimeisimmän ottelun tiedot
+<ul>
+<li>Jos <strong>ids_only</strong>-parametri on 1 (oletuksena 0), palautetaan vain seurattavien pelaajien/joukkueiden tunnukset.</li>
+<li>Huom! Jos seurattava pelaaja ei ole pelannut nykyisellä kaudella yhtään ottelua, ei kyseisen pelaajan osalta palauteta mitään tilastoja.</li>
+</ul></li>
+<li>Vaatii OAuth-allekirjoitetun pyynnön.</li>
+<li>Käyttäjä päätellään OAuth access tokenin perusteella - ei tarvitse tuoda parametrina.</li>
+</ul>
+
+<h3 id="lisays-kayttajan-seuraamiin-pelaajiinjoukkueisiin">Lisäys käyttäjän seuraamiin pelaajiin/joukkueisiin</h3>
+
+<pre><code>POST /api/json/user
+</code></pre>
+
+<ul>
+<li>Lisää käyttäjälle parametreissä määritellyn joukkueen/pelaajan seurattavaksi.</li>
+<li>Post-parametrina joko <strong>team</strong>=joukkueen<em>tunnus tai <strong>pid</strong>=pelaajan</em>id.
+<ul>
+<li>Jos kummatkit on määritelty, käytetään parametria <strong>pid</strong>.</li>
+</ul></li>
+<li>Paluuarvo on sama kuin vastaavassa GET-pyynnössä - lisäyksen myötä päivitettynä
+<ul>
+<li><strong>ids_only</strong>-parametrin voi määritellä kuten GET-pyynnössä</li>
+</ul></li>
+<li>Vaatii OAuth 1.0-allekirjoitetun pyynnön.</li>
+</ul>
+
+<h3 id="poisto-kayttajan-seuraamista-pelaajistajoukkueista">Poisto käyttäjän seuraamista pelaajista/joukkueista</h3>
+
+<pre><code>DELETE /api/json/user
+</code></pre>
+
+<ul>
+<li>Poistaa parametreissä määritellyn pelaajan/joukkueen käyttäjän seurannasta.</li>
+<li>Post-parametrina joko <strong>team</strong>=joukkueen<em>tunnus tai <strong>pid</strong>=pelaajan</em>id.
+<ul>
+<li>Jos kummatkit on määritelty, käytetään parametria <strong>pid</strong>.</li>
+</ul></li>
+<li>Vaatii OAuth 1.0-allekirjoitetun pyynnön.</li>
+</ul>
+
+</div> <!-- /.container -->
+
+</body>
