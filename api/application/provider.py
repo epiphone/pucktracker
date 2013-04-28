@@ -5,7 +5,6 @@ OAuth Providerin implementointi Google App Enginelle.
 Perustuu flask-oauthprovider-kirjaston esimerkkiin:
 https://github.com/ib-lundgren/flask-oauthprovider
 
-TODO: siistimistä ja kommentit
 """
 
 

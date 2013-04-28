@@ -1,8 +1,9 @@
 # -*-coding:utf-8-*-
 """
-models.py
 Tietokannan alustus.
-Käyttää App Enginen NoSQL-tyylistä Datastorea.
+
+Käyttää App Enginen NoSQL-tyylistä ndb-tietokantaa.
+
 """
 
 from google.appengine.ext import ndb
@@ -12,6 +13,8 @@ class ResourceOwner(ndb.Model):
     name = ndb.StringProperty()
     email = ndb.StringProperty()
     userid = ndb.StringProperty()
+    teams = ndb.StringProperty(repeated=True)
+    players = ndb.StringProperty(repeated=True)
 
 
 class Callback(ndb.Model):
@@ -22,14 +25,11 @@ class Nonce(ndb.Model):
     nonce = ndb.StringProperty()
     timestamp = ndb.StringProperty()
 
-    # TODO: TTL
-    client_id = ndb.IntegerProperty()
     client = ndb.KeyProperty(kind="Client")
 
     request_token_id = ndb.IntegerProperty()
     request_token = ndb.KeyProperty(kind="RequestToken")
 
-    access_token_id = ndb.IntegerProperty()
     access_token = ndb.KeyProperty(kind="AccessToken")
 
 
@@ -40,10 +40,8 @@ class RequestToken(ndb.Model):
     secret = ndb.StringProperty()
     callback = ndb.StringProperty()
 
-    client_id = ndb.StringProperty()
     client = ndb.KeyProperty(kind="Client")
 
-    resource_owner_id = ndb.StringProperty()
     resource_owner = ndb.KeyProperty(kind=ResourceOwner)
 
 
@@ -52,11 +50,8 @@ class AccessToken(ndb.Model):
     realm = ndb.StringProperty()
     secret = ndb.StringProperty()
 
-    # TODO: TTL
-    client_id = ndb.StringProperty()
     client = ndb.KeyProperty(kind="Client")
 
-    resource_owner_id = ndb.StringProperty()
     resource_owner = ndb.KeyProperty(kind="ResourceOwner")
 
 
@@ -71,5 +66,4 @@ class Client(ndb.Model):
     access_tokens = ndb.KeyProperty(kind=AccessToken, repeated=True)
     callbacks = ndb.KeyProperty(kind=Callback, repeated=True)
 
-    resource_owner_id = ndb.StringProperty()
     resource_owner = ndb.KeyProperty(kind=ResourceOwner)
