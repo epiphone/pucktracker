@@ -3,11 +3,10 @@
 
 <h1>Hae pelaajia</h1>
 
-<h3>Ulkoisesta lähteestä hakeva lista</h3>
 <ul data-role="listview" data-filter="true">
-    <li><a href="#player">Miika Kiprusoft</a></li>
-    <li><a href="#player">Teemu Selänne</a></li>
-    <li><a href="#player">Harri Olli</a></li>
+    {% for player in players %}
+    <li><a href="/player/{{player.id}}">{{player.name}}</a></li>
+    {% endfor %}
 </ul>
 
 {% endblock %}

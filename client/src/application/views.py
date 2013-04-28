@@ -37,9 +37,9 @@ def menu():
 @app.route("/player/", defaults={'player_id':0})  # TODO: tee fiksummin
 @app.route("/player/<int:player_id>")
 def player(player_id):
+    all_players = fetch_from_api("/api/json/players")
     if player_id:
         logging.info("Haetaan pelaajan %s tiedot" % player_id)
-        all_players = fetch_from_api("/api/json/players")
         all_seasons = fetch_from_api("/api/json/players/%s" % player_id)
 
         name = all_players[str(player_id)]['name']
@@ -68,7 +68,13 @@ def player(player_id):
                                               position=position,
                                               career=career)
     else:
-        return render_template("player_search.html")
+        player_list=[]
+        for k,v in all_players.iteritems():
+            new_dict = v
+            new_dict['id'] = k
+            player_list.append(new_dict)
+
+        return render_template("player_search.html", players=player_list)
 
 
 @app.route("/team/", defaults={"team":""})
