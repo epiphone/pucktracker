@@ -38,18 +38,36 @@ def menu():
 @app.route("/player/<int:player_id>")
 def player(player_id):
     if player_id:
+        logging.info("Haetaan pelaajan %s tiedot" % player_id)
+        all_players = fetch_from_api("/api/json/players")
+        all_seasons = fetch_from_api("/api/json/players/%s" % player_id)
 
-        name = u"Teemu Selanneasdfasdfasdfa sdfasdfasdfasdf"
-        team = u"Tappara"
-        season = "Hyvin meni"
-        all_seasons = {"1992":"huono","2000":"kohtalainen","2011":"loistava"}
+        name = all_players[str(player_id)]['name']
+        position = all_players[str(player_id)]['pos']
+        team = all_players[str(player_id)]['team']
+
+        this_season = all_seasons['2012']
+        career = all_seasons['career']
+        del all_seasons['career']
+
+        # Poistetaan pelaaja-lista-dictionary -rakenteesta yksi dictionary-taso, jotta
+        # Jinja template-engine osaa loopata tietorakenteen läpi ilman ongelmaa.
+        career_list = []
+        for k,v in all_seasons.iteritems():
+            new_dict = v
+            new_dict['year'] = k
+            career_list.append(new_dict)
+
+        # Järjestetään pelaajalista
+        career_list = sorted(career_list, key=lambda x: x["year"], reverse=True)
 
         return render_template("player.html", name=name,
                                               team=team,
-                                              season=season,
-                                              all_seasons=all_seasons)
+                                              this_season=this_season,
+                                              all_seasons=career_list,
+                                              position=position,
+                                              career=career)
     else:
-        print "nah"
         return render_template("player_search.html")
 
 
