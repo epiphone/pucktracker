@@ -15,8 +15,8 @@ from utils import fetch_from_api, fetch_from_api_signed
 
 @app.route("/")
 def index():
-    """Viimeisimmät ottelutilastot, sarjataulukko ja pelaajien pistekärki.
-    käyttäjää kehotetaan kirjautumaan sisään.
+    """Käyttäjän seuraamien pelaajien ja joukkueiden uusimmat pelit.
+    Kirjautumatonta käyttäjää kehotetaan kirjautumaan sisään.
     """
     if "oauth_token" in session:
         return render_template("start.html",authorized=True)
@@ -25,9 +25,31 @@ def index():
         return render_template("start.html",authorized=True)  # TODO false
 
 
+@app.route("/menu")
+def menu():
+    """ Navigointilinkit eri sivuille.
+    """
+    return render_template("menu.html")
+
+
+# TODO: routtaa hakusivu urliin  /player
+@app.route("/player/", defaults={'player_id':0})  # TODO: tee fiksummin
 @app.route("/player/<int:player_id>")
 def player(player_id):
-    return render_template("player.html")
+    if player_id:
+        return render_template("player.html")
+    else:
+        print "nah"
+        return render_template("player_search.html")
+
+
+@app.route("/team/", defaults={"team":""})
+@app.route("/team/<team>")
+def team(team):
+    if team:
+        return render_template("team.html")
+    return render_template("team_search.html")
+
 
 @app.route("/game/<int:game_id>")
 def game(game_id):
@@ -85,11 +107,7 @@ def game(game_id):
                                         skaters=skater_list )
 
 
-@app.route("/team/<team>")
-def team(team):
 
-    return render_template("team.html")
-
-@app.route("/search")
+@app.route("/top")
 def search():
-    return render_template("search.html")
+    return render_template("top.html")
