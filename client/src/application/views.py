@@ -141,6 +141,19 @@ def game(game_id):
                                         skaters=skater_list,
                                         shootout=shootout )
 
+@app.route("/standings/<int:year>")
+def standings(year):
+    logging.info("Haetaan vuode %s sarjataulukko" % year)
+    teams = fetch_from_api("/api/json/teams?&year=%s" % year)
+
+    team_list = []
+    for k,v in teams.iteritems():
+        new_dict = v
+        new_dict['team'] = k
+        team_list.append(new_dict)
+
+    team_list = sorted(team_list, key=lambda x: x["pts"], reverse=True)
+    return render_template("standings.html",teams=team_list, year=year)
 
 
 @app.route("/top")
