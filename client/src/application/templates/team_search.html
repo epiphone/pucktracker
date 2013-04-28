@@ -4,9 +4,11 @@
 <h1>Valitse joukkue</h1>
 
 <ul data-role="listview" data-filter="true">
-    <li><a href="#player">Jyp</a></li>
-    <li><a href="#player">Boston</a></li>
-    <li><a href="#player">Ruotsi</a></li>
+
+{% for team in teams  %}
+    <li><a href="/team/{{team}}">{{names[team]}} ({{team|upper}})</a></li>
+{% endfor %}
+
 </ul>
 
 {% endblock %}
