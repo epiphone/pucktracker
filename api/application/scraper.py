@@ -18,7 +18,7 @@ TODO:
 - testaa next_game
 - testaa add_cache
 
-Aleksi Pekkala
+author: Aleksi Pekkala
 """
 
 from lxml import html
@@ -129,7 +129,6 @@ def scrape_players(query=""):
     # Tarkistetaan välimuisti:
     players = memcache.get("players")
     if players is not None:
-        logging.debug("scrape_players(%s) - Loytyi valimuistista." % query)
         return {k: v for k, v in players.items() if query in v["name"].lower()}
 
     # Ladataan skreipattava sivu:
@@ -657,15 +656,15 @@ def add_cache(key, value, check):
         # Arvo on muuttunut, selvitetään seuraavan ottelun ajankohta:
         try:
             if ident.isalpha():
-                next_game_time = get_next_games(team=ident)[0]["time"]
+                next_game_time = get_next_games(team=ident)[team][0]["time"]
             else:
-                next_game_time = get_next_games(pid=ident)[0]["time"]
+                next_game_time = get_next_games(pid=ident)[pid][0]["time"]
         # Jos seuraavaa ottelua ei löydy,
-        # asetetaan seuraavan ottelun ajankohdaksi nyt + 1 päivä:
+        # asetetaan seuraavan ottelun ajankohdaksi nyt + 1 päivä:  TODO
         except Exception as e:
             logging.error("Seuraavaa ottelua ei löydetty. " + str(e))
             dt = datetime.now() + timedelta(days=1)
-            next_game_time = str(dt)[:16]
+            next_game_time = str(dt)[:19]
 
         # Välimuistin arvo vanhenee 2 tuntia pelin alkamisen jälkeen:
         game_end_time = isostr_to_date(next_game_time) + timedelta(
@@ -746,7 +745,6 @@ def isostr_to_date(datetime_str):
     >>> print isostr_to_date("2013-02-28 16:12:00")
     2013-02-28 16:12:00
     """
-    logging.info("###DATETIME_STR### " + datetime_str)
     format = "%Y-%m-%d %H:%M:%S"
     return datetime.strptime(datetime_str, format)
 
