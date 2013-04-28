@@ -26,7 +26,9 @@ def fetch_from_api(url, method="GET"):
     """Tekee pyynnön pucktracker-API:lle, palauttaa JSONista muokatun
     python-objektin tai None, jos pyyntö epäonnistuu."""
     METHODS[method]
-    response = urlfetch.fetch(API_URL + url, method=method)
+    url0 = API_URL + url
+    logging.info("API-pyyntö: %s" % url0)
+    response = urlfetch.fetch(url0, method=method)
     if response.status_code != 200:
         logging.info("Pyyntö epäonnistui " + response.content)  # TODO palautus
         return None  # TODO voiko olla muita onnistuneita statuskoodeja?
