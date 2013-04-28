@@ -86,6 +86,10 @@ DIVISIONS = ["atlantic", "northeast", "southeast",
 TEAMS = ["njd", "nyi", "nyr", "phi", "pit", "bos", "buf", "mon", "ott", "tor",
          "car", "fla", "tam", "was", "wpg", "chi", "cob", "det", "nas", "stl",
          "cgy", "col", "edm", "min", "van", "ana", "dal", "los", "pho", "san"]
+# Uratilastoissa käytetään eri joukkuetunnuksia:
+ALT_TEAMS = {"sj": "san", "tb": "tam", "nsh": "nas", "cls": "cob", "la": "los",
+             "anh": "ana"}
+
 CITIES = ["new jersey", "ny islanders", "ny rangers", "philadelphia",
           "pittsburgh", "boston", "buffalo", u"montréal", "ottawa", "toronto",
           "carolina", "florida", "tampa bay", "washington", "winnipeg",
@@ -182,6 +186,9 @@ def scrape_player_stats(year=SEASON, playoffs=False, goalies=False,
         if not order or order not in PLAYER_STATS:
             order = PLAYER_STAT_DEFAULT
         cache_key = "pstats_players"
+
+    cache_key += year
+    cache_key += "_playoffs" if playoffs else ""
 
     # Järjestysfunktio
     sort_func = lambda x: -999 if x[order] is None else x[order]
@@ -686,6 +693,8 @@ def parse_stat_value(value):
         return float(value_str)
     if value_str == "n/a":
         return None
+    if value_str in ALT_TEAMS:
+        value_str = ALT_TEAMS[value_str]
     return value_str
 
 

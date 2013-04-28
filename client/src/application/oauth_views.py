@@ -5,7 +5,7 @@ URL-reititykset ja sivut OAuthin osalta.
 
 from application import app
 from urlparse import parse_qs
-from flask import session, redirect, request, render_template
+from flask import session, redirect, request
 from settings import REQUEST_TOKEN_URL, ACCESS_TOKEN_URL, AUTHORIZE_URL
 from settings import CALLBACK_URL, API_URL
 from utils import fetch_from_api_signed
@@ -43,7 +43,7 @@ def test_user_reset(ident):
     token = session["oauth_token"]
     token_s = session["oauth_token_secret"]
     resp = fetch_from_api_signed(
-        base_url=API_URL + "/api/user",
+        base_url=API_URL + "/api/json/user",
         token=token,
         secret=token_s,
         method="DELETE",
@@ -69,7 +69,7 @@ def test_add_pid(ident):
     token = session["oauth_token"]
     token_s = session["oauth_token_secret"]
     resp = fetch_from_api_signed(
-        base_url=API_URL + "/api/user",
+        base_url=API_URL + "/api/json/user",
         token=token,
         secret=token_s,
         method="POST",
@@ -90,7 +90,7 @@ def test_user():
     token = session["oauth_token"]
     token_s = session["oauth_token_secret"]
     resp = fetch_from_api_signed(
-        base_url=API_URL + "/api/user",
+        base_url=API_URL + "/api/json/user",
         url_params=dict(ids_only=ids_only),
         token=token,
         secret=token_s,
