@@ -267,7 +267,7 @@ def user():
         acc_token = AccessToken.query(AccessToken.token == token).get()
         user = acc_token.resource_owner.get()
         players, teams = user.players, user.teams
-    except KeyError:  # access tokenia tai käyttäjää ei löydy
+    except KeyError:  # Access tokenia tai käyttäjää ei löydy
         abort(500)
 
     # Poimitaan ids_only-parametri joko urlista tai post-parametreista:
@@ -376,9 +376,12 @@ def get_players_and_teams(players=None, teams=None):
     ret = {}
     if teams:
         standings = scraper.scrape_standings()
+        logging.info("type(teams[0])=" + str(type(teams[0])))
+        assert isinstance(standings, dict)  # TODO debug
+        assert isinstance(teams[0], basestring)  # TODo debug
         if not standings:
             abort(503)  # Service unavailable
-        if not all(team in standings for team in teams):
+        if any(team not in standings for team in teams):
             abort(400)  # Bad request - virheellinen joukkueen tunnus
         for team in teams:
             stats = standings[team]

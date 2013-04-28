@@ -23,15 +23,25 @@ METHODS = {
 
 
 def fetch_from_api(url, method="GET"):
-    """Tekee pyynnön pucktracker-API:lle, palauttaa JSONista muokatun
-    python-objektin tai None, jos pyyntö epäonnistuu."""
-    METHODS[method]
-    url0 = API_URL + url
-    logging.info("API-pyyntö: %s" % url0)
-    response = urlfetch.fetch(url0, method=method)
+    """
+    Tekee pyynnön pucktracker-API:lle.
+
+    Palauttaa JSONista muokatun python-objektin tai None,
+    jos pyyntö epäonnistuu.
+    """
+    method = METHODS[method]
+    if not url.startswith("http://"):
+        url = API_URL + url
+
+    response = urlfetch.fetch(
+        url=url,
+        method=method,
+        deadline=30)
+
     if response.status_code != 200:
         logging.info("Pyyntö epäonnistui " + response.content)  # TODO palautus
         return None  # TODO voiko olla muita onnistuneita statuskoodeja?
+
     return json.loads(response.content)
 
 
