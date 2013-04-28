@@ -346,18 +346,23 @@ def user():
             if not pid in players:
                 abort(400)  # pelaajaa ei löydy seurattavien listasta
             players.remove(pid)
-            user.players = players
+            if not pid in user.players:
+                return "not pid in user.players"
+            user.players.remove(pid)
 
         elif team:
             if not team in teams:
                 abort(400)  # joukkuetta ei löydy seurattavien listasta
             teams.remove(team)
-            user.teams = teams
+            if not team in user.teams:
+                return "not team in user.teams"
+            user.teams.remove(team)
 
         else:
             abort(400)  # joko poistettava pelaaja tai joukkue tulee määrittää
 
         user.put()
+
         if ids_only:
             ret = dict(players=players, teams=teams)
         else:
