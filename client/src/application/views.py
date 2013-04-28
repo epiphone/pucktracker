@@ -62,11 +62,11 @@ def player(player_id):
         career_list = sorted(career_list, key=lambda x: x["year"], reverse=True)
 
         return render_template("player.html", name=name,
-          team=team,
-          this_season=this_season,
-          all_seasons=career_list,
-          position=position,
-          career=career)
+            team=team,
+            this_season=this_season,
+            all_seasons=career_list,
+            position=position,
+            career=career)
     else:
         player_list = []
         for k,v in all_players.iteritems():
@@ -81,11 +81,11 @@ def player(player_id):
 @app.route("/team/<team>")
 def team(team,year="2012"):
     teams = ['njd', 'nyi', 'nyr', 'phi', 'pit', 'bos', 'buf', 'mon', 'ott',
-    'tor', 'car', 'fla', 'tam', 'was', 'wpg', 'chi', 'cob', 'det',
-    'nas', 'stl', 'cgy', 'col', 'edm', 'min', 'van', 'ana', 'dal',
-    'los', 'pho', 'san']
+        'tor', 'car', 'fla', 'tam', 'was', 'wpg', 'chi', 'cob', 'det',
+        'nas', 'stl', 'cgy', 'col', 'edm', 'min', 'van', 'ana', 'dal',
+        'los', 'pho', 'san']
 
-    names = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets" , "wpg": "Winnipeg Jets" ,"cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "atl": "Atlanta Thrashers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild", "nsh": "Nashville Predators"}
+    names = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "atl": "Atlanta Thrashers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild", "nsh": "Nashville Predators"}
 
     if team in teams:
         logging.info("Haetaan joukkueen %s tiedot vuodelta %s" % (team,year))
@@ -93,10 +93,10 @@ def team(team,year="2012"):
 
         name = names[team]
         return render_template("team.html",team=team,
-         name=name,
-         stats=stats,
-         year=year
-         )
+           name=name,
+           stats=stats,
+           year=year
+           )
     else:
         return render_template("team_search.html", teams=teams, names=names)
 
@@ -138,12 +138,12 @@ def game(game_id):
     skater_list = sorted(skater_list, key=lambda x: x["pts"], reverse=True)
 
     return render_template("game.html", home_team=home_team,
-        home_score=home_score ,
-        away_team=away_team ,
-        away_score=away_score,
-        goals=goals,
-        skaters=skater_list,
-        shootout=shootout )
+            home_score=home_score,
+            away_team=away_team,
+            away_score=away_score,
+            goals=goals,
+            skaters=skater_list,
+            shootout=shootout )
 
 
 @app.route("/standings/<int:year>")
