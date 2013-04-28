@@ -37,9 +37,11 @@ def fetch_from_api(url, method="GET"):
         url=url,
         method=method,
         deadline=30)
+
     if response.status_code != 200:
         logging.info("Pyyntö epäonnistui " + response.content)  # TODO palautus
         return None  # TODO voiko olla muita onnistuneita statuskoodeja?
+
     return json.loads(response.content)
 
 

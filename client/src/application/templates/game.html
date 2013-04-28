@@ -3,8 +3,9 @@
 
     <h1>Ottelun tiedot</h1>
 
-    <!-- Score-display -->
-    <div class="ui-grid-a">
+<!-- Pistenäyttö -->
+
+    <div class="ui-grid-a" id="score-display">
         <div class="ui-block-a">
             <h3 class="centered-text">Koti</h3>
             <div class="ui-bar ui-bar-a score-display centered-text">
@@ -20,10 +21,11 @@
             <h3 class="centered-text goal-display-team"><a href="/team/{{away_team|upper}}">{{away_team|upper}}</a></h3>
         </div>
 
-    </div><!-- /Score-display -->
+    </div>
 
+<!-- Maalit TODO: reverse-funktio ei toimi yli 10-maalin peleissä -->
 
-    <table> ​
+    <table id="goals"> ​
     <caption class="bottom-border">Maalit</caption>​
     <thead>​
     <tr>​
@@ -39,13 +41,36 @@
         <th scope=​"col"><a href="/team/{{goal.team}}">{{goal.team|upper}}</a></th>​
         <th scope=​"col">{{goal.time}}</th>​
         <th scope=​"col">{{goal.period}}</th>​
-        <th scope=​"col">{{goal.score}}​</th>​
+        <th scope=​"col">{{goal.score | reverse}}​</th>​
         <th scope=​"col">{{goal.desc}}</th>​
     </tr>​
 {% endfor %}
+    </table> ​
 
+<!-- Rankkarit -->
 
-    <table summary=​"Tilastot pelaajittain">​
+{% if shootout %}
+    <table id="shootout">
+    <caption class="bottom-border">Rankkarit</caption>​
+        <thead>​
+            <tr>​
+                <th scope=​"col" class="bottom-border">Joukkue:​</th>​
+                <th scope=​"col" class="bottom-border">Tekijä:​</th>​
+            </tr>​
+        </thead>​
+        {% for s in shootout %}
+            <tr>​
+                <th scope=​"col" class="bottom-border"><a href="/team/{{s.team}}">{{s.team|upper}}</a></th>​
+                <th scope=​"col" class="bottom-border">{{s.desc}}</th>​
+            </tr>​
+        {% endfor %}
+
+    </table>
+{% endif %}
+
+<!-- Pelaajatilastot -->
+
+    <table summary=​"Tilastot pelaajittain" id="player-stats">​
     <caption class="bottom-border">Pelaajatilastot</caption>​
     <thead>​
     <tr>​
@@ -82,5 +107,5 @@
         <th scope=​"col">{{skater.shift}}</th>​
     </tr>
 {% endfor %}
-
+    </table>
 {% endblock %}

@@ -1,10 +1,50 @@
 {% extends "base.html" %}
 {% block content %}
-<p><a href="/" data-role="button">Lisää/Poista seurattavista</a></p>
-<h1>Pelaajan tiedot</h1>
+    <p><a href="/" data-role="button">Lisää/Poista seurattavista</a></p>
+    <h1>Pelaajan tiedot</h1>
+
+    <div class="ui-grid-a">
+        <div class="ui-block-a">
+                <h2 class="no-top-margin">{{name}}</h2>
+
+                <p>age:</p>
+                <p>height:</p>
+                <h3><a href="/team/{{team}}">{{team|upper}}</a></h3>
+        </div>
+        <div class="ui-block-b">
+            <div class="ui-bar ui-bar-d picture-frame">
+                <p>kuva</p>
+            </div>
+        </div>
+    </div>
+
+
+    <caption class="bottom-border">Nykyinen kausi</caption>​
+    <thead>​
+    <tr>​
+        <th scope=​"col" class="bottom-border">Joukkue:​</th>​
+        <th scope=​"col" class="bottom-border">​Aika​:</th>​
+        <th scope=​"col" class="bottom-border">Erä:​</th>​
+        <th scope=​"col" class="bottom-border">Tulos:​</th>​
+        <th scope=​"col" class="bottom-border">Tekijä:​</th>​
+    </tr>​
+    </thead>​
+
+    {% for goal in goals %}
+    <tr>​
+        <th scope=​"col"><a href="/team/{{goal.team}}">{{goal.team|upper}}</a></th>​
+        <th scope=​"col">{{goal.time}}</th>​
+        <th scope=​"col">{{goal.period}}</th>​
+        <th scope=​"col">{{goal.score}}​</th>​
+        <th scope=​"col">{{goal.desc}}</th>​
+    </tr>​
+{% endfor %}
+
+
+    <h2>Aiemmat kaudet</h2>
 
 
 
-<p><a data-rel="back" data-role="button" data-theme="b">Paluu</a></p>
+    <p><a data-rel="back" data-role="button" data-theme="b">Paluu</a></p>
 
 {% endblock %}
