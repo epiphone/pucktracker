@@ -54,3 +54,10 @@ margin-top:0;
     width:70%;
     float: left;
 }
+
+p{margin:0;}
+
+table{
+    width:100%;
+    margin-bottom: 10;
+}

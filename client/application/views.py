@@ -70,7 +70,7 @@ def player(player_id):
         career_list.append(new_dict)
 
     # Järjestetään pelaajalista
-    career_list = sorted(career_list, key=lambda x: x["year"], reverse=True)
+    career_list = sorted(career_list, key=lambda x: x["year"], reverse=False)
 
     return render_template(
         "player.html",
