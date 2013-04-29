@@ -12,6 +12,7 @@ from settings import CALLBACK_URL, API_URL
 from utils import fetch_from_api_signed, get_followed, logged_in, add_followed
 from utils import remove_followed
 import time
+import logging
 
 
 @app.before_request
@@ -125,6 +126,7 @@ def login():
 
     # Tallennetaan Request Token Secret sessioon:
     session["req_token_secret"] = oauth_token_secret
+    logging.info("session['req_token_secret'] = " + session["req_token_secret"])
 
     # Ohjataan käyttäjä providerin kirjautumissivulle:
     url = API_URL + AUTHORIZE_URL + "?oauth_token=" + oauth_token
@@ -142,12 +144,13 @@ def callback():
     oauth_token = request.args.get("oauth_token", "")
     oauth_verifier = request.args.get("oauth_verifier", "")
 
-    for i in range(3):
-        if not "req_token_secret" in session:
-            time.sleep(1)
-        else:
+    oauth_token_secret = None
+    for i in range(5):
+        try:
             oauth_token_secret = session["req_token_secret"]
             break
+        except KeyError:
+            time.sleep(1)
     if not oauth_token_secret:
         return "req_token_secretiä ei löydy", 503
 
@@ -161,7 +164,7 @@ def callback():
         secret=oauth_token_secret,
         verifier=oauth_verifier)
     if resp.status_code != 200:
-        return resp.content, resp.status_code
+        return str(resp.status_code)
 
     # Tallennetaan access token & secret sessioon:
     query_params = parse_qs(resp.content)
