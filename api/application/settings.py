@@ -1,16 +1,11 @@
+# -*-coding:utf-8-*-
 """
-settings.py
+Flask-sovelluksen asetuksia.
 
-Configuration for Flask app
-
-Important: Place your keys in the secret_keys.py module,
-           which should be kept out of version control.
 """
-
-# from sercret_keys import TODO
 
 DEBUG = True
-SECRET_KEY = 'development_key'
+SECRET_KEY = "development key"  # TODO lue erillisestä moduulista
 # CSRF_ENABLED = True
 # CSRF_SESSION_LKEY = 'dev_key_h8asSNJ9s9=+'
 

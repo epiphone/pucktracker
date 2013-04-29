@@ -5,7 +5,6 @@ URL-reititykset ja sivut OAuth providerin osalta.
 Perustuu flask-oauthprovider-kirjaston esimerkkiin:
 https://github.com/ib-lundgren/flask-oauthprovider
 
-TODO: siistimistä ja kommentteja
 """
 
 from application import app

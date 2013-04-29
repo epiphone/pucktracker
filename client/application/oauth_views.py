@@ -1,28 +1,28 @@
 # -*-coding:utf-8-*-
 """
 URL-reititykset ja sivut OAuthin osalta.
+
 """
 
 from application import app
 from urlparse import parse_qs
-from flask import session, redirect, request
+from flask import session, redirect, request, url_for
 from settings import REQUEST_TOKEN_URL, ACCESS_TOKEN_URL, AUTHORIZE_URL
 from settings import CALLBACK_URL, API_URL
 from utils import fetch_from_api_signed
 
 
-# @app.before_request
-# def before_request():
-#     """
-#     Jokaisen HTTP-pyynnön alussa tarkistetaan onko käyttäjä kirjautunut,
-#     ja jos on, haetaan tietokannasta käyttäjän profiili ja liitetään se
-#     säiekohtaiseen g-muuttujaan, jonka kautta profiiliin päästään helposti
-#     käsiksi.
-#     """
-#     if request.endpoint in ["login", "callback"]:
-#         pass
-#     elif not ("oauth_token" in session and "oauth_token_secret" in session):
-#         return render_template("login.html")
+@app.before_request
+def before_request():
+    """
+    Jokaisen HTTP-pyynnön alussa tarkistetaan onko käyttäjä kirjautunut,
+    (onko sessiotiedoissa access token ja secret), ja jos ei ole,
+    ohjataan kirjautumissivulle.
+    """
+    if request.endpoint in ["index", "login", "callback"]:
+        pass
+    elif not ("oauth_token" in session and "oauth_token_secret" in session):
+        return redirect(url_for("index"))
 
 
 @app.route("/test_user_remove/<ident>")
@@ -100,16 +100,16 @@ def test_user():
 
 @app.route("/login")
 def login():
-    """Haetaan Request Token OAuth-providerilta, ohjataan
-    käyttäjä providerin autorisointisivulle.
+    """
+    Haetaan Request Token OAuth-providerilta, ohjataan
+    käyttäjä providerin auktorisointisivulle.
     """
     # Haetaan Request Token:
     resp = fetch_from_api_signed(
         base_url=REQUEST_TOKEN_URL,
         callback=CALLBACK_URL)
     if resp.status_code != 200:
-        # TODO 302 yms?
-        return "FAIL! status %d<br>%s" % (resp.status_code, resp.content)
+        return "Virhe! OAuth Provider ei vastaa"  # TODO
 
     # Poimitaan vastauksesta Request Token ja Token Secret:
     query_params = parse_qs(resp.content)
@@ -124,14 +124,16 @@ def login():
     # TODO: huono idea tallentaa sessioon?
     session["oauth_token_secret"] = oauth_token_secret
 
-    # Ohjataan käyttäjä Twitterin kirjautumissivulle:
+    # Ohjataan käyttäjä providerin kirjautumissivulle:
     url = API_URL + AUTHORIZE_URL + "?oauth_token=" + oauth_token
     return redirect(url)
 
 
 @app.route("/callback")
 def callback():
-    """Haetaan url-parametrien Request Tokenia vastaava Access Token.
+    """
+    Haetaan providerilta url-parametrien Request Tokenia vastaava Access Token.
+
     Tälle sivulle ohjataan, kun sovellukselle on myönnetty
     käyttöoikeudet OAuth-providerin sivuilla.
     """
@@ -152,6 +154,7 @@ def callback():
         verifier=oauth_verifier)
     if resp.status_code != 200:
         return "FAIL! status %d<br>%s" % (resp.status_code, resp.content)
+
     query_params = parse_qs(resp.content)
     session["oauth_token"] = query_params["oauth_token"][0]
     session["oauth_token_secret"] = query_params["oauth_token_secret"][0]
@@ -160,7 +163,9 @@ def callback():
 
 @app.route("/protected")
 def protected():
-    """Testifunktio - yritetään hakea API:lta OAuthilla suojattua dataa."""
+    """
+    Testifunktio - yritetään hakea API:lta OAuthilla suojattua dataa.
+    """
     if not "oauth_token" in session:
         return redirect("/")
     url = API_URL + "/protected"

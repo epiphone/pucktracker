@@ -14,6 +14,7 @@ from models import Client, Nonce, Callback
 from models import RequestToken, AccessToken
 from utils import require_login
 from google.appengine.ext import ndb
+import time
 
 
 class GAEProvider(OAuthProvider):
@@ -39,13 +40,18 @@ class GAEProvider(OAuthProvider):
             token = request.args.get(u"oauth_token", None)
             if token is None:
                 return "oauth_token required", 400
+
             req_token = RequestToken.query(
                 RequestToken.token == token).get()
             if req_token is None:
-                return "Request Token not found", 404
+                # Joskus App Enginen datastore ei pysy OAuth-prosessin
+                # tahdissa mukana:
+                time.sleep(2)
+                req_token = RequestToken.query(
+                    RequestToken.token == token).get()
+                if req_token is None:
+                    return "request token not found", 503
             client = req_token.client.get()
-            if client is None:
-                return "Client not found", 404
 
             return render_template(
                 u"authorize.html",
@@ -65,8 +71,7 @@ class GAEProvider(OAuthProvider):
             callback = request.form.get(u"callback")
             pubkey = request.form.get(u"pubkey")
 
-            # Input validation:
-
+            # Validoitaan syötteet:
             params = [name, description, callback, pubkey]
             if any(not param for param in params):
                 flash("Please fill all fields.")
