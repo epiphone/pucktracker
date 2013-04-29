@@ -3,10 +3,20 @@
 
 <h1>Hae pelaajia</h1>
 
-<ul data-role="listview" data-filter="true">
-    {% for key, value in players.iteritems() %}
-    <li><a href="/player/{{key}}">{{value}} ({{key}})</a></li>
-    {% endfor %}
-</ul>
+<label for="search-basic">Hakuehto:</label>
+
+<form name="simple_bar" method="get" action="/player">
+    <input type="search" name="q" id="search-basic" {% if query %} value={{query}} {% endif %}/>
+    <input type="submit" value="Find">
+</form>
+{% if players %}
+<p>Osumat hakuehdolla <strong>{{query}}</strong>:</p>
+    <ul data-role="listview">
+        {% for key, value in players.iteritems() %}
+        <li><a href="/player/{{key}}">{{value.name}} ({{key}})</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
 
 {% endblock %}
