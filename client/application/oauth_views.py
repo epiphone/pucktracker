@@ -9,7 +9,9 @@ from urlparse import parse_qs
 from flask import session, redirect, request, url_for
 from settings import REQUEST_TOKEN_URL, ACCESS_TOKEN_URL, AUTHORIZE_URL
 from settings import CALLBACK_URL, API_URL
-from utils import fetch_from_api_signed
+from utils import fetch_from_api_signed, get_followed, logged_in, add_followed
+from utils import remove_followed
+import time
 
 
 @app.before_request
@@ -21,7 +23,7 @@ def before_request():
     """
     if request.endpoint in ["index", "login", "callback"]:
         pass
-    elif not ("oauth_token" in session and "oauth_token_secret" in session):
+    elif not logged_in():
         return redirect(url_for("index"))
 
 
@@ -30,25 +32,10 @@ def test_user_reset(ident):
     """
     Testifunktio TODO: poista
     """
-    if not "oauth_token" in session:
-        return "access token required"
+    param = request.args.get("ids_only", "0")
+    ids_only = True if param == "1" else False
 
-    if ident.isalpha():
-        data = dict(team=ident)
-    else:
-        data = dict(pid=ident)
-
-    data["ids_only"] = request.args.get("ids_only", "0")
-
-    token = session["oauth_token"]
-    token_s = session["oauth_token_secret"]
-    resp = fetch_from_api_signed(
-        base_url=API_URL + "/api/json/user",
-        token=token,
-        secret=token_s,
-        method="DELETE",
-        url_params=data)
-    return str(resp.status_code) + "<br>" + resp.content
+    return str(remove_followed(ident, ids_only))
 
 
 @app.route("/test_user/<ident>")
@@ -56,25 +43,10 @@ def test_add_pid(ident):
     """
     Testifunktio TODO: poista
     """
-    if not "oauth_token" in session:
-        return "access token required"
+    param = request.args.get("ids_only", "0")
+    ids_only = True if param == "1" else False
 
-    if ident.isalpha():
-        data = dict(team=ident)
-    else:
-        data = dict(pid=ident)
-
-    data["ids_only"] = request.args.get("ids_only", "0")
-
-    token = session["oauth_token"]
-    token_s = session["oauth_token_secret"]
-    resp = fetch_from_api_signed(
-        base_url=API_URL + "/api/json/user",
-        token=token,
-        secret=token_s,
-        method="POST",
-        data=data)
-    return str(resp.status_code) + "<br>" + resp.content
+    return str(add_followed(ident, ids_only))
 
 
 @app.route("/test_user")
@@ -82,20 +54,15 @@ def test_user():
     """
     Testifunktio TODO: poista
     """
-    if not "oauth_token" in session:
-        return "access token required"
+    param = request.args.get("ids_only", "0")
+    ids_only = True if param == "1" else False
 
-    ids_only = request.args.get("ids_only", "0")
+    followed = get_followed(ids_only)
+    if not followed:
+        # TODO virheidenkäsittely
+        pass
 
-    token = session["oauth_token"]
-    token_s = session["oauth_token_secret"]
-    resp = fetch_from_api_signed(
-        base_url=API_URL + "/api/json/user",
-        url_params=dict(ids_only=ids_only),
-        token=token,
-        secret=token_s,
-        method="GET")
-    return str(resp.status_code) + "<br>" + resp.content
+    return str(get_followed(ids_only))
 
 
 @app.route("/login")
@@ -119,10 +86,8 @@ def login():
     oauth_token_secret = query_params["oauth_token_secret"][0]
     assert oauth_token and oauth_token_secret
 
-    # Tallennetaan Request Token ja Secret sessioon:
-    session["oauth_token"] = oauth_token
-    # TODO: huono idea tallentaa sessioon?
-    session["oauth_token_secret"] = oauth_token_secret
+    # Tallennetaan Request Token Secret sessioon:
+    session["req_token_secret"] = oauth_token_secret
 
     # Ohjataan käyttäjä providerin kirjautumissivulle:
     url = API_URL + AUTHORIZE_URL + "?oauth_token=" + oauth_token
@@ -139,25 +104,32 @@ def callback():
     """
     oauth_token = request.args.get("oauth_token", "")
     oauth_verifier = request.args.get("oauth_verifier", "")
-    try:
-        oauth_token_secret = session["oauth_token_secret"]
-    except KeyError:
-        return "oauth_token_secretiä ei löydetty sessiosta"  # TODO debug
-    assert not any(x is None or x == "" for x in [oauth_token, oauth_verifier,
-        oauth_token_secret])
 
-    url = ACCESS_TOKEN_URL
+    for i in range(3):
+        if not "req_token_secret" in session:
+            time.sleep(1)
+        else:
+            oauth_token_secret = session["req_token_secret"]
+            break
+    if not oauth_token_secret:
+        return "req_token_secretiä ei löydy", 503
+
+    assert all(x for x in [oauth_token, oauth_verifier,
+        oauth_token_secret])  # TODO
+
+    # Haetaan Access Token:
     resp = fetch_from_api_signed(
-        base_url=url,
+        base_url=ACCESS_TOKEN_URL,
         token=oauth_token,
         secret=oauth_token_secret,
         verifier=oauth_verifier)
     if resp.status_code != 200:
-        return "FAIL! status %d<br>%s" % (resp.status_code, resp.content)
+        return resp.content, resp.status_code
 
+    # Tallennetaan access token & secret sessioon:
     query_params = parse_qs(resp.content)
-    session["oauth_token"] = query_params["oauth_token"][0]
-    session["oauth_token_secret"] = query_params["oauth_token_secret"][0]
+    session["acc_token"] = query_params["oauth_token"][0]
+    session["acc_token_secret"] = query_params["oauth_token_secret"][0]
     return redirect("/")
 
 
@@ -166,14 +138,24 @@ def protected():
     """
     Testifunktio - yritetään hakea API:lta OAuthilla suojattua dataa.
     """
-    if not "oauth_token" in session:
-        return redirect("/")
     url = API_URL + "/protected"
-    token = session["oauth_token"]
-    token_s = session["oauth_token_secret"]
+    token = session["acc_token"]
+    token_s = session["acc_token_secret"]
     resp = fetch_from_api_signed(
         base_url=url,
         token=token,
         secret=token_s,
         method="GET")
     return str(resp.status_code) + "<br>" + resp.content
+
+
+@app.route("/logout")
+def logout():
+    """
+    Kirjaa käyttäjän ulos, uudelleenohjaa kirjautumissivulle.
+    """
+    session["req_token"] = None
+    session["acc_token"] = None
+    session["acc_token_secret"] = None
+    session["name"] = None
+    return redirect(url_for("index"))

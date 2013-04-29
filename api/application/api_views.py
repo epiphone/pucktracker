@@ -283,10 +283,11 @@ def user():
         # Palautetaan käyttäjän seuraamat pelaajat ja joukkueet:
         if ids_only:
             # Palautetaan vain id:t:
-            return jsonify(dict(players=user.players, teams=user.teams))
-
-        # Jos ids_only == 1, palautetaan tunnusten lisäksi tilastoja:
-        ret = get_players_and_teams(user.players, user.teams)
+            ret = dict(players=user.players, teams=user.teams)
+        else:
+            # Jos ids_only == 1, palautetaan tunnusten lisäksi tilastoja:
+            ret = get_players_and_teams(user.players, user.teams)
+        ret["name"] = user.name
         return jsonify(ret)
 
     if request.method == "POST":
@@ -311,6 +312,7 @@ def user():
                 ret = dict(players=user.players, teams=user.teams)
             else:
                 ret = get_players_and_teams(user.players, user.teams)
+            ret["name"] = user.name
             return jsonify(ret)
 
         if "team" in request.form:
@@ -330,6 +332,7 @@ def user():
                 ret = dict(players=user.players, teams=user.teams)
             else:
                 ret = get_players_and_teams(user.players, user.teams)
+            ret["name"] = user.name
             return jsonify(ret)
 
         else:
@@ -358,6 +361,7 @@ def user():
             ret = dict(players=user.players, teams=user.teams)
         else:
             ret = get_players_and_teams(user.players, user.teams)
+        ret["name"] = user.name
         return jsonify(ret)
 
 
@@ -369,7 +373,7 @@ def get_players_and_teams(players=None, teams=None):
     Jos pelaaja ei ole pelannut tällä kaudella yhtään ottelua, pelaajan osalta
     palautetaan vain tyhjiöarvo.
     """
-    ret = {}
+    players_dict, teams_dict = {}, {}
     if teams:
         standings = scraper.scrape_standings()
         assert isinstance(standings, dict)  # TODO debug
@@ -382,10 +386,10 @@ def get_players_and_teams(players=None, teams=None):
             stats = standings[team]
             gid = scraper.get_latest_game(team=team)
             if not stats or not gid:
-                ret[team] = dict(stats=None, latest_game=None)
+                teams_dict[team] = dict(stats=None, latest_game=None)
             else:
                 latest_game = scraper.scrape_game(gid) if gid else None
-                ret[team] = dict(stats=stats, latest_game=latest_game)
+                teams_dict[team] = dict(stats=stats, latest_game=latest_game)
 
     if players:
         player_stats = scraper.scrape_player_stats()
@@ -399,7 +403,7 @@ def get_players_and_teams(players=None, teams=None):
                     else:
                         latest_game = scraper.scrape_game(gid)
                         stats = pstat
-                    ret[pid] = dict(stats=stats, latest_game=latest_game)
+                    players_dict[pid] = dict(stats=stats, latest_game=latest_game)
                     break
 
         # Seurattavaa pelaajaa ei löytynyt kenttäpelaajista,
@@ -407,7 +411,7 @@ def get_players_and_teams(players=None, teams=None):
         goalie_stats = scraper.scrape_player_stats(goalies=True)
 
         for pid in players:
-            if pid in ret:
+            if pid in players_dict:
                 continue  # Pelaaja löytyi kenttäpelaajista
             for pstat in goalie_stats:
                 if pid == pstat["pid"]:
@@ -417,13 +421,13 @@ def get_players_and_teams(players=None, teams=None):
                     else:
                         latest_game = scraper.scrape_game(gid)
                         stats = pstat
-                    ret[pid] = dict(stats=stats, latest_game=latest_game)
+                    players_dict[pid] = dict(stats=stats, latest_game=latest_game)
                     break
 
         # Jos pelaajaa ei löytynyt kenttäpelaajista eikä maalivahdeista,
         # ei pelaaja ole pelannut yhdessäkään ottelussa nykyisellä kaudella
         for pid in players:
-            if not pid in ret:
-                ret[pid] = dict(stats=None, latest_game=None)
+            if not pid in players_dict:
+                players_dict[pid] = dict(stats=None, latest_game=None)
 
-    return ret
+    return dict(players=players_dict, teams=teams_dict)
