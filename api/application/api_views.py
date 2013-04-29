@@ -252,7 +252,7 @@ def user():
     # Poimitaan oauth token HTTP-pyynnön Authorization-headerista:
     auth_header = request.headers.get("Authorization", None)
     if not auth_header:
-        abort(500)
+        abort(401)  # Unauthorized
 
     for param in auth_header.split():
         if param.startswith("oauth_token"):
@@ -260,15 +260,14 @@ def user():
             break
 
     if not token:
-        abort(500)
+        abort(401)
 
     # Haetaan tokenia vastaava käyttäjä:
     try:
         acc_token = AccessToken.query(AccessToken.token == token).get()
         user = acc_token.resource_owner.get()
-        players, teams = user.players, user.teams
     except KeyError:  # Access tokenia tai käyttäjää ei löydy
-        abort(500)
+        abort(401)
 
     # Poimitaan ids_only-parametri joko urlista tai post-parametreista:
     if "ids_only" in request.form:
@@ -284,10 +283,10 @@ def user():
         # Palautetaan käyttäjän seuraamat pelaajat ja joukkueet:
         if ids_only:
             # Palautetaan vain id:t:
-            return jsonify(dict(player=players, teams=teams))
+            return jsonify(dict(players=user.players, teams=user.teams))
 
-        # Palautetaan id:t sekä tilastot:
-        ret = get_players_and_teams(players, teams)
+        # Jos ids_only == 1, palautetaan tunnusten lisäksi tilastoja:
+        ret = get_players_and_teams(user.players, user.teams)
         return jsonify(ret)
 
     if request.method == "POST":
@@ -296,7 +295,7 @@ def user():
             pid = request.form["pid"]
 
             # Validoitaan pelaajan id:
-            if pid in players:
+            if pid in user.players:
                 abort(400)  # Pelaaja on jo seurattavien listassa
 
             all_players = scraper.scrape_players()
@@ -304,35 +303,33 @@ def user():
                 abort(400)  # pid:tä vastaavaa pelaajaa ei löydy
 
             # Lisätään pid käyttäjän seurattavien pelaajien listalle:
-            players.append(pid)
-            user.players = players
+            user.players.append(pid)
             user.put()
 
             # Palautetaan päivittynyt seurantalista, kuten GET-pyynnössä:
             if ids_only:
-                ret = dict(players=players, teams=teams)
+                ret = dict(players=user.players, teams=user.teams)
             else:
-                ret = get_players_and_teams(players, teams)
+                ret = get_players_and_teams(user.players, user.teams)
             return jsonify(ret)
 
         if "team" in request.form:
             team = request.form["team"].lower()
             # Validoitaan joukkueen tunnus
-            if team in teams:
+            if team in user.teams:
                 abort(400)  # Joukkue on jo seurattavien listassa
             if not team in scraper.TEAMS:
                 abort(400)  # Epäkelpo joukkueen tunnus
 
             # Lisätään joukkue käyttäjän seurattavien joukkueiden listalle:
-            teams.append(team)
-            user.teams = teams
+            user.teams.append(team)
             user.put()
 
             # Palautetaan päivittynyt seurantalista, kuten GET-pyynnössä:
             if ids_only:
-                ret = dict(players=players, teams=teams)
+                ret = dict(players=user.players, teams=user.teams)
             else:
-                ret = get_players_and_teams(players, teams)
+                ret = get_players_and_teams(user.players, user.teams)
             return jsonify(ret)
 
         else:
@@ -343,19 +340,13 @@ def user():
         pid = request.args.get("pid", None)
         team = request.args.get("team", None)
         if pid:
-            if not pid in players:
-                abort(400)  # pelaajaa ei löydy seurattavien listasta
-            players.remove(pid)
             if not pid in user.players:
-                return "not pid in user.players"
+                abort(400)  # pelaajaa ei löydy seurattavien listasta
             user.players.remove(pid)
 
         elif team:
-            if not team in teams:
-                abort(400)  # joukkuetta ei löydy seurattavien listasta
-            teams.remove(team)
             if not team in user.teams:
-                return "not team in user.teams"
+                abort(400)  # joukkuetta ei löydy seurattavien listasta
             user.teams.remove(team)
 
         else:
@@ -364,9 +355,9 @@ def user():
         user.put()
 
         if ids_only:
-            ret = dict(players=players, teams=teams)
+            ret = dict(players=user.players, teams=user.teams)
         else:
-            ret = get_players_and_teams(players, teams)
+            ret = get_players_and_teams(user.players, user.teams)
         return jsonify(ret)
 
 
@@ -381,9 +372,8 @@ def get_players_and_teams(players=None, teams=None):
     ret = {}
     if teams:
         standings = scraper.scrape_standings()
-        logging.info("type(teams[0])=" + str(type(teams[0])))
         assert isinstance(standings, dict)  # TODO debug
-        assert isinstance(teams[0], basestring)  # TODo debug
+        assert isinstance(teams[0], basestring)  # TODO debug
         if not standings:
             abort(503)  # Service unavailable
         if any(team not in standings for team in teams):
