@@ -35,23 +35,23 @@ def fetch_from_api(url, method="GET"):
     """
     Tekee pyynnön pucktracker-API:lle.
 
-    Palauttaa JSONista muokatun python-objektin tai None,
+    Palauttaa JSONista muokatun python-olion tai None,
     jos pyyntö epäonnistuu.
     """
-    method = METHODS[method]
     if not url.startswith("http://"):
         url = API_URL + url
+    method = METHODS[method]
 
-    response = urlfetch.fetch(
+    resp = urlfetch.fetch(
         url=url,
         method=method,
         deadline=30)
 
-    if response.status_code != 200:
-        logging.info("Pyyntö epäonnistui " + response.content)  # TODO palautus
+    if resp.status_code != 200:
+        logging.info("Pyyntö epäonnistui " + resp.content)
         return None  # TODO voiko olla muita onnistuneita statuskoodeja?
 
-    return json.loads(response.content)
+    return json.loads(resp.content)
 
 
 def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
@@ -60,7 +60,7 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
     Lähetetään allekirjoitettu pyyntö, palautetaan vastaus.
 
     Huom! Url-parametrit tulee määrittää url_params-parametrissa,
-    ei base_url-parametrissa.
+    ei base_url-parametrin yhteydessä; esim. "...com/?a=10" ei toimi.
 
     Args:
         base_url: HTTP-pyynnön kohde ilman url-parametreja.
@@ -72,7 +72,8 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
         url_params: url-parametrit dictionaryssä.
         data: post-parametrit dictionaryssä.
     Returns:
-        OAuth-allekirjoitetun HTTP-pyynnön vastaus.
+        OAuth-allekirjoitetun HTTP-pyynnön vastaus, tai None,
+        jos pyyntö epäonnistuu.
     """
     assert not "?" in base_url  # TODO debug
     assert isinstance(url_params, dict) and isinstance(data, dict)
@@ -97,7 +98,7 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
         params["oauth_verifier"] = verifier
 
     # Nämä parametrit eivät tule Authorization-headeriin,
-    # käytetään vain allekirjoituksessa:
+    # niitä käytetään vain allekirjoituksessa:
     signature_params = dict(params.items() + url_params.items() + data.items())
 
     # Kääritään parametrit yhteen merkkijonoon:
@@ -135,5 +136,7 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
 
 
 def escape(text):
-    """Url-enkoodaa annetun merkkijonon."""
+    """
+    Url-enkoodaa annetun merkkijonon.
+    """
     return urllib.quote(text, "")
