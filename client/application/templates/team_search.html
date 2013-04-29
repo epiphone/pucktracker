@@ -5,8 +5,8 @@
 
 <ul data-role="listview" data-filter="true">
 
-{% for team in teams  %}
-    <li><a href="/team/{{team}}">{{names[team]}} ({{team|upper}})</a></li>
+{% for k,v in teams | dictsort(false, 'value') %}
+    <li><a href="/team/{{k}}">{{v}} ({{k|upper}})</a></li>
 {% endfor %}
 
 </ul>

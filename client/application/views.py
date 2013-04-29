@@ -13,7 +13,6 @@ from utils import fetch_from_api, fetch_from_api_signed, get_latest_game
 
 ### SIVUT ###
 
-
 @app.route("/")
 def index():
     """Käyttäjän seuraamien pelaajien ja joukkueiden uusimmat pelit.
@@ -33,77 +32,80 @@ def menu():
     return render_template("menu.html")
 
 
-# TODO: routtaa hakusivu urliin  /player
-@app.route("/player/", defaults={'player_id':0})  # TODO: tee fiksummin
+@app.route("/player")
+def player_search():
+    all_players = fetch_from_api("/api/json/players")
+    player_dict = {}
+    for k,v in all_players.iteritems():
+        player_dict[k] = v['name']
+    return render_template("player_search.html", players=player_dict)
+
+
 @app.route("/player/<int:player_id>")
 def player(player_id):
     all_players = fetch_from_api("/api/json/players")
-    if player_id:
-        logging.info("Haetaan pelaajan %s tiedot" % player_id)
-        all_seasons = fetch_from_api("/api/json/players/%s" % player_id)
-        season_games = fetch_from_api("/api/json/games?pid=%s&year=2012" % player_id)
-        latest_game = get_latest_game(season_games)
+    logging.info("Haetaan pelaajan %s tiedot" % player_id)
+    all_seasons = fetch_from_api("/api/json/players/%s" % player_id)
+    season_games = fetch_from_api("/api/json/games?pid=%s&year=2012" % player_id)
+    latest_game = get_latest_game(season_games)
 
-        name = all_players[str(player_id)]['name']
-        position = all_players[str(player_id)]['pos']
-        team = all_players[str(player_id)]['team']
+    name = all_players[str(player_id)]['name']
+    position = all_players[str(player_id)]['pos']
+    team = all_players[str(player_id)]['team']
 
-        this_season = all_seasons['2012']
-        career = all_seasons['career']
-        del all_seasons['career']
+    this_season = all_seasons['2012']
+    career = all_seasons['career']
+    del all_seasons['career']
 
-        # Poistetaan pelaaja-lista-dictionary -rakenteesta yksi dictionary-taso, jotta
-        # Jinja template-engine osaa loopata tietorakenteen läpi ilman ongelmaa.
-        career_list = []
-        for k,v in all_seasons.iteritems():
-            new_dict = v
-            new_dict['year'] = k
-            career_list.append(new_dict)
+    # Poistetaan pelaaja-lista-dictionary -rakenteesta yksi dictionary-taso, jotta
+    # Jinja template-engine osaa loopata tietorakenteen läpi ilman ongelmaa.
+    career_list = []
+    for k,v in all_seasons.iteritems():
+        new_dict = v
+        new_dict['year'] = k
+        career_list.append(new_dict)
 
-        # Järjestetään pelaajalista
-        career_list = sorted(career_list, key=lambda x: x["year"], reverse=True)
+    # Järjestetään pelaajalista
+    career_list = sorted(career_list, key=lambda x: x["year"], reverse=True)
 
-        return render_template("player.html", name=name,
-            team=team,
-            this_season=this_season,
-            all_seasons=career_list,
-            position=position,
-            career=career,
-            latest_game=latest_game)
-    else:
-        player_dict = {}
-        for k,v in all_players.iteritems():
-            player_dict[k] = v['name']
-
-        return render_template("player_search.html", players=player_dict)
+    return render_template("player.html", name=name,
+        team=team,
+        this_season=this_season,
+        all_seasons=career_list,
+        position=position,
+        career=career,
+        latest_game=latest_game)
 
 
-@app.route("/team/", defaults={"team":""})
+@app.route("/team")
+def team_search():
+    teams = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "atl": "Atlanta Thrashers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
+    return render_template("team_search.html", teams=teams)
+
+
 @app.route("/team/<team>")
 def team(team,year="2012"):
     teams = ['njd', 'nyi', 'nyr', 'phi', 'pit', 'bos', 'buf', 'mon', 'ott',
         'tor', 'car', 'fla', 'tam', 'was', 'wpg', 'chi', 'cob', 'det',
         'nas', 'stl', 'cgy', 'col', 'edm', 'min', 'van', 'ana', 'dal',
         'los', 'pho', 'san']
+    # TODO: poista teams-lista, turha koska voidaan käyttää names-dictionarya
+    names = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "atl": "Atlanta Thrashers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
 
-    names = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "atl": "Atlanta Thrashers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild", "nsh": "Nashville Predators"}
+    logging.info("Haetaan joukkueen %s tiedot vuodelta %s" % (team,year))
+    stats = fetch_from_api("/api/json/teams?team=%s&year=%s" % (team,year))
+    season_games = fetch_from_api("/api/json/games?team=%s&year=2012" % (team))
+    latest_game = get_latest_game(season_games)
+    logging.info(latest_game)
 
-    if team in teams:
-        logging.info("Haetaan joukkueen %s tiedot vuodelta %s" % (team,year))
-        stats = fetch_from_api("/api/json/teams?team=%s&year=%s" % (team,year))
-        season_games = fetch_from_api("/api/json/games?team=%s&year=2012" % (team))
-        latest_game = get_latest_game(season_games)
-        logging.info(latest_game)
+    name = names[team]
+    return render_template("team.html",team=team,
+       name=name,
+       stats=stats,
+       year=year,
+       latest_game=latest_game
+       )
 
-        name = names[team]
-        return render_template("team.html",team=team,
-           name=name,
-           stats=stats,
-           year=year,
-           latest_game=latest_game
-           )
-    else:
-        return render_template("team_search.html", teams=teams, names=names)
 
 
 @app.route("/game/<int:game_id>")
