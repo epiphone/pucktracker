@@ -93,12 +93,16 @@ def team(team,year="2012"):
     if team in teams:
         logging.info("Haetaan joukkueen %s tiedot vuodelta %s" % (team,year))
         stats = fetch_from_api("/api/json/teams?team=%s&year=%s" % (team,year))
+        season_games = fetch_from_api("/api/json/games?team=%s&year=2012" % (team))
+        latest_game = get_latest_game(season_games)
+        logging.info(latest_game)
 
         name = names[team]
         return render_template("team.html",team=team,
            name=name,
            stats=stats,
-           year=year
+           year=year,
+           latest_game=latest_game
            )
     else:
         return render_template("team_search.html", teams=teams, names=names)
