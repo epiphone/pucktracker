@@ -20,10 +20,10 @@ def index():
     Kirjautumatonta käyttäjää kehotetaan kirjautumaan sisään.
     """
     if "oauth_token" in session:
-        return render_template("start.html",authorized=True)
+        return render_template("login.html",authorized=True)
 
     else:
-        return render_template("start.html",authorized=True)  # TODO false
+        return render_template("login.html",authorized=True)  # TODO false
 
 
 @app.route("/menu")
