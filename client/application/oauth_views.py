@@ -130,6 +130,12 @@ def callback():
     query_params = parse_qs(resp.content)
     session["acc_token"] = query_params["oauth_token"][0]
     session["acc_token_secret"] = query_params["oauth_token_secret"][0]
+
+    # Haetaan käyttäjän seuraamat pelaajan/joukkueet sekä käyttäjänimi:
+    followed = get_followed(ids_only=True)
+    session["players"] = followed["players"]
+    session["teams"] = followed["teams"]
+    session["name"] = followed["name"]
     return redirect("/")
 
 
