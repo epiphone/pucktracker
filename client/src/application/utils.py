@@ -22,6 +22,15 @@ METHODS = {
     "PUT": urlfetch.PUT}
 
 
+def get_latest_game(game_dict):
+    new_game_date = max(game_dict.keys(), key=int)
+    new_game = game_dict[new_game_date]
+    new_game['date']=new_game_date
+    return new_game
+    # lisää aika sinne ja return
+      # TODO: tarkista avaimen muoto
+
+
 def fetch_from_api(url, method="GET"):
     """
     Tekee pyynnön pucktracker-API:lle.

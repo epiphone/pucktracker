@@ -9,7 +9,7 @@ from urlparse import parse_qs
 from flask import render_template, session, redirect, request
 from settings import REQUEST_TOKEN_URL, ACCESS_TOKEN_URL, AUTHORIZE_URL
 from settings import CALLBACK_URL, API_URL
-from utils import fetch_from_api, fetch_from_api_signed
+from utils import fetch_from_api, fetch_from_api_signed, get_latest_game
 
 ### SIVUT ###
 
@@ -41,6 +41,8 @@ def player(player_id):
     if player_id:
         logging.info("Haetaan pelaajan %s tiedot" % player_id)
         all_seasons = fetch_from_api("/api/json/players/%s" % player_id)
+        season_games = fetch_from_api("/api/json/games?pid=%s&year=2012" % player_id)
+        latest_game = get_latest_game(season_games)
 
         name = all_players[str(player_id)]['name']
         position = all_players[str(player_id)]['pos']
@@ -66,7 +68,8 @@ def player(player_id):
             this_season=this_season,
             all_seasons=career_list,
             position=position,
-            career=career)
+            career=career,
+            latest_game=latest_game)
     else:
         player_list = []
         for k,v in all_players.iteritems():

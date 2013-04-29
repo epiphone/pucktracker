@@ -18,6 +18,57 @@
         </div>
     </div>
 
+{{latest_game}}
+<table id="last-game">
+    <caption><h2>Viimeisin peli</h2></caption>​
+    <thead>​
+    <tr>​
+        <th scope=​"col" class="bottom-border">Date</th>​
+        <th scope=​"col" class="bottom-border">Teams</th>​
+        <th scope=​"col" class="bottom-border">Result</th>​
+        <th scope=​"col" class="bottom-border">G</th>​
+        <th scope=​"col" class="bottom-border">​A</th>​
+        <th scope=​"col" class="bottom-border">Pts</th>​
+        <th scope=​"col" class="bottom-border">+/-</th>​
+        <th scope=​"col" class="bottom-border">PIM</th>​
+        <th scope=​"col" class="bottom-border">Hits</th>​
+        <th scope=​"col" class="bottom-border">BkS</th>​
+        <th scope=​"col" class="bottom-border">FW</th>​
+        <th scope=​"col" class="bottom-border">FL</th>​
+        <th scope=​"col" class="bottom-border">FO%</th>​
+        <th scope=​"col" class="bottom-border">PPG</th>​
+        <th scope=​"col" class="bottom-border">PPA</th>​
+        <th scope=​"col" class="bottom-border">SHG</th>​
+        <th scope=​"col" class="bottom-border">SHA</th>​
+        <th scope=​"col" class="bottom-border">GW</th>​
+        <th scope=​"col" class="bottom-border">SOG</th>​
+        <th scope=​"col" class="bottom-border">Pct</th>​
+    </tr>​
+    </thead>​
+    <tr>​
+        <th scope=​"col"><a href="/game/{{latest_game.date}}">{{latest_game.date}}</a></th>​
+        <th scope=​"col">{{team|upper}} vs {{latest_game.opponent|upper}}</th>​
+        <th scope=​"col">{{latest_game.result|upper}}</th>​
+        <th scope=​"col">{{latest_game.g}}</th>​
+        <th scope=​"col">{{latest_game.a}}</th>​
+        <th scope=​"col">{{latest_game.pts}}</th>​
+        <th scope=​"col">{{latest_game['+/-']}}</th>​
+        <th scope=​"col">{{latest_game.pim}}</th>​
+        <th scope=​"col">{{latest_game.hits}}</th>​
+        <th scope=​"col">{{latest_game.bks}}</th>​
+        <th scope=​"col">{{latest_game.fw}}</th>​
+        <th scope=​"col">{{latest_game.fl}}</th>​
+        <th scope=​"col">{{latest_game['fo%']}}</th>​
+        <th scope=​"col">{{latest_game.ppg}}</th>​
+        <th scope=​"col">{{latest_game.ppa}}</th>​
+        <th scope=​"col">{{latest_game.shg}}</th>​
+        <th scope=​"col">{{latest_game.sha}}</th>​
+        <th scope=​"col">{{latest_game.gw}}</th>​
+        <th scope=​"col">{{latest_game.sog}}</th>​
+        <th scope=​"col">{{latest_game.pct}}</th>​
+    </tr>​
+</table>
+
 
 <table id="current-season">
     <caption><h2>Nykyinen kausi</h2></caption>​
