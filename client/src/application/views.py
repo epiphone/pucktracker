@@ -71,13 +71,11 @@ def player(player_id):
             career=career,
             latest_game=latest_game)
     else:
-        player_list = []
+        player_dict = {}
         for k,v in all_players.iteritems():
-            new_dict = v
-            new_dict['id'] = k
-            player_list.append(new_dict)
+            player_dict[k] = v['name']
 
-        return render_template("player_search.html", players=player_list)
+        return render_template("player_search.html", players=player_dict)
 
 
 @app.route("/team/", defaults={"team":""})
