@@ -102,7 +102,18 @@ def team(team,year="2012"):
     stats = fetch_from_api("/api/json/teams?team=%s&year=%s" % (team,year))
     season_games = fetch_from_api("/api/json/games?team=%s&year=2012" % (team))
     latest_game = get_latest_game(season_games)
-    logging.info(latest_game)
+
+    #Haetaan joukkueen pelaajat ja maalivahdit
+    all_players = fetch_from_api("/api/json/top?sort=team&year=2012&goalies=0&limit=1000")
+    all_goalies = fetch_from_api("/api/json/top?sort=team&year=2012&goalies=1&limit=1000")
+    team_players = []
+    for player_dict in all_players:
+        if (player_dict['team'] == team):
+            team_players.append(player_dict)
+    for g in all_goalies:
+        if (g['team'] == team):
+            team_players.append(player_dict)
+
 
     name = names[team]
     return render_template(
@@ -111,7 +122,8 @@ def team(team,year="2012"):
         name=name,
         stats=stats,
         year=year,
-        latest_game=latest_game)
+        latest_game=latest_game,
+        players=team_players)
 
 
 @app.route("/game/<game_id>")

@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 
-
-
 <fieldset class="ui-grid-a">
     <div class="ui-block-a">
         <h2>{{name}}</h2>
@@ -66,4 +64,12 @@
     <td>{{latest_game.score}}</td>
 </tr>
 
+<h3> Pelaajat: </h3>
+
+<div id="players">
+{% for player in players %}
+<a href="/player/{{player.pid}}">{{player.name}}</a>
+{% endfor %}
+</div>
+<!-- {{players}} -->
 {% endblock %}
