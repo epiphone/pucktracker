@@ -72,6 +72,11 @@ def player(player_id):
     # Järjestetään pelaajalista
     career_list = sorted(career_list, key=lambda x: x["year"], reverse=False)
 
+    # Tarkistetaan onko joukkue seurattavien listalla
+    following = False
+    # if team in session['teams']:  # TODO testaa toimiiko sessioilla
+    #     following = True
+
     return render_template(
         "player.html",
         name=name,
@@ -80,7 +85,8 @@ def player(player_id):
         all_seasons=career_list,
         position=position,
         career=career,
-        latest_game=latest_game)
+        latest_game=latest_game,
+        following=following)
 
 
 @app.route("/team")
@@ -114,8 +120,13 @@ def team(team,year="2012"):
         if (g['team'] == team):
             team_players.append(player_dict)
 
-
     name = names[team]
+
+    # Tarkistetaan onko joukkue seurattavien listalla
+    following = False
+    # if team in session['teams']:  # TODO testaa toimiiko sessioilla
+    #     following = True
+
     return render_template(
         "team.html",
         team=team,
@@ -123,7 +134,8 @@ def team(team,year="2012"):
         stats=stats,
         year=year,
         latest_game=latest_game,
-        players=team_players)
+        players=team_players,
+        following=following)
 
 
 @app.route("/game/<game_id>")

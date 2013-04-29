@@ -11,7 +11,11 @@
                 <h3><a href="/team/{{team}}">{{team|upper}}</a></h3>
         </div>
         <div class="ui-block-b">
-            <a href="/" data-role="button">Lisää/Poista seurattavista</a>
+            {% if following == True %}
+            <a href="/remove_followed/{{team}}" data-role="button">Poista seurattavista</a>
+            {% else %}
+            <a href="/add_followed/{{team}}" data-role="button">Lisää seurattaviin</a>
+            {% endif %}
         </div>
     </div>
 
