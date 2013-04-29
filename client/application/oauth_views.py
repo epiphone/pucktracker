@@ -27,6 +27,43 @@ def before_request():
         return redirect(url_for("index"))
 
 
+@app.route("/add_followed/<ident>")
+def add_followed_view(ident):
+    """
+    Lisää annetun pelaajan/joukkueen käyttäjän seurantaan,
+    uudellenohjaa lisätyn pelaajan/joukkueen sivulle.
+    """
+    resp = add_followed(ident, True)
+    if resp:
+        session["players"] = resp["players"]
+        session["teams"] = resp["teams"]
+    url = "/team/" + ident if ident.isalpha() else "/player/" + ident
+    return redirect(url)
+
+
+@app.route("/remove_followed/<ident>")
+def remove_followed_view(ident):
+    """
+    Poistaa annetun pelaajan/joukkueen käyttäjän seurannasta,
+    uudellenohjaa poistetun pelaajan/joukkueen sivulle.
+    """
+    resp = remove_followed(ident, True)
+    if resp:
+        session["players"] = resp["players"]
+        session["teams"] = resp["teams"]
+    url = "/team/" + ident if ident.isalpha() else "/player/" + ident
+    return redirect(url)
+
+
+@app.route("/session")
+def show_session():
+    """
+    Näyttää sessioon tallennetut tiedot.
+    TODO Debug
+    """
+    return str(session.viewitems())
+
+
 @app.route("/test_user_remove/<ident>")
 def test_user_reset(ident):
     """
