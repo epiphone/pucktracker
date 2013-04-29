@@ -4,8 +4,8 @@
 <h1>Hae pelaajia</h1>
 
 <ul data-role="listview" data-filter="true">
-    {% for player in players %}
-    <li><a href="/player/{{player.id}}">{{player.name}}</a></li>
+    {% for key, value in players.iteritems() %}
+    <li><a href="/player/{{key}}">{{value}} ({{key}})</a></li>
     {% endfor %}
 </ul>
 
