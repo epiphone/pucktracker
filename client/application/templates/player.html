@@ -1,22 +1,66 @@
 {% extends "base.html" %}
 {% block content %}
-     <a href="/" data-role="button">Lisää/Poista seurattavista</a>
 
     <h1>Pelaajan tiedot</h1>
 
     <div class="ui-grid-a">
         <div class="ui-block-a">
                 <h2 class="no-top-margin">{{name}}</h2>
+                <p>Pelipaikka: <strong>{{position | replace ('C','Keskushyökkääjä')}}</strong></p>
 
-                <p>Position:<strong>{{position}}</strong></p>
                 <h3><a href="/team/{{team}}">{{team|upper}}</a></h3>
         </div>
         <div class="ui-block-b">
-            <div class="ui-bar ui-bar-d picture-frame">
-                <p>kuva</p>
-            </div>
+            <a href="/" data-role="button">Lisää/Poista seurattavista</a>
         </div>
     </div>
+
+
+<table id="current-season">
+    <caption>Nykyinen kausi</caption>​
+    <thead>​
+    <tr>​
+        <th scope=​"col" class="bottom-border">G</th>​
+        <th scope=​"col" class="bottom-border">​A</th>​
+        <th scope=​"col" class="bottom-border">Pts</th>​
+        <th scope=​"col" class="bottom-border">+/-</th>​
+        <th scope=​"col" class="bottom-border">PIM</th>​
+        <th scope=​"col" class="bottom-border">Hits</th>​
+        <th scope=​"col" class="bottom-border">BkS</th>​
+        <th scope=​"col" class="bottom-border">FW</th>​
+        <th scope=​"col" class="bottom-border">FL</th>​
+        <th scope=​"col" class="bottom-border">FO%</th>​
+        <th scope=​"col" class="bottom-border">PPG</th>​
+        <th scope=​"col" class="bottom-border">PPA</th>​
+        <th scope=​"col" class="bottom-border">SHG</th>​
+        <th scope=​"col" class="bottom-border">SHA</th>​
+        <th scope=​"col" class="bottom-border">GW</th>​
+        <th scope=​"col" class="bottom-border">SOG</th>​
+        <th scope=​"col" class="bottom-border">Pct</th>​
+    </tr>​
+    </thead>​
+    <tr>​
+        <th scope=​"col">{{this_season.g}}</th>​
+        <th scope=​"col">{{this_season.a}}</th>​
+        <th scope=​"col">{{this_season.pts}}</th>​
+        <th scope=​"col">{{this_season['+/-']}}</th>​
+        <th scope=​"col">{{this_season.pim}}</th>​
+        <th scope=​"col">{{this_season.hits}}</th>​
+        <th scope=​"col">{{this_season.bks}}</th>​
+        <th scope=​"col">{{this_season.fw}}</th>​
+        <th scope=​"col">{{this_season.fl}}</th>​
+        <th scope=​"col">{{this_season['fo%']}}</th>​
+        <th scope=​"col">{{this_season.ppg}}</th>​
+        <th scope=​"col">{{this_season.ppa}}</th>​
+        <th scope=​"col">{{this_season.shg}}</th>​
+        <th scope=​"col">{{this_season.sha}}</th>​
+        <th scope=​"col">{{this_season.gw}}</th>​
+        <th scope=​"col">{{this_season.sog}}</th>​
+        <th scope=​"col">{{this_season.pct}}</th>​
+    </tr>​
+
+</table>
+
 
 <table id="last-game">
     <caption>Viimeisin peli</caption>​
@@ -68,54 +112,7 @@
     </tr>​
 </table>
 
-
-<table id="current-season">
-    <caption>Nykyinen kausi</caption>​
-    <thead>​
-    <tr>​
-        <th scope=​"col" class="bottom-border">G</th>​
-        <th scope=​"col" class="bottom-border">​A</th>​
-        <th scope=​"col" class="bottom-border">Pts</th>​
-        <th scope=​"col" class="bottom-border">+/-</th>​
-        <th scope=​"col" class="bottom-border">PIM</th>​
-        <th scope=​"col" class="bottom-border">Hits</th>​
-        <th scope=​"col" class="bottom-border">BkS</th>​
-        <th scope=​"col" class="bottom-border">FW</th>​
-        <th scope=​"col" class="bottom-border">FL</th>​
-        <th scope=​"col" class="bottom-border">FO%</th>​
-        <th scope=​"col" class="bottom-border">PPG</th>​
-        <th scope=​"col" class="bottom-border">PPA</th>​
-        <th scope=​"col" class="bottom-border">SHG</th>​
-        <th scope=​"col" class="bottom-border">SHA</th>​
-        <th scope=​"col" class="bottom-border">GW</th>​
-        <th scope=​"col" class="bottom-border">SOG</th>​
-        <th scope=​"col" class="bottom-border">Pct</th>​
-    </tr>​
-    </thead>​
-    <tr>​
-        <th scope=​"col">{{this_season.g}}</th>​
-        <th scope=​"col">{{this_season.a}}</th>​
-        <th scope=​"col">{{this_season.pts}}</th>​
-        <th scope=​"col">{{this_season['+/-']}}</th>​
-        <th scope=​"col">{{this_season.pim}}</th>​
-        <th scope=​"col">{{this_season.hits}}</th>​
-        <th scope=​"col">{{this_season.bks}}</th>​
-        <th scope=​"col">{{this_season.fw}}</th>​
-        <th scope=​"col">{{this_season.fl}}</th>​
-        <th scope=​"col">{{this_season['fo%']}}</th>​
-        <th scope=​"col">{{this_season.ppg}}</th>​
-        <th scope=​"col">{{this_season.ppa}}</th>​
-        <th scope=​"col">{{this_season.shg}}</th>​
-        <th scope=​"col">{{this_season.sha}}</th>​
-        <th scope=​"col">{{this_season.gw}}</th>​
-        <th scope=​"col">{{this_season.sog}}</th>​
-        <th scope=​"col">{{this_season.pct}}</th>​
-    </tr>​
-
-</table>
-
-
-<table id="all-seasons">
+<table id="all-seasons" class="full-width">
     <caption>Kaikki kaudet</caption>​
     <thead>​
     <tr>​
@@ -144,6 +141,7 @@
     <tr>​
         <th scope=​"col">{{s.year}}</th>​
         <th scope=​"col"><a href="/team/{{s.team}}">{{s.team | upper}}</a></th>​
+        <th scope=​"col">{{s.g}}</th>​
         <th scope=​"col">{{s.a}}</th>​
         <th scope=​"col">{{s.pts}}</th>​
         <th scope=​"col">{{s['+/-']}}</th>​
@@ -185,8 +183,5 @@
         <th class="top-border" scope=​"col">{{career.pct}}</th>​
     </tr>​
 </table>
-
-
-    <p><a data-rel="back" data-role="button" data-theme="b">Paluu</a></p>
 
 {% endblock %}

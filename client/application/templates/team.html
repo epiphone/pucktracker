@@ -1,39 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
 
-     <a href="/" data-role="button">Lisää/Poista seurattavista</a>
 
-    <h1>Joukkueen tiedot</h1>
-    <div id="info" class="ui-grid-a">
-        <div class="ui-block-a">
-                <h2>{{name}}</h2>
-                <h2>{{team|upper}}</h2>
-        </div>
-        <div class="ui-block-b">
-            <div class="ui-bar ui-bar-d picture-frame">
-                <p>Logo</p>
-            </div>
-        </div>
+
+<fieldset class="ui-grid-a">
+    <div class="ui-block-a">
+        <h2>{{name}}</h2>
+        <p>{{team|upper}}</p>
     </div>
-
-<table id="latest_game">
-    <caption>Viimeisin peli</caption>​
-<thead>
-    <tr>
-        <td class="bottom-border">Date</td>
-        <td class="bottom-border">Opponent</td>
-        <td class="bottom-border">Score</td>
-    </tr>
-</thead>
-<tr>
-    <td><a href="/game/{{latest_game.date}}">{{latest_game.date}}</a></td>
-    <td>{{latest_game.opponent}}</td>
-    <td>{{latest_game.score}}</td>
-</tr>
-
+    <div class="ui-block-b">
+        <a href="/" data-role="button">Lisää/Poista seurattavista</a>
+    </div>
+</fieldset>
 
 <table id="current-season">
-    <caption>Kauden {{year}} tilastot</caption>​
+    <caption><p>Kauden {{year}} tilastot</p></caption>​
 <thead>
     <tr>
         <td class="bottom-border">GP</td>
@@ -70,7 +51,19 @@
 
 </table>
 
+<table id="latest_game">
+    <caption>Viimeisin peli</caption>​
+<thead>
+    <tr>
+        <td class="bottom-border">Date</td>
+        <td class="bottom-border">Opponent</td>
+        <td class="bottom-border">Score</td>
+    </tr>
+</thead>
+<tr>
+    <td><a href="/game/{{latest_game.date}}">{{latest_game.date}}</a></td>
+    <td>{{latest_game.opponent}}</td>
+    <td>{{latest_game.score}}</td>
+</tr>
 
-<p><a data-rel="back" data-role="button" data-theme="b">Paluu</a></p>
-
-{% endblock %}s
+{% endblock %}
