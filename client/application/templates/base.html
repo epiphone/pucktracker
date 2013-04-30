@@ -26,6 +26,9 @@
 
         <!-- 'home' and 'search' buttons -->
         <a data-direction="reverse" data-iconpos="notext" data-icon="home" href="/menu" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" title="Home"></a>
+        <p>
+          Kirjautuneena: {{session['name']| replace('None', 'Et ole kirjautunut')}}
+        </p>
       </div>
 
       <!-- Page content (depends on child template) -->
