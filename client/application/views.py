@@ -19,10 +19,10 @@ URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 import logging
 from application import app
 from flask import render_template, session,  request, abort
-from utils import fetch_from_api, fetch_from_api_signed, get_latest_game
+from utils import fetch_from_api, fetch_from_api_signed, get_latest_game, logged_in
 
 # Kaikki joukkueet tunnuksineen ja nimineen
-teams = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
+TEAMS = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
 
 
 @app.route("/")
@@ -32,10 +32,14 @@ def index():
 
     Kirjautumatonta käyttäjää kehotetaan kirjautumaan sisään.
     """
-    if session['acc_token'] == None:
-        return render_template("login.html")
+    if logged_in():
+        game_r = fetch_from_api_signed('/api/json/user').content
+        games=game_r
+        return render_template("index.html",games=games)
+
+    # Jos ei olla kirjauduttu:
     else:
-        return render_template("index.html")
+        return render_template("login.html")
 
 
 @app.route("/menu")
@@ -124,7 +128,7 @@ def team_search():
 
     Kaikki joukkueet listattuna ja suodatettavissa hakuehdolla.
     '''
-    return render_template("team_search.html", teams=teams)
+    return render_template("team_search.html", teams=TEAMS)
 
 
 @app.route("/team/<team>")
@@ -151,7 +155,7 @@ def team(team,year="2012"):
         if (g['team'] == team):
             team_players.append(player_dict)
 
-    name = teams[team]
+    name = TEAMS[team]
 
     # Tarkistetaan onko joukkue seurattavien listalla
     following = False
