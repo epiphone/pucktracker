@@ -1,7 +1,19 @@
 # -*- coding: latin-1 -*-
 """
 URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
-Kirjautumaton käyttäjä ohjataan aina '/' sivulle ja kehotetaan kirjautumaan.
+
+|           URL           |    Funktio    |            Kuvaus            |
+|-------------------------|---------------|------------------------------|
+| "/"                     | index         | Käyttäjäkohtainen index-sivu |
+| "/menu"                 | menu          | Main Menu                    |
+| "/player"               | player_search | Pelaajahaku                  |
+| "/player/<player_id>"   | player        | Pelaaja-sivu                 |
+| "/team"                 | team_search   | Joukkuehaku                  |
+| "/team/<team>"          | team          | Joukkue-sivu                 |
+| "/game/<game_id>"       | game          | Peli-sivu                    |
+| "/standings/<int:year>" | standings     | Sarjataulukko                |
+| "/top"                  | search        | TODO: Top-sivu               |
+|                         |               |                              |
 """
 
 import logging
