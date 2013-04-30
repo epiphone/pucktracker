@@ -80,3 +80,7 @@ table{
 .standings-table .even {
     background-color: #FCFCFC;
 }
+
+.standings-table thead tr {
+    background-color: #DEDEDE;
+}
