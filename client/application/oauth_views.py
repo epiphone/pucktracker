@@ -11,7 +11,6 @@ from settings import REQUEST_TOKEN_URL, ACCESS_TOKEN_URL, AUTHORIZE_URL
 from settings import CALLBACK_URL, API_URL
 from utils import fetch_from_api_signed, get_followed, logged_in, add_followed
 from utils import remove_followed
-import time
 import logging
 
 
@@ -20,10 +19,13 @@ def before_request():
     """
     Jokaisen HTTP-pyynnön alussa tarkistetaan onko käyttäjä kirjautunut,
     (onko sessiotiedoissa access token ja secret), ja jos ei ole,
-    ohjataan kirjautumissivulle.
+    ohjataan kirjautumissivulle. Lisäksi poistetaan urlista "www.".
     """
+    if "www." in request.url:
+        return redirect(request.url.replace("www.", ""))
+
     if request.endpoint in ["index", "login", "callback"]:
-        pass
+        return
     elif not logged_in():
         return redirect(url_for("index"))
 
@@ -145,14 +147,10 @@ def callback():
     oauth_verifier = request.args.get("oauth_verifier", "")
 
     oauth_token_secret = None
-    for i in range(5):
-        try:
-            oauth_token_secret = session["req_token_secret"]
-            break
-        except KeyError:
-            time.sleep(1)
-    if not oauth_token_secret:
-        return "req_token_secretiä ei löydy", 503
+    try:
+        oauth_token_secret = session["req_token_secret"]
+    except KeyError:
+        return "req_token_secretiä ei löydy sessiosta", 503
 
     assert all(x for x in [oauth_token, oauth_verifier,
         oauth_token_secret])  # TODO
@@ -163,8 +161,8 @@ def callback():
         token=oauth_token,
         secret=oauth_token_secret,
         verifier=oauth_verifier)
-    if resp.status_code != 200:
-        return str(resp.status_code)
+    if resp.status_code not in [200, 302]:
+        return str(resp.status_code)  # TODO
 
     # Tallennetaan access token & secret sessioon:
     query_params = parse_qs(resp.content)
