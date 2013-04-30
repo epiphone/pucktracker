@@ -2,6 +2,16 @@
 {% block content %}
 
 <!-- TODO get some data over here -->
+<p>Seuratut joukkueet (testausta varten)</p>
+{% for a in session['teams']%}
+<a href="/team/{{a}}">{{a|upper}}</a>
+{% endfor %}
+
+<p>Seuratut pelaajat</p>
+{% for a in session['players']%}
+<a href="/player/{{a}}">{{a|upper}}</a>
+{% endfor %}
+
 <h1>Uusimmat pelit</h1>
 <p>Toteuttamatta..</p>
 

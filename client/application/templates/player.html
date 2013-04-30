@@ -12,9 +12,9 @@
         </div>
         <div class="ui-block-b">
             {% if following == True %}
-            <a href="/remove_followed/{{team}}" data-role="button">Poista seurattavista</a>
+            <a href="/remove_followed/{{pid}}" data-role="button">Poista seurattavista {{pid}}</a>
             {% else %}
-            <a href="/add_followed/{{team}}" data-role="button">Lisää seurattaviin</a>
+            <a href="/add_followed/{{pid}}" data-role="button">Lisää seurattaviin {{pid}}</a>
             {% endif %}
         </div>
     </div>

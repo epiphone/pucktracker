@@ -22,7 +22,8 @@ from flask import render_template, session,  request
 from utils import fetch_from_api, fetch_from_api_signed, get_latest_game
 
 # Kaikki joukkueet tunnuksineen ja nimineen
-teams = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "atl": "Atlanta Thrashers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
+teams = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
+
 
 @app.route("/")
 def index():
@@ -31,7 +32,7 @@ def index():
 
     Kirjautumatonta käyttäjää kehotetaan kirjautumaan sisään.
     """
-    if "oauth_token" in session:
+    if "acc_token" in session:
         return render_template("index.html")
     else:
         return render_template("login.html")
@@ -100,8 +101,8 @@ def player(player_id):
 
     # Tarkistetaan onko joukkue seurattavien listalla
     following = False
-    # if team in session['teams']:  # TODO testaa toimiiko sessioilla
-    #     following = True
+    if player_id in session['players']:  # TODO testaa toimiiko sessioilla
+        following = True
 
     return render_template(
         "player.html",
@@ -112,7 +113,8 @@ def player(player_id):
         position=position,
         career=career,
         latest_game=latest_game,
-        following=following)
+        following=following,
+        pid=player_id)
 
 
 @app.route("/team")
@@ -153,8 +155,8 @@ def team(team,year="2012"):
 
     # Tarkistetaan onko joukkue seurattavien listalla
     following = False
-    # if team in session['teams']:  # TODO testaa toimiiko sessioilla
-    #     following = True
+    if team in session['teams']:  # TODO testaa toimiiko sessioilla
+        following = True
 
     return render_template(
         "team.html",
