@@ -1,50 +1,93 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Sarjataulukko</h1>
+<h3>Runkosarja {{year}}</h3>
 
-<table>
-    <caption>
-        <h2>Sarjataulukko {{year}}</h2>
-    </caption>
-    <thead>
-        <tr>
-            <td class="bottom-border">Team</td>
-            <td class="bottom-border">Conf</td>
-            <td class="bottom-border">Div</td>
-            <td class="bottom-border">Last 10</td>
-            <td class="bottom-border">W</td>
-            <td class="bottom-border">Gp</td>
-            <td class="bottom-border">Pts</td>
-            <td class="bottom-border">L</td>
-            <td class="bottom-border">Gf</td>
-            <td class="bottom-border">Home</td>
-            <td class="bottom-border">Otl</td>
-            <td class="bottom-border">Diff</td>
-            <td class="bottom-border">Road</td>
-            <td class="bottom-border">Ga</td>
-        </tr>
-    </thead>
+<h4>Eastern</h4>
+{% for div in ["atlantic", "northeast", "southeast"] %}
+    <table>
+        <thead>
+            <tr>
+                <td class="bottom-border">{{div|title}}</td>
+                <td class="bottom-border">GP</td>
+                <td class="bottom-border">W</td>
+                <td class="bottom-border">L</td>
+                <td class="bottom-border">OTL</td>
+                <td class="bottom-border">Pts</td>
+                <td class="bottom-border">GF</td>
+                <td class="bottom-border">GA</td>
+                <td class="bottom-border">Diff</td>
+                <td class="bottom-border">Home</td>
+                <td class="bottom-border">Road</td>
+                <td class="bottom-border">Last 10</td>
+                <td class="bottom-border">Streak</td>
+            </tr>
+        </thead>
 
-{% for team in teams %}
-        <tr>
-            <td class="bottom-border"><a href="/team/{{team.team}}">{{team.team|upper}}</a></td>
-            <td class="bottom-border">{{team.conf}}</td>
-            <td class="bottom-border">{{team.div}}</td>
-            <td class="bottom-border">{{team['last 10']}}</td>
-            <td class="bottom-border">{{team.w}}</td>
-            <td class="bottom-border">{{team.gp}}</td>
-            <td class="bottom-border">{{team.pts}}</td>
-            <td class="bottom-border">{{team.l}}</td>
-            <td class="bottom-border">{{team.gf}}</td>
-            <td class="bottom-border">{{team.home}}</td>
-            <td class="bottom-border">{{team.otl}}</td>
-            <td class="bottom-border">{{team.diff}}</td>
-            <td class="bottom-border">{{team.road}}</td>
-            <td class="bottom-border">{{team.ga}}</td>
-        </tr>
+    {% for team in teams[div] %}
+        <tbody>
+            <tr>
+                <td class="bottom-border"><a href="/team/{{team.team}}">{{team.team|upper}}</a></td>
+                <td class="bottom-border">{{team.gp}}</td>
+                <td class="bottom-border">{{team.w}}</td>
+                <td class="bottom-border">{{team.l}}</td>
+                <td class="bottom-border">{{team.otl}}</td>
+                <td class="bottom-border">{{team.pts}}</td>
+                <td class="bottom-border">{{team.gf}}</td>
+                <td class="bottom-border">{{team.ga}}</td>
+                <td class="bottom-border">{{team.diff}}</td>
+                <td class="bottom-border">{{team.home}}</td>
+                <td class="bottom-border">{{team.road}}</td>
+                <td class="bottom-border">{{team['last 10']}}</td>
+                <td class="bottom-border">{{team.streak|title}}</td>
+            </tr>
+        </tbody>
+    {% endfor %}
+    </table>
 {% endfor %}
 
-</table>
+<h4>Western</h4>
+{% for div in ["central", "northwest", "pacific"] %}
+    <table>
+        <thead>
+            <tr>
+                <td class="bottom-border">{{div|title}}</td>
+                <td class="bottom-border">GP</td>
+                <td class="bottom-border">W</td>
+                <td class="bottom-border">L</td>
+                <td class="bottom-border">OTL</td>
+                <td class="bottom-border">Pts</td>
+                <td class="bottom-border">GF</td>
+                <td class="bottom-border">GA</td>
+                <td class="bottom-border">Diff</td>
+                <td class="bottom-border">Home</td>
+                <td class="bottom-border">Road</td>
+                <td class="bottom-border">Last 10</td>
+                <td class="bottom-border">Streak</td>
+            </tr>
+        </thead>
+
+    {% for team in teams[div] %}
+        <tbody>
+            <tr>
+                <td class="bottom-border"><a href="/team/{{team.team}}">{{team.team|upper}}</a></td>
+                <td class="bottom-border">{{team.gp}}</td>
+                <td class="bottom-border">{{team.w}}</td>
+                <td class="bottom-border">{{team.l}}</td>
+                <td class="bottom-border">{{team.otl}}</td>
+                <td class="bottom-border">{{team.pts}}</td>
+                <td class="bottom-border">{{team.gf}}</td>
+                <td class="bottom-border">{{team.ga}}</td>
+                <td class="bottom-border">{{team.diff}}</td>
+                <td class="bottom-border">{{team.home}}</td>
+                <td class="bottom-border">{{team.road}}</td>
+                <td class="bottom-border">{{team['last 10']}}</td>
+                <td class="bottom-border">{{team.streak|title}}</td>
+            </tr>
+        </tbody>
+    {% endfor %}
+    </table>
+{% endfor %}
+
 
 {% endblock %}
