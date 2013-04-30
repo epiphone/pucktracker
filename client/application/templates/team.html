@@ -19,35 +19,35 @@
     <caption><p>Kauden {{year}} tilastot</p></caption>​
 <thead>
     <tr>
-        <td class="bottom-border">GP</td>
-        <td class="bottom-border">W</td>
-        <td class="bottom-border">L</td>
-        <td class="bottom-border">T</td>
-        <td class="bottom-border">OTL</td>
-        <td class="bottom-border">Pts</td>
-        <td class="bottom-border">GF</td>
-        <td class="bottom-border">GA</td>
-        <td class="bottom-border">Diff</td>
-        <td class="bottom-border">Home</td>
-        <td class="bottom-border">Road</td>
-        <td class="bottom-border">Last 10</td>
-        <td class="bottom-border">Streak</td>
+        <th class="bottom-border">GP</th>
+        <th class="bottom-border">W</th>
+        <th class="bottom-border">L</th>
+        <th class="bottom-border">T</th>
+        <th class="bottom-border">OTL</th>
+        <th class="bottom-border">Pts</th>
+        <th class="bottom-border">GF</th>
+        <th class="bottom-border">GA</th>
+        <th class="bottom-border">Diff</th>
+        <th class="bottom-border">Home</th>
+        <th class="bottom-border">Road</th>
+        <th class="bottom-border">Last 10</th>
+        <th class="bottom-border">Streak</th>
     </tr>
 </thead>
 <tr>
-    <td>{{stats['gp']}}</td>
-    <td>{{stats['w']}}</td>
-    <td>{{stats['l']}}</td>
-    <td>{{stats['t']}}</td>
-    <td>{{stats['otl']}}</td>
-    <td>{{stats['pts']}}</td>
-    <td>{{stats['gf']}}</td>
-    <td>{{stats['ga']}}</td>
-    <td>{{stats['diff']}}</td>
-    <td>{{stats['home']}}</td>
-    <td>{{stats['road']}}</td>
-    <td>{{stats['last 10']}}</td>
-    <td>{{stats['streak']}}</td>
+    <th>{{stats['gp']}}</th>
+    <th>{{stats['w']}}</th>
+    <th>{{stats['l']}}</th>
+    <th>{{stats['t']}}</th>
+    <th>{{stats['otl']}}</th>
+    <th>{{stats['pts']}}</th>
+    <th>{{stats['gf']}}</th>
+    <th>{{stats['ga']}}</th>
+    <th>{{stats['diff']}}</th>
+    <th>{{stats['home']}}</th>
+    <th>{{stats['road']}}</th>
+    <th>{{stats['last 10']}}</th>
+    <th>{{stats['streak']}}</th>
 </tr>
 
 
@@ -57,15 +57,15 @@
     <caption>Viimeisin peli</caption>​
 <thead>
     <tr>
-        <td class="bottom-border">Pvm</td>
-        <td class="bottom-border">Vastus</td>
-        <td class="bottom-border">Tulos</td>
+        <th class="bottom-border">Pvm</th>
+        <th class="bottom-border">Vastus</th>
+        <th class="bottom-border">Tulos</th>
     </tr>
 </thead>
 <tr>
-    <td><a href="/game/{{latest_game.date}}">{{latest_game.date}}</a></td>
-    <td>{{latest_game.opponent}}</td>
-    <td>{{latest_game.score}}</td>
+    <th><a href="/game/{{latest_game.date}}">{{latest_game.date}}</a></th>
+    <th>{{latest_game.opponent}}</th>
+    <th>{{latest_game.score}}</th>
 </tr>
 
 <h3> Pelaajat: </h3>
