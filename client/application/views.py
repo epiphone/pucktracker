@@ -177,7 +177,7 @@ def game(game_id):
     logging.info("Haetaan pelin %s tiedot" % game_id)
     game = fetch_from_api("/api/json/games/%s" % game_id)
     if game is None:
-        return "404, Virheellinen peli"
+        return "Virheellinen peli.", 400
 
     home_team = game['home_team']
     home_score = game['home_score']
