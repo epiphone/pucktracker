@@ -61,3 +61,22 @@ table{
     width:100%;
     margin-bottom: 10;
 }
+
+/* Standings */
+.standings-table td,
+.standings-table th {
+    text-align: right;
+}
+
+.standings-table td:first-child {
+    text-align: left;
+}
+
+.standings-table th:first-child {
+    width: 10%;
+    text-align: left;
+}
+
+.standings-table .even {
+    background-color: #FCFCFC;
+}
