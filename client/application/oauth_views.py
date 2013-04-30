@@ -153,7 +153,7 @@ def callback():
         return "req_token_secretiä ei löydy sessiosta", 503
 
     assert all(x for x in [oauth_token, oauth_verifier,
-        oauth_token_secret])  # TODO
+               oauth_token_secret])  # TODO
 
     # Haetaan Access Token:
     resp = fetch_from_api_signed(

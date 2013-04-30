@@ -32,10 +32,10 @@ def index():
 
     Kirjautumatonta käyttäjää kehotetaan kirjautumaan sisään.
     """
-    if "acc_token" in session:
-        return render_template("index.html")
-    else:
+    if session['acc_token'] == None:
         return render_template("login.html")
+    else:
+        return render_template("index.html")
 
 
 @app.route("/menu")
