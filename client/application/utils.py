@@ -26,7 +26,7 @@ METHODS = {
 def get_latest_game(game_dict):
     new_game_date = max(game_dict.keys(), key=int)
     new_game = game_dict[new_game_date]
-    new_game['date']=new_game_date
+    new_game['date'] = new_game_date
     return new_game
     # lisää aika sinne ja return
       # TODO: tarkista avaimen muoto
@@ -145,7 +145,7 @@ def fetch_from_api(url, method="GET"):
 
 
 def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
-    secret="", method="POST", url_params={}, data={}):
+                          secret="", method="POST", url_params={}, data={}):
     """
     Lähetetään allekirjoitettu pyyntö, palautetaan vastaus.
 
@@ -193,9 +193,9 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
 
     # Kääritään parametrit yhteen merkkijonoon:
     params_str = "&".join(["%s=%s" % (escape(key), escape(signature_params[key]))
-        for key in sorted(signature_params)])
-    base_string = "&".join([method, escape(base_url),
-        escape(params_str)])
+                 for key in sorted(signature_params)])
+    base_string = "&".join([mzethod, escape(base_url),
+                            escape(params_str)])
 
     # Luodaan allekirjoitus:
     signing_key = CONSUMER_SECRET + "&" + secret
@@ -206,7 +206,7 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
 
     # Kääritään Authorization-headerin parametrit:
     auth_header = "OAuth " + ", ".join(['%s="%s"' %
-       (escape(k), escape(v)) for k, v in params.items()])
+        (escape(k), escape(v)) for k, v in params.items()])
 
     # Lähetetään pyyntö oAuth-providerille, palautetaan vastaus:
     method = METHODS[method]

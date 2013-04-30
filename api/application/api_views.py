@@ -23,14 +23,16 @@ oauth_provider = GAEProvider(app)
 """
 Url-reititys:
 
-URL                 FUNKTIO           KUVAUS
-/api                api_test          API:n infosivu TODO tänne apin dokumentaatio
-/api/players/(\d+)  players           Pelaajan valitun kauden tilastot
-/api/players        search_players    Lista pelaajista, joiden nimi vastaa hakuehtoa
-/api/teams/(\w+)    team              Joukkueen valitun kauden tilastot
-/api/games          games             Joukkueen tai pelaajan valitulla kaudella pelaamat ottelut
-/api/games/(\d+)    game              Valitun ottelun tilastot
-/api/schedule       schedule          Joukkueen tai pelaajan nykyisen kauden tulevat ottelut
+|        URL         |    FUNKTIO     |                           KUVAUS                           |
+|--------------------|----------------|------------------------------------------------------------|
+| /api               | api_test       | API:n infosivu TODO tänne apin dokumentaatio               |
+| /api/players/(\d+) | players        | Pelaajan valitun kauden tilastot                           |
+| /api/players       | search_players | Lista pelaajista, joiden nimi vastaa hakuehtoa             |
+| /api/teams/(\w+)   | team           | Joukkueen valitun kauden tilastot                          |
+| /api/games         | games          | Joukkueen tai pelaajan valitulla kaudella pelaamat ottelut |
+| /api/games/(\d+)   | game           | Valitun ottelun tilastot                                   |
+| /api/schedule      | schedule       | Joukkueen tai pelaajan nykyisen kauden tulevat ottelut     |
+
 """
 
 

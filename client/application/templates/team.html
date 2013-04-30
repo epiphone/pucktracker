@@ -7,7 +7,11 @@
         <p>{{team|upper}}</p>
     </div>
     <div class="ui-block-b">
-        <a href="/" data-role="button">Lisää/Poista seurattavista</a>
+        {% if following == true %}
+        <a href="/remove_followed/{{team}}" data-role="button">Poista seurattavista</a>
+        {% else %}
+        <a href="/add_followed/{{team}}" data-role="button">Lisää seurattaviin</a>
+        {% endif %}
     </div>
 </fieldset>
 
@@ -53,9 +57,9 @@
     <caption>Viimeisin peli</caption>​
 <thead>
     <tr>
-        <td class="bottom-border">Date</td>
-        <td class="bottom-border">Opponent</td>
-        <td class="bottom-border">Score</td>
+        <td class="bottom-border">Pvm</td>
+        <td class="bottom-border">Vastus</td>
+        <td class="bottom-border">Tulos</td>
     </tr>
 </thead>
 <tr>
