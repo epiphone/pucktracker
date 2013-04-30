@@ -194,7 +194,7 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
     # Kääritään parametrit yhteen merkkijonoon:
     params_str = "&".join(["%s=%s" % (escape(key), escape(signature_params[key]))
                  for key in sorted(signature_params)])
-    base_string = "&".join([mzethod, escape(base_url),
+    base_string = "&".join([method, escape(base_url),
                             escape(params_str)])
 
     # Luodaan allekirjoitus:
@@ -206,7 +206,7 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
 
     # Kääritään Authorization-headerin parametrit:
     auth_header = "OAuth " + ", ".join(['%s="%s"' %
-        (escape(k), escape(v)) for k, v in params.items()])
+                  (escape(k), escape(v)) for k, v in params.items()])
 
     # Lähetetään pyyntö oAuth-providerille, palautetaan vastaus:
     method = METHODS[method]
