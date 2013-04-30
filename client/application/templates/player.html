@@ -6,7 +6,7 @@
     <div class="ui-grid-a">
         <div class="ui-block-a">
                 <h2 class="no-top-margin">{{name}}</h2>
-                <p>Pelipaikka: <strong>{{position | replace ('C','Keskushyökkääjä')}}</strong></p>
+                <p>Pelipaikka: <strong>{{position}}</strong></p>
 
                 <h3><a href="/team/{{team}}">{{team|upper}}</a></h3>
         </div>
@@ -120,8 +120,8 @@
     <caption>Kaikki kaudet</caption>​
     <thead>​
     <tr>​
-        <th scope=​"col" class="bottom-border">Year</th>​
-        <th scope=​"col" class="bottom-border">Team</th>​
+        <th scope=​"col" class="bottom-border">Vuosi</th>​
+        <th scope=​"col" class="bottom-border">Joukkue</th>​
         <th scope=​"col" class="bottom-border">G</th>​
         <th scope=​"col" class="bottom-border">​A</th>​
         <th scope=​"col" class="bottom-border">Pts</th>​
@@ -166,7 +166,7 @@
     {% endfor %}
     <tr></tr>
         <tr>​
-        <th class="top-border" scope=​"col">Totals:</th>​
+        <th class="top-border" scope=​"col"></th>​
         <th class="top-border" scope=​"col"></th>​
         <th class="top-border" scope=​"col">{{career.g}}</th>​
         <th class="top-border" scope=​"col">{{career.a}}</th>​
