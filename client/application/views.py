@@ -13,7 +13,7 @@ URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 | "/game/<game_id>"       | game          | Peli-sivu                    |
 | "/standings/<int:year>" | standings     | Sarjataulukko                |
 | "/top"                  | search        | TODO: Top-sivu               |
-|                         |               |                              |
+
 """
 
 import logging
@@ -21,6 +21,8 @@ from application import app
 from flask import render_template, session,  request
 from utils import fetch_from_api, fetch_from_api_signed, get_latest_game
 
+# Kaikki joukkueet tunnuksineen ja nimineen
+teams = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "atl": "Atlanta Thrashers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
 
 @app.route("/")
 def index():
@@ -120,7 +122,6 @@ def team_search():
 
     Kaikki joukkueet listattuna ja suodatettavissa hakuehdolla.
     '''
-    teams = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "atl": "Atlanta Thrashers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
     return render_template("team_search.html", teams=teams)
 
 
@@ -132,13 +133,6 @@ def team(team,year="2012"):
     Käyttäjä voi lisätä/poistaa pelaajan seurattavien pelaajien listasta, joka
     on talletettuna sessioon.
     '''
-    teams = ['njd', 'nyi', 'nyr', 'phi', 'pit', 'bos', 'buf', 'mon', 'ott',
-             'tor', 'car', 'fla', 'tam', 'was', 'wpg', 'chi', 'cob', 'det',
-             'nas', 'stl', 'cgy', 'col', 'edm', 'min', 'van', 'ana', 'dal',
-             'los', 'pho', 'san']
-    # TODO: poista teams-lista, turha koska voidaan käyttää names-dictionarya
-    names = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "atl": "Atlanta Thrashers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
-
     logging.info("Haetaan joukkueen %s tiedot vuodelta %s" % (team,year))
     stats = fetch_from_api("/api/json/teams?team=%s&year=%s" % (team,year))
     season_games = fetch_from_api("/api/json/games?team=%s&year=2012" % (team))
@@ -155,7 +149,7 @@ def team(team,year="2012"):
         if (g['team'] == team):
             team_players.append(player_dict)
 
-    name = names[team]
+    name = teams[team]
 
     # Tarkistetaan onko joukkue seurattavien listalla
     following = False
@@ -224,10 +218,10 @@ def standings(year):
     TODO: Sarjataulukon valinta kauden mukaan
     '''
     logging.info("Haetaan vuode %s sarjataulukko" % year)
-    teams = fetch_from_api("/api/json/teams?&year=%s" % year)
+    team_stats = fetch_from_api("/api/json/teams?&year=%s" % year)
 
     team_list = []
-    for k,v in teams.iteritems():
+    for k,v in team_stats.iteritems():
         new_dict = v
         new_dict['team'] = k
         team_list.append(new_dict)
