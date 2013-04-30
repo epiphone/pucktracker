@@ -307,10 +307,9 @@ class OAuthProvider(Server):
                         return f(*args, **kwargs)
                     else:
                         # Unauthorized requests should not diclose their cause
-                        # TODO debug-loggaukset pois
                         logging.info("Request unauthorized")
                         logging.info("oauth_request = " + str(oauth_request))
-                        return Response(reasons + str(oauth_request), status=401)
+                        return Response("Request unauthorized", status=401)
 
                 except ValueError as err:
                     logging.info("Request invalid")
