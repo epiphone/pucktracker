@@ -18,7 +18,7 @@ URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 
 import logging
 from application import app
-from flask import render_template, session,  request
+from flask import render_template, session,  request, abort
 from utils import fetch_from_api, fetch_from_api_signed, get_latest_game, logged_in
 
 # Kaikki joukkueet tunnuksineen ja nimineen
@@ -34,7 +34,7 @@ def index():
     """
     if logged_in():
         game_r = fetch_from_api_signed('/api/json/user').content
-        games=game_r.content
+        games=game_r
         return render_template("index.html",games=games)
 
     # Jos ei olla kirjauduttu:
@@ -217,23 +217,26 @@ def game(game_id):
 
 @app.route("/standings/<int:year>")
 def standings(year):
-    '''
+    """
     Sarjataulukko joka sisältää kaikkien joukkueiden nykyisen kauden tilastot.
 
-    Järjestetty pts:n mukaan.
-    TODO: Sarjataulukon valinta kauden mukaan
-    '''
-    logging.info("Haetaan vuode %s sarjataulukko" % year)
-    team_stats = fetch_from_api("/api/json/teams?&year=%s" % year)
+    Järjestetty pisteiden mukaan, divisioonittain.
+    """
+    stats = fetch_from_api("/api/json/teams?&year=%s" % year)
+    if not stats:
+        abort(400)
 
-    team_list = []
-    for k,v in team_stats.iteritems():
-        new_dict = v
-        new_dict['team'] = k
-        team_list.append(new_dict)
+    teams_dict = {}
+    teams = sorted(stats.iteritems(), key=lambda (k, v): v["pts"], reverse=True)
+    for k, v in teams:
+        div = v["div"]
+        v["team"] = k
+        if not div in teams_dict:
+            teams_dict[div] = [v]
+        else:
+            teams_dict[div].append(v)
 
-    team_list = sorted(team_list, key=lambda x: x["pts"], reverse=True)
-    return render_template("standings.html",teams=team_list, year=year)
+    return render_template("standings.html", teams=teams_dict, year=year)
 
 
 @app.route("/top")
