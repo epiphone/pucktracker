@@ -391,6 +391,8 @@ def get_players_and_teams(players=None, teams=None):
                 teams_dict[team] = dict(stats=None, latest_game=None)
             else:
                 latest_game = scraper.scrape_game(gid) if gid else None
+                if latest_game:
+                    latest_game["gid"] = gid
                 teams_dict[team] = dict(stats=stats, latest_game=latest_game)
 
     if players:
@@ -404,6 +406,7 @@ def get_players_and_teams(players=None, teams=None):
                         stats, latest_game = None, None
                     else:
                         latest_game = scraper.scrape_game(gid)
+                        latest_game["gid"] = gid
                         stats = pstat
                     players_dict[pid] = dict(stats=stats, latest_game=latest_game)
                     break
@@ -422,6 +425,7 @@ def get_players_and_teams(players=None, teams=None):
                         stats, latest_game = None, None
                     else:
                         latest_game = scraper.scrape_game(gid)
+                        latest_game["gid"] = gid
                         stats = pstat
                     players_dict[pid] = dict(stats=stats, latest_game=latest_game)
                     break

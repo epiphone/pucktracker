@@ -1,23 +1,56 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- TODO get some data over here -->
-<p>Seuratut joukkueet (testausta varten)</p>
-{% for a in session['teams']%}
-<a href="/team/{{a}}">{{a|upper}}</a>
-{% endfor %}
+<p>Seuratut joukkueet</p>
+$ for tid, team in user_data["teams"].iteritems():
+    $ set stats = team["stats"]
+    $ set game = team["latest_game"]
+    <a href="/team/{{tid}}">{{tid|upper}}</a>
+    <table class="standings-table">
+        <thead>
+            <tr>
+                <th>GP</th>
+                <th>W</th>
+                <th>L</th>
+                <th>OTL</th>
+                <th>Pts</th>
+                <th>GF</th>
+                <th>GA</th>
+                <th>Diff</th>
+                <th>Home</th>
+                <th>Road</th>
+                <th>Last 10</th>
+                <th>Streak</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{stats.gp}}</td>
+                <td>{{stats.w}}</td>
+                <td>{{stats.l}}</td>
+                <td>{{stats.otl}}</td>
+                <td>{{stats.pts}}</td>
+                <td>{{stats.gf}}</td>
+                <td>{{stats.ga}}</td>
+                <td>{{stats.diff}}</td>
+                <td>{{stats.home}}</td>
+                <td>{{stats.road}}</td>
+                <td>{{stats["last 10"]}}</td>
+                <td>{{stats.streak|title}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>Viimeisin ottelu:</p>
+    <a href="/game/{{game.gid}}">{{game.away_team}} {{game.away_score}} - {{game.home_score}} {{game.home_team}}</a>
+    <p>TODO nämä siistiin formaattiin + pvm, maalit(?) ja muut</p>
+
+$ endfor
 
 <p>Seuratut pelaajat</p>
-{% for a in session['players']%}
-<a href="/player/{{a}}">{{a|upper}}</a>
-{% endfor %}
+$ for player in user_data["players"]:
+    <a href="/player/{{player}}">{{player|title}}</a>
+$ endfor
 
-<h1>Uusimmat pelit</h1>
 
-{{games}}
-
-<p><a href="/player/4472" data-role="button">Pelaaja (4472)</a></p>
-<p><a href="/game/2012022307" data-role="button">Ottelu (2012022307)</a></p>
-<p><a href="/team/bos" data-role="button">Joukkue (bos)</a></p>
 
 {% endblock %}

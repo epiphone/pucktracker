@@ -4,22 +4,25 @@ URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 
 |           URL           |    Funktio    |            Kuvaus            |
 |-------------------------|---------------|------------------------------|
-| "/"                     | index         | Käyttäjäkohtainen index-sivu |
-| "/menu"                 | menu          | Main Menu                    |
-| "/player"               | player_search | Pelaajahaku                  |
-| "/player/<player_id>"   | player        | Pelaaja-sivu                 |
-| "/team"                 | team_search   | Joukkuehaku                  |
-| "/team/<team>"          | team          | Joukkue-sivu                 |
-| "/game/<game_id>"       | game          | Peli-sivu                    |
-| "/standings/<int:year>" | standings     | Sarjataulukko                |
-| "/top"                  | search        | TODO: Top-sivu               |
+| /                       | index         | Käyttäjäkohtainen index-sivu |
+| /menu                   | menu          | Main Menu                    |
+| /player                 | player_search | Pelaajahaku                  |
+| /player/<player_id>     | player        | Pelaaja-sivu                 |
+| /team                   | team_search   | Joukkuehaku                  |
+| /team/<team>            | team          | Joukkue-sivu                 |
+| /game/<game_id>         | game          | Peli-sivu                    |
+| /standings/<int:year>   | standings     | Sarjataulukko                |
+| /top                    | search        | TODO: Top-sivu               |
 
 """
 
 import logging
 from application import app
 from flask import render_template, session,  request, abort
-from utils import fetch_from_api, fetch_from_api_signed, get_latest_game, logged_in
+from utils import fetch_from_api, get_latest_game, logged_in
+from utils import get_followed
+import json
+
 
 # Kaikki joukkueet tunnuksineen ja nimineen
 TEAMS = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
@@ -28,16 +31,16 @@ TEAMS = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Pre
 @app.route("/")
 def index():
     """
-    Käyttäjän seuraamien pelaajien ja joukkueiden uusimmat pelit.
+    Kirjautuneelle käyttäjälle näytetään "oma sivu", jossa seurattujen
+    pelaajien/joukkueiden kauden tilastot sekä uusimpien otteluiden tiedot.
 
     Kirjautumatonta käyttäjää kehotetaan kirjautumaan sisään.
     """
     if logged_in():
-        game_r = fetch_from_api_signed('/api/json/user').content
-        games=game_r
-        return render_template("index.html",games=games)
-
-    # Jos ei olla kirjauduttu:
+        user_data = get_followed(ids_only=False)
+        if not user_data:
+            abort(404)  # TODO tähän parempi virheenkäsittely
+        return render_template("index.html", user_data=user_data)
     else:
         return render_template("login.html")
 
