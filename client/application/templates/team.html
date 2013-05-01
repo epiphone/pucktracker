@@ -1,79 +1,81 @@
 {% extends "base.html" %}
 {% block content %}
 
-<fieldset class="ui-grid-a">
+<fieldset class="ui-grid-a" id="team-info">
     <div class="ui-block-a">
         <h2>{{name}}</h2>
         <p>{{team|upper}}</p>
     </div>
     <div class="ui-block-b">
         {% if following == true %}
-        <a href="/remove_followed/{{team}}" data-role="button">Poista seurattavista</a>
+            <a href="/remove_followed/{{team}}" data-role="button">Poista seurattavista</a>
         {% else %}
-        <a href="/add_followed/{{team}}" data-role="button">Lisää seurattaviin</a>
+            <a href="/add_followed/{{team}}" data-role="button">Lisää seurattaviin</a>
         {% endif %}
     </div>
 </fieldset>
 
-<table id="current-season">
-    <caption><p>Kauden {{year}} tilastot</p></caption>​
-<thead>
-    <tr>
-        <th class="bottom-border">GP</th>
-        <th class="bottom-border">W</th>
-        <th class="bottom-border">L</th>
-        <th class="bottom-border">T</th>
-        <th class="bottom-border">OTL</th>
-        <th class="bottom-border">Pts</th>
-        <th class="bottom-border">GF</th>
-        <th class="bottom-border">GA</th>
-        <th class="bottom-border">Diff</th>
-        <th class="bottom-border">Home</th>
-        <th class="bottom-border">Road</th>
-        <th class="bottom-border">Last 10</th>
-        <th class="bottom-border">Streak</th>
-    </tr>
-</thead>
-<tr>
-    <th>{{stats['gp']}}</th>
-    <th>{{stats['w']}}</th>
-    <th>{{stats['l']}}</th>
-    <th>{{stats['t']}}</th>
-    <th>{{stats['otl']}}</th>
-    <th>{{stats['pts']}}</th>
-    <th>{{stats['gf']}}</th>
-    <th>{{stats['ga']}}</th>
-    <th>{{stats['diff']}}</th>
-    <th>{{stats['home']}}</th>
-    <th>{{stats['road']}}</th>
-    <th>{{stats['last 10']}}</th>
-    <th>{{stats['streak']}}</th>
-</tr>
-
-
+<h4>Kauden {{year}} tilastot​</h4>
+<table id="current-season" class="standings-table">
+    <thead>
+        <tr>
+            <th class="bottom-border">GP</th>
+            <th class="bottom-border">W</th>
+            <th class="bottom-border">L</th>
+            <th class="bottom-border">T</th>
+            <th class="bottom-border">OTL</th>
+            <th class="bottom-border">Pts</th>
+            <th class="bottom-border">GF</th>
+            <th class="bottom-border">GA</th>
+            <th class="bottom-border">Diff</th>
+            <th class="bottom-border">Home</th>
+            <th class="bottom-border">Road</th>
+            <th class="bottom-border">Last 10</th>
+            <th class="bottom-border">Streak</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{stats['gp']}}</td>
+            <td>{{stats['w']}}</td>
+            <td>{{stats['l']}}</td>
+            <td>{{stats['t']}}</td>
+            <td>{{stats['otl']}}</td>
+            <td>{{stats['pts']}}</td>
+            <td>{{stats['gf']}}</td>
+            <td>{{stats['ga']}}</td>
+            <td>{{stats['diff']}}</td>
+            <td>{{stats['home']}}</td>
+            <td>{{stats['road']}}</td>
+            <td>{{stats['last 10']}}</td>
+            <td>{{stats['streak']}}</td>
+        </tr>
+    </tbody>
 </table>
 
-<table id="latest_game">
-    <caption>Viimeisin peli</caption>​
-<thead>
-    <tr>
-        <th class="bottom-border">Pvm</th>
-        <th class="bottom-border">Vastus</th>
-        <th class="bottom-border">Tulos</th>
-    </tr>
-</thead>
-<tr>
-    <th><a href="/game/{{latest_game.date}}">{{latest_game.date}}</a></th>
-    <th>{{latest_game.opponent}}</th>
-    <th>{{latest_game.score}}</th>
-</tr>
+<h4>Viimeisin ottelu​</h4>
+<table id="latest_game" class="standings-table">
+    <thead>
+        <tr>
+            <th class="bottom-border">Pvm</th>
+            <th class="bottom-border">Vastus</th>
+            <th class="bottom-border">Tulos</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><a href="/game/{{latest_game.date}}">{{latest_game.date}}</a></td>
+            <td>{{latest_game.opponent}}</td>
+            <td>{{latest_game.score}}</td>
+        </tr>
+    </tbody>
+</table>
 
-<h3> Pelaajat: </h3>
-
+<h4> Pelaajat: </h4>
 <div id="players">
-{% for player in players %}
-<a href="/player/{{player.pid}}">{{player.name}}</a>
-{% endfor %}
+    {% for player in players %}
+        <a href="/player/{{player.pid}}">{{player.name}}</a>
+    {% endfor %}
 </div>
-<!-- {{players}} -->
+
 {% endblock %}
