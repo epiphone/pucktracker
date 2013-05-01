@@ -12,6 +12,7 @@ from settings import CALLBACK_URL, API_URL
 from utils import fetch_from_api_signed, get_followed, logged_in, add_followed
 from utils import remove_followed
 import logging
+import time
 
 
 @app.before_request
@@ -171,6 +172,10 @@ def callback():
 
     # Haetaan käyttäjän seuraamat pelaajan/joukkueet sekä käyttäjänimi:
     followed = get_followed(ids_only=True)
+    if not followed:
+        time.sleep(2)
+        followed = get_followed(ids_only=True)
+
     session["players"] = followed["players"]
     session["teams"] = followed["teams"]
     session["name"] = followed["name"]
