@@ -3,6 +3,7 @@
 Flask-sovelluksen asetukset.
 
 TODO: avaimet erillisestä moduulista.
+
 """
 
 DEBUG = True
