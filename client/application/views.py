@@ -86,6 +86,8 @@ def player(player_id):
     all_players = fetch_from_api("/api/json/players")
     logging.info("Haetaan pelaajan %s tiedot" % player_id)
     all_seasons = fetch_from_api("/api/json/players/%s" % player_id)
+    if not all_season:
+        abort(400)
     season_games = fetch_from_api("/api/json/games?pid=%s&year=2012" % player_id)
     latest_game = get_latest_game(season_games)
 
@@ -146,6 +148,8 @@ def team(team,year="2012"):
     '''
     logging.info("Haetaan joukkueen %s tiedot vuodelta %s" % (team,year))
     stats = fetch_from_api("/api/json/teams?team=%s&year=%s" % (team,year))
+    if not stats:
+        abort(400)
     season_games = fetch_from_api("/api/json/games?team=%s&year=2012" % (team))
     latest_game = get_latest_game(season_games)
 
@@ -185,8 +189,8 @@ def game(game_id):
     '''
     logging.info("Haetaan pelin %s tiedot" % game_id)
     game = fetch_from_api("/api/json/games/%s" % game_id)
-    if game is None:
-        return "Virheellinen peli.", 400
+    if not game:
+        abort(400)
 
     date = game_id
     home_team = game['home_team']
@@ -252,3 +256,10 @@ def search():
     TODO: TOP-lista
     '''
     return render_template("top.html")
+
+
+### Error handlers ###
+@app.errorhandler(404)
+@app.errorhandler(400)
+def page_not_found(e):
+    return render_template('error.html',e=e), 404
