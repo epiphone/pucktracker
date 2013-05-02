@@ -1,56 +1,77 @@
 {% extends "base.html" %}
 {% block content %}
 
+<!-- Jos käyttäjä ei seuraa vielä mitään, näytetään selite ja linkit hakuihin -->
+$ if user_data['teams'] == {}
+    $ if user_data['players'] == {}
+        <h2> Et seuraa vielä mitään </h2>
+        <p> Voit lisätä pelaajia ja joukkeita seurantaan joukkue- ja pelaajasivuilla. </p>
+        <a href="/menu" data-role="button" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-up-c"><span class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">Palaa valikkoon</span></span></a>
+        <div class="ui-body ui-body-b">
+            <h3>Kokeile myös:</h3>
+            <a href="/player" data-role="button" data-theme="c" data-icon="search" data-inline="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-inline ui-btn-icon-left ui-btn-up-b"><span class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">Pelaajahaku</span><span class="ui-icon ui-icon-search ui-icon-shadow">&nbsp;</span></span></a>
+            <a href="index.html" data-role="button" data-theme="c" data-icon="search" data-inline="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-inline ui-btn-icon-left ui-btn-up-c"><span class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">Joukkuehaku</span><span class="ui-icon ui-icon-search ui-icon-shadow">&nbsp;</span></span></a>
+        </div>
+    $endif
+$endif
+
+
+$ if user_data['teams'] != {}
 <p>Seuratut joukkueet</p>
-$ for tid, team in user_data["teams"].iteritems():
-    $ set stats = team["stats"]
-    $ set game = team["latest_game"]
-    <a href="/team/{{tid}}">{{tid|upper}}</a>
-    <table class="standings-table">
-        <thead>
-            <tr>
-                <th>GP</th>
-                <th>W</th>
-                <th>L</th>
-                <th>OTL</th>
-                <th>Pts</th>
-                <th>GF</th>
-                <th>GA</th>
-                <th>Diff</th>
-                <th>Home</th>
-                <th>Road</th>
-                <th>Last 10</th>
-                <th>Streak</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{stats.gp}}</td>
-                <td>{{stats.w}}</td>
-                <td>{{stats.l}}</td>
-                <td>{{stats.otl}}</td>
-                <td>{{stats.pts}}</td>
-                <td>{{stats.gf}}</td>
-                <td>{{stats.ga}}</td>
-                <td>{{stats.diff}}</td>
-                <td>{{stats.home}}</td>
-                <td>{{stats.road}}</td>
-                <td>{{stats["last 10"]}}</td>
-                <td>{{stats.streak|title}}</td>
-            </tr>
-        </tbody>
-    </table>
-    <p>Viimeisin ottelu:</p>
-    <a href="/game/{{game.gid}}">{{game.away_team}} {{game.away_score}} - {{game.home_score}} {{game.home_team}}</a>
-    <p>TODO nämä siistiin formaattiin + pvm, maalit(?) ja muut</p>
+    $ for tid, team in user_data["teams"].iteritems():
+        $ set stats = team["stats"]
+        $ set game = team["latest_game"]
+        <a href="/team/{{tid}}">{{tid|upper}}</a>
+        <table class="standings-table">
+            <thead>
+                <tr>
+                    <th>GP</th>
+                    <th>W</th>
+                    <th>L</th>
+                    <th>OTL</th>
+                    <th>Pts</th>
+                    <th>GF</th>
+                    <th>GA</th>
+                    <th>Diff</th>
+                    <th>Home</th>
+                    <th>Road</th>
+                    <th>Last 10</th>
+                    <th>Streak</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{stats.gp}}</td>
+                    <td>{{stats.w}}</td>
+                    <td>{{stats.l}}</td>
+                    <td>{{stats.otl}}</td>
+                    <td>{{stats.pts}}</td>
+                    <td>{{stats.gf}}</td>
+                    <td>{{stats.ga}}</td>
+                    <td>{{stats.diff}}</td>
+                    <td>{{stats.home}}</td>
+                    <td>{{stats.road}}</td>
+                    <td>{{stats["last 10"]}}</td>
+                    <td>{{stats.streak|title}}</td>
+                </tr>
+            </tbody>
+        </table>
 
-$ endfor
+        <p>Viimeisin ottelu:</p>
+        <a href="/game/{{game.gid}}">{{game.away_team}} {{game.away_score}} - {{game.home_score}} {{game.home_team}}</a>
+        <p>TODO nämä siistiin formaattiin + pvm, maalit(?) ja muut</p>
 
-<p>Seuratut pelaajat</p>
-$ for player in user_data["players"]:
-    <a href="/player/{{player}}">{{player|title}}</a>
-$ endfor
+    $ endfor
+$ endif
 
+$ if user_data['players'] != {}
+    <p>Seuratut pelaajat</p>
+    $ for player in user_data["players"]:
+        <a href="/player/{{player}}">{{player|title}}</a>
+    $ endfor
+$ endif
 
+<h4>Debug (user_data):</h4>
+{{user_data}}
 
 {% endblock %}
