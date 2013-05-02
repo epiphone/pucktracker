@@ -67,7 +67,7 @@
     </tbody>
 </table>
 
-<h4>Viimeisin peli</h4>​
+<h4>Viimeisin ottelu</h4>​
 <table class="standings-table" id="last-game">
     <thead>​
         <tr>​
@@ -142,53 +142,53 @@
             <th scope=​"col" class="bottom-border">Pct</th>​
         </tr>​
     </thead>​
-    {% for s in all_seasons %}
-        <tbody>
-            <tr>​
-                <td scope=​"col">{{s.year}}</td>​
-                <td scope=​"col"><a href="/team/{{s.team}}">{{s.team | upper}}</a></td>​
-                <td scope=​"col">{{s.g}}</td>​
-                <td scope=​"col">{{s.a}}</td>​
-                <td scope=​"col">{{s.pts}}</td>​
-                <td scope=​"col">{{s['+/-']}}</td>​
-                <td scope=​"col">{{s.pim}}</td>​
-                <td scope=​"col">{{s.hits}}</td>​
-                <td scope=​"col">{{s.bks}}</td>​
-                <td scope=​"col">{{s.fw}}</td>​
-                <td scope=​"col">{{s.fl}}</td>​
-                <td scope=​"col">{{s['fo%']}}</td>​
-                <td scope=​"col">{{s.ppg}}</td>​
-                <td scope=​"col">{{s.ppa}}</td>​
-                <td scope=​"col">{{s.shg}}</td>​
-                <td scope=​"col">{{s.sha}}</td>​
-                <td scope=​"col">{{s.gw}}</td>​
-                <td scope=​"col">{{s.sog}}</td>​
-                <td scope=​"col">{{s.pct}}</td>​
+    <tbody>
+        {% for s in all_seasons %}
+            <tr  class="{{ loop.cycle('odd', 'even') }}">​
+                <td>{{s.year}}</td>​
+                <td><a href="/team/{{s.team}}">{{s.team | upper}}</a></td>​
+                <td>{{s.g}}</td>​
+                <td>{{s.a}}</td>​
+                <td>{{s.pts}}</td>​
+                <td>{{s['+/-']}}</td>​
+                <td>{{s.pim}}</td>​
+                <td>{{s.hits}}</td>​
+                <td>{{s.bks}}</td>​
+                <td>{{s.fw}}</td>​
+                <td>{{s.fl}}</td>​
+                <td>{{s['fo%']}}</td>​
+                <td>{{s.ppg}}</td>​
+                <td>{{s.ppa}}</td>​
+                <td>{{s.shg}}</td>​
+                <td>{{s.sha}}</td>​
+                <td>{{s.gw}}</td>​
+                <td>{{s.sog}}</td>​
+                <td>{{s.pct}}</td>​
             </tr>
-        </tbody>
-    {% endfor %}
-        <tr></tr>
+        {% endfor %}
+<!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
         <tr>​
-        <th class="top-border" scope=​"col"></th>​
-        <th class="top-border" scope=​"col"></th>​
-        <th class="top-border" scope=​"col">{{career.g}}</th>​
-        <th class="top-border" scope=​"col">{{career.a}}</th>​
-        <th class="top-border" scope=​"col">{{career.pts}}</th>​
-        <th class="top-border" scope=​"col">{{career['+/-']}}</th>​
-        <th class="top-border" scope=​"col">{{career.pim}}</th>​
-        <th class="top-border" scope=​"col">{{career.hits}}</th>​
-        <th class="top-border" scope=​"col">{{career.bks}}</th>​
-        <th class="top-border" scope=​"col">{{career.fw}}</th>​
-        <th class="top-border" scope=​"col">{{career.fl}}</th>​
-        <th class="top-border" scope=​"col">{{career['fo%']}}</th>​
-        <th class="top-border" scope=​"col">{{career.ppg}}</th>​
-        <th class="top-border" scope=​"col">{{career.ppa}}</th>​
-        <th class="top-border" scope=​"col">{{career.shg}}</th>​
-        <th class="top-border" scope=​"col">{{career.sha}}</th>​
-        <th class="top-border" scope=​"col">{{career.gw}}</th>​
-        <th class="top-border" scope=​"col">{{career.sog}}</th>​
-        <th class="top-border" scope=​"col">{{career.pct}}</th>​
-    </tr>​
+            <th class="top-border" scope=​"col"></th>​
+            <th class="top-border" scope=​"col"></th>​
+            <th class="top-border" scope=​"col">{{career.g}}</th>​
+            <th class="top-border" scope=​"col">{{career.a}}</th>​
+            <th class="top-border" scope=​"col">{{career.pts}}</th>​
+            <th class="top-border" scope=​"col">{{career['+/-']}}</th>​
+            <th class="top-border" scope=​"col">{{career.pim}}</th>​
+            <th class="top-border" scope=​"col">{{career.hits}}</th>​
+            <th class="top-border" scope=​"col">{{career.bks}}</th>​
+            <th class="top-border" scope=​"col">{{career.fw}}</th>​
+            <th class="top-border" scope=​"col">{{career.fl}}</th>​
+            <th class="top-border" scope=​"col">{{career['fo%']}}</th>​
+            <th class="top-border" scope=​"col">{{career.ppg}}</th>​
+            <th class="top-border" scope=​"col">{{career.ppa}}</th>​
+            <th class="top-border" scope=​"col">{{career.shg}}</th>​
+            <th class="top-border" scope=​"col">{{career.sha}}</th>​
+            <th class="top-border" scope=​"col">{{career.gw}}</th>​
+            <th class="top-border" scope=​"col">{{career.sog}}</th>​
+            <th class="top-border" scope=​"col">{{career.pct}}</th>​
+        </tr>​
+    </tbody>
 </table>
 
 {% endblock %}
