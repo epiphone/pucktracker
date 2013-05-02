@@ -41,7 +41,7 @@ def index():
     if logged_in():
         user_data = get_followed(ids_only=False)
         if not user_data:
-            abort(404)  # TODO tähän parempi virheenkäsittely
+             return render_template("error.html",e="Jotain mystistä tapahtui..")  # TODO tähän parempi virheenkäsittely
         return render_template("index.html", user_data=user_data)
     else:
         return render_template("login.html")
