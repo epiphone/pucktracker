@@ -209,7 +209,7 @@ def top():
     Esim. 30 eniten maaleja tehnyttä kenttäpelaajaa, 15 maalivahtia
     torjuntaprosentin mukaan, jne.
     """
-    sort = request.args.get("sort", None).lower()
+    sort = request.args.get("sort", None)
     year = request.args.get("year", scraper.SEASON)
     try:
         goalies = bool(int(request.args.get("goalies", "0")))
