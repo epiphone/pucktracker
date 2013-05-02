@@ -86,7 +86,7 @@ def player(player_id):
     all_players = fetch_from_api("/api/json/players")
     logging.info("Haetaan pelaajan %s tiedot" % player_id)
     all_seasons = fetch_from_api("/api/json/players/%s" % player_id)
-    if not all_season:
+    if not all_seasons:
         abort(400)
     season_games = fetch_from_api("/api/json/games?pid=%s&year=2012" % player_id)
     latest_game = get_latest_game(season_games)
