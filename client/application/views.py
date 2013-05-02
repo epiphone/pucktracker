@@ -188,6 +188,7 @@ def game(game_id):
     if game is None:
         return "Virheellinen peli.", 400
 
+    date = game_id
     home_team = game['home_team']
     home_score = game['home_score']
     away_team = game['away_team']
@@ -211,6 +212,7 @@ def game(game_id):
 
     return render_template(
         "game.html",
+        date=date,
         home_team=home_team,
         home_score=home_score,
         away_team=away_team,

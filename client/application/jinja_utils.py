@@ -13,4 +13,19 @@ from views import TEAMS
 
 
 def convert_date(s):
-    return "TODO:suomalainen päivämäärä (%s)" % s
+    '''
+    Palauttaa peli-id:n päivämäärä-arvon suomalaisessa pvm-formaatissa
+    '''
+    year = s[:4]
+
+    if (s[4:5] == '0'):
+        month = s[5:6]
+    else:
+        month = s[4:6]
+
+    if (s[6:7] == '0'):
+        day = s[7:8]
+    else:
+        day = s[6:8]
+
+    return "%s.%s.%s" % (day,month,year)

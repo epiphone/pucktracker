@@ -94,7 +94,7 @@
         </tr>​
     </thead>​
     <tr>​
-        <td scope=​"col"><a href="/game/{{latest_game.date}}">{{latest_game.date}}</a></td>​
+        <td scope=​"col"><a href="/game/{{latest_game.date}}">{{jinja_utils.convert_date(latest_game.date)}}</a></td>​
         <td scope=​"col">{{team|upper}} vs {{latest_game.opponent|upper}}</td>​
         <td scope=​"col">{{latest_game.result|upper}}</td>​
         <td scope=​"col">{{latest_game.g}}</td>​
