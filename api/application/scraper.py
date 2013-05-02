@@ -196,7 +196,7 @@ def scrape_player_stats(year=SEASON, playoffs=False, goalies=False,
     if pstats is not None:
         return sorted(pstats, key=sort_func, reverse=reverse)
 
-    if int(year) > int(SEASON) or (year == SEASON and playoffs != PLAYOFFS):
+    if int(year) > int(SEASON):  # or (year == SEASON and playoffs != PLAYOFFS):
         return None
 
     url = URL_YAHOO + "/stats/byposition?pos=%s&year=%s"

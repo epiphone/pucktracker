@@ -209,13 +209,13 @@ def top():
     Esim. 30 eniten maaleja tehnyttä kenttäpelaajaa, 15 maalivahtia
     torjuntaprosentin mukaan, jne.
     """
-    sort = request.args.get("sort", None)
+    sort = request.args.get("sort", None).lower()
     year = request.args.get("year", scraper.SEASON)
     try:
         goalies = bool(int(request.args.get("goalies", "0")))
         reverse = bool(int(request.args.get("reverse", "1")))
         playoffs = bool(int(request.args.get("playoffs", "0")))
-        limit = int(request.args.get("limit", "30"))
+        limit = int(request.args.get("limit", "1000"))
     except ValueError:
         abort(400)  # Bad Request
 
@@ -227,7 +227,6 @@ def top():
         data = scraper.scrape_player_stats(year=year, playoffs=playoffs,
             goalies=goalies, reverse=reverse, order=sort)
         if data is None:
-            return "none"
             abort(404)
     except Exception as e:
         logging.error(e)
