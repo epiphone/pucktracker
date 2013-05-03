@@ -403,62 +403,143 @@ def scrape_game(gid):
     root = html.fromstring(response.content)
     game = {}
 
-    # Ottelun joukkueet ja tulos:
-    game["away_team"] = root.xpath("//div[@class='away']//a/@href")[0].split("/")[-1]
-    game["home_team"] = root.xpath("//div[@class='home']//a/@href")[0].split("/")[-1]
-    game["away_score"] = root.xpath("//div[@class='away']/*")[0].text_content().strip()
-    game["home_score"] = root.xpath("//div[@class='home']/*")[0].text_content().strip()
+    try:
+        # Ottelun joukkueet ja tulos:
+        game["away_team"] = root.xpath("//div[@class='away']//a/@href")[0].split("/")[-1]
+        game["home_team"] = root.xpath("//div[@class='home']//a/@href")[0].split("/")[-1]
+        game["away_score"] = root.xpath("//div[@class='away']/*")[0].text_content().strip()
+        game["home_score"] = root.xpath("//div[@class='home']/*")[0].text_content().strip()
 
-    # Varsinaisen peliajan ja mahd. jatkoajan maalit:
-    periods = root.xpath("(//div[count(h5)>2])[1]/table")
-    goals, shootout = [], []
-    for i, period in enumerate(periods[:4]):
-        for tr in period.xpath("tbody/tr[count(td)>3]"):
-            tds = tr.xpath("td")
+        # Varsinaisen peliajan ja mahd. jatkoajan maalit:
+        periods = root.xpath("(//div[count(h5)>2])[1]/table")
+        goals, shootout = [], []
+        for i, period in enumerate(periods[:4]):
+            for tr in period.xpath("tbody/tr[count(td)>3]"):
+                tds = tr.xpath("td")
+                goal = {}
+                goal["period"] = i + 1
+                goal["time"] = tds[0].text_content().strip()
+                goal["team"] = tds[1].xpath("a/@href")[0].split("/")[-1]
+                goal["desc"] = tds[2].text_content().strip()
+                goal["score"] = tds[3].text_content().strip()
+                goals.append(goal)
+        # Shootoutin maalit:
+        if len(periods) == 5:
+            for tr in periods[4].xpath("tbody/tr"):
+                attempt = {}
+                attempt["team"] = tr.xpath("td/a/@href")[0].split("/")[-1]
+                attempt["desc"] = tr.xpath("td[last()]")[0].text_content().strip()
+                shootout.append(attempt)
+        game["goals"], game["shootout"] = goals, shootout
+
+        # Pelaajakohtaiset tilastot:
+        all_goalies = root.xpath("//div[contains(@class, 'goalies')]/table")
+        all_skaters = root.xpath("//div[contains(@class, 'skaters')]/table")
+        goalie_cols = all_goalies[0].xpath("thead/tr/th")[1:]
+        skater_cols = all_skaters[0].xpath("thead/tr/th")[1:]
+
+        goalies, skaters = {}, {}
+        for i, team in enumerate(["away", "home"]):
+            # Maalivahdit:
+            for tr in all_goalies[i].xpath("tbody/tr"):
+                goalie = {}
+                pid = tr.xpath("*[1]//a/@href")[0].split("/")[-1]  # Id
+                goalie["name"] = tr.xpath(".//a")[0].text       # Nimi
+                goalie["team"] = team                           # Joukkue (away/home)
+                for j, td in enumerate(tr.xpath("td")[1:]):     # Tilastot
+                    col = goalie_cols[j].text_content().strip().lower()
+                    goalie[col] = parse_stat_value(td)
+                goalies[pid] = goalie
+            # Kenttäpelaajat:
+            for tr in all_skaters[i].xpath("tbody/tr"):
+                skater = {}
+                pid = tr.xpath("*[1]//a/@href")[0].split("/")[-1]  # Id
+                skater["name"] = tr.xpath(".//a")[0].text       # Nimi
+                skater["team"] = team                           # Joukkue (away/home)
+                for k, td in enumerate(tr.xpath("td")[1:]):     # Tilastot
+                    col = skater_cols[k].text_content().strip().lower()
+                    skater[col] = parse_stat_value(td)
+                skaters[pid] = skater
+            game["skaters"], game["goalies"] = skaters, goalies
+
+    except IndexError:
+        # Skreipattava ottelu on vanha (<2011), sivu on erilainen:
+        away_row, home_row = root.xpath("//tr[@class='ysptblclbg5']")
+        game["away_team"] = away_row[1].xpath(".//a/@href")[0].split("/")[-1]
+        game["home_team"] = home_row[1].xpath(".//a/@href")[0].split("/")[-1]
+        game["away_score"] = away_row[-2].text_content().strip()
+        game["home_score"] = home_row[-2].text_content().strip()
+
+        # Maalit ja mahd. shootout:
+        goals, shootouts = [], []
+        home_goals, away_goals, period = 0, 0, 1
+        for row in root.xpath("//table[4]/tr")[2:]:
+            # Otsikkorivi "1st Period", "2nd Period", "Shootout" tms.
+            if len(row.getchildren()) == 1:
+                period += 1
+                continue
+
+            city = row[0].text.strip().lower()
+            if city == "none":
+                period += 1
+                continue
+            if city in CITIES:
+                team = TEAMS[CITIES.index(city)]
+            else:
+                if city == "montreal":
+                    team = "mon"
+                elif city == "atlanta":
+                    team = "wpg"
+                else:
+                    team = ""
+            if team == game["away_team"]:
+                away_goals += 1
+            else:
+                home_goals += 1
+
             goal = {}
-            goal["period"] = i + 1
-            goal["time"] = tds[0].text_content().strip()
-            goal["team"] = tds[1].xpath("a/@href")[0].split("/")[-1]
-            goal["desc"] = tds[2].text_content().strip()
-            goal["score"] = tds[3].text_content().strip()
-            goals.append(goal)
-    # Shootoutin maalit:
-    if len(periods) == 5:
-        for tr in periods[4].xpath("tbody/tr"):
-            attempt = {}
-            attempt["team"] = tr.xpath("td/a/@href")[0].split("/")[-1]
-            attempt["desc"] = tr.xpath("td[last()]")[0].text_content().strip()
-            shootout.append(attempt)
-    game["goals"], game["shootout"] = goals, shootout
+            text = row[1].text.strip()
+            goal["team"] = team
+            if period < 5:
+                goal["time"] = text.split(",")[0]
+                goal["desc"] = text[len(goal["time"]) + 1:].strip()
+                goal["period"] = period
+                goal["score"] = "%d - %d" % (away_goals, home_goals)
+                goals.append(goal)
+            else:
+                goal["desc"] = text
+                shootouts.append(goal)
+        game["goals"], game["shootout"] = goals, shootouts
 
-    # Pelaajakohtaiset tilastot:
-    all_goalies = root.xpath("//div[contains(@class, 'goalies')]/table")
-    all_skaters = root.xpath("//div[contains(@class, 'skaters')]/table")
-    goalie_cols = all_goalies[0].xpath("thead/tr/th")[1:]
-    skater_cols = all_skaters[0].xpath("thead/tr/th")[1:]
-
-    goalies, skaters = {}, {}
-    for i, team in enumerate(["away", "home"]):
-        # Maalivahdit:
-        for tr in all_goalies[i].xpath("tbody/tr"):
-            goalie = {}
-            pid = tr.xpath("*[1]//a/@href")[0].split("/")[-1]  # Id
-            goalie["name"] = tr.xpath(".//a")[0].text       # Nimi
-            goalie["team"] = team                           # Joukkue (away/home)
-            for j, td in enumerate(tr.xpath("td")[1:]):     # Tilastot
-                col = goalie_cols[j].text_content().strip().lower()
-                goalie[col] = parse_stat_value(td)
-            goalies[pid] = goalie
-        # Kenttäpelaajat:
-        for tr in all_skaters[i].xpath("tbody/tr"):
-            skater = {}
-            pid = tr.xpath("*[1]//a/@href")[0].split("/")[-1]  # Id
-            skater["name"] = tr.xpath(".//a")[0].text       # Nimi
-            skater["team"] = team                           # Joukkue (away/home)
-            for k, td in enumerate(tr.xpath("td")[1:]):     # Tilastot
-                col = skater_cols[k].text_content().strip().lower()
-                skater[col] = parse_stat_value(td)
-            skaters[pid] = skater
+        # Pelaajakohtaiset tilastot:
+        goalies, skaters = {}, {}
+        tables = root.xpath("//table[8]/tr[1]/td[1]/table")
+        for team, table in [("away", tables[0]), ("home", tables[1])]:
+            for row in table.getchildren():
+                try:
+                    row_class = row.attrib["class"]
+                except KeyError:
+                    continue
+                if row_class == "ysptblthbody1":
+                    # Sarakerivi, poimitaan sarakkeet (G, A, jne.):
+                    headers = ["name"]
+                    for td in row.iterchildren():
+                        txt = td.text.strip().lower()
+                        if not txt in ["", "skaters", "goalies"]:
+                            headers.append(txt)
+                elif row_class in ["ysprow1", "ysprow2"]:
+                    # Pelaajarivi, poimitaan tilastot:
+                    player = {"team": team}
+                    pid = row[0][0].attrib["href"].split("/")[-1]
+                    header_iter = iter(headers)
+                    for td in row.iterchildren():
+                        if td.text_content().strip() == "":
+                            continue
+                        player[header_iter.next()] = parse_stat_value(td)
+                    if "saves" in headers:
+                        goalies[pid] = player
+                    else:
+                        skaters[pid] = player
         game["skaters"], game["goalies"] = skaters, goalies
 
     t1 = time.time() - t1
