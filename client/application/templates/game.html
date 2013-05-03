@@ -1,58 +1,57 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h1>Ottelun tiedot</h1>
-    <h4>{{jinja_utils.convert_date(date)}}</h4>
+<h1>Ottelun tiedot</h1>
+<h4>{{jinja_utils.convert_date(date)}}</h4>
 
 <!-- Pistenäyttö -->
 
-    <div class="ui-grid-a" id="score-display">
-        <div class="ui-block-a">
-            <h3 class="centered-text">Koti</h3>
+<div class="ui-grid-a" id="score-display">
+    <div class="ui-block-a">
+        <h3 class="centered-text">Koti</h3>
             <div class="ui-bar ui-bar-a score-display centered-text">
                 <p class="big-text"> {{home_score}}</p>
             </div>
-            <h3 class="centered-text"><a href="/team/{{home_team}}">{{home_team|upper}}</a></h3>
-        </div>
-        <div class="ui-block-b">
-            <h3 class="centered-text">Vieras</h3>
+        <h3 class="centered-text"><a href="/team/{{home_team}}">{{home_team|upper}}</a></h3>
+    </div>
+    <div class="ui-block-b">
+        <h3 class="centered-text">Vieras</h3>
             <div class="ui-bar ui-bar-a score-display centered-text">
                 <p class="big-text"> {{away_score}}</p>
             </div>
-            <h3 class="centered-text goal-display-team"><a href="/team/{{away_team}}">{{away_team|upper}}</a></h3>
-        </div>
-
+        <h3 class="centered-text goal-display-team"><a href="/team/{{away_team}}">{{away_team|upper}}</a></h3>
     </div>
+</div>
 
 <!-- Maalit TODO: reverse-funktio ei toimi yli 10-maalin peleissä -->
 
-    <table id="goals"> ​
-    <caption>Maalit</caption>​
+<h4>Maalit</h4>​
+<table class="standings-table" id="goals"> ​
     <thead>​
-    <tr>​
-        <th scope=​"col" class="bottom-border">Joukkue:​</th>​
-        <th scope=​"col" class="bottom-border">​Aika​:</th>​
-        <th scope=​"col" class="bottom-border">Erä:​</th>​
-        <th scope=​"col" class="bottom-border">Tulos:​</th>​
-        <th scope=​"col" class="bottom-border">Tekijä:​</th>​
-    </tr>​
+        <tr>​
+            <th scope=​"col" class="bottom-border">Joukkue:​</th>​
+            <th scope=​"col" class="bottom-border">​Aika​:</th>​
+            <th scope=​"col" class="bottom-border">Erä:​</th>​
+            <th scope=​"col" class="bottom-border">Tulos:​</th>​
+            <th scope=​"col" class="bottom-border">Tekijä:​</th>​
+        </tr>​
     </thead>​
-{% for goal in goals %}
-    <tr>​
-        <th scope=​"col"><a href="/team/{{goal.team}}">{{goal.team|upper}}</a></th>​
-        <th scope=​"col">{{goal.time}}</th>​
-        <th scope=​"col">{{goal.period}}</th>​
-        <th scope=​"col">{{goal.score | reverse}}​</th>​
-        <th scope=​"col">{{goal.desc}}</th>​
-    </tr>​
-{% endfor %}
-    </table> ​
+    {% for goal in goals %}
+        <tr>​
+            <td scope=​"col"><a href="/team/{{goal.team}}">{{goal.team|upper}}</a></td>​
+            <td scope=​"col">{{goal.time}}</td>​
+            <td scope=​"col">{{goal.period}}</td>​
+            <td scope=​"col">{{goal.score | reverse}}​</td>​
+            <td scope=​"col">{{goal.desc}}</td>​
+        </tr>​
+    {% endfor %}
+</table> ​
 
 <!-- Rankkarit -->
 
 {% if shootout %}
+    <h4>Rankkarit</h4>​
     <table id="shootout">
-    <caption>Rankkarit</caption>​
         <thead>​
             <tr>​
                 <th scope=​"col" class="bottom-border">Joukkue:​</th>​
@@ -61,56 +60,57 @@
         </thead>​
         {% for s in shootout %}
             <tr>​
-                <th scope=​"col" class="bottom-border"><a href="/team/{{s.team}}">{{s.team|upper}}</a></th>​
-                <th scope=​"col" class="bottom-border">{{s.desc}}</th>​
+                <td scope=​"col" class="bottom-border"><a href="/team/{{s.team}}">{{s.team|upper}}</a></td>​
+                <td scope=​"col" class="bottom-border">{{s.desc}}</td>​
             </tr>​
         {% endfor %}
-
-    </table>
+        </table>
 {% endif %}
 
 <!-- Pelaajatilastot -->
 
-    <table summary=​"Tilastot pelaajittain" id="player-stats">​
-    <caption>Pelaajatilastot</caption>​
+<h4>Pelaajatilastot</h4>​
+<table class="standings-table" summary=​"Tilastot pelaajittain" id="player-stats">​
     <thead>​
-    <tr>​
-        <th scope=​"col" class="bottom-border">Nimi</th>​
-        <th scope=​"col" class="bottom-border">Joukkue</th>​
-        <th scope=​"col" class="bottom-border">G</th>
-        <th scope=​"col" class="bottom-border">A</th>
-        <th scope=​"col" class="bottom-border">Pts</th>
-        <th scope=​"col" class="bottom-border">+/-</th>
-        <th scope=​"col" class="bottom-border">PIM</th>
-        <th scope=​"col" class="bottom-border">S</th>
-        <th scope=​"col" class="bottom-border">BS</th>
-        <th scope=​"col" class="bottom-border">Hits</th>
-        <th scope=​"col" class="bottom-border">FW</th>
-        <th scope=​"col" class="bottom-border">FL</th>
-        <th scope=​"col" class="bottom-border">FO%</th>
-        <th scope=​"col" class="bottom-border">Shifts</th>
-        <th scope=​"col" class="bottom-border">TOI</th>
-    </tr>​
+        <tr>​
+            <th scope=​"col" class="bottom-border">Nimi</th>​
+            <th scope=​"col" class="bottom-border">Joukkue</th>​
+            <th scope=​"col" class="bottom-border">G</th>
+            <th scope=​"col" class="bottom-border">A</th>
+            <th scope=​"col" class="bottom-border">Pts</th>
+            <th scope=​"col" class="bottom-border">+/-</th>
+            <th scope=​"col" class="bottom-border">PIM</th>
+            <th scope=​"col" class="bottom-border">S</th>
+            <th scope=​"col" class="bottom-border">BS</th>
+            <th scope=​"col" class="bottom-border">Hits</th>
+            <th scope=​"col" class="bottom-border">FW</th>
+            <th scope=​"col" class="bottom-border">FL</th>
+            <th scope=​"col" class="bottom-border">FO%</th>
+            <th scope=​"col" class="bottom-border">Shifts</th>
+            <th scope=​"col" class="bottom-border">TOI</th>
+        </tr>​
     </thead>​
+    {% for skater in skaters %}
+        <thead>
+            <tr class="{{ loop.cycle('even', 'odd') }}">​
+                <td scope=​"col"> <a href="/player/{{skater.id}}">{{skater.name}}</a></td>​
+                <td scope=​"col">{% if skater.team == "home" %} <a href="/team/{{home_team}}">{{home_team|upper}}</a> {% else %} <a href="/team/{{away_team}}">{{away_team|upper}}</a> {% endif %}</td>​
+                <td>{{skater['g']}}</td>
+                <td>{{skater['a']}}</td>
+                <td>{{skater['pts']}}</td>
+                <td>{{skater['+/-']}}</td>
+                <td>{{skater['pim']}}</td>
+                <td>{{skater['s']}}</td>
+                <td>{{skater['bs']}}</td>
+                <td>{{skater['hits']}}</td>
+                <td>{{skater['fw']}}</td>
+                <td>{{skater['fl']}}</td>
+                <td>{{skater['fo%']}}</td>
+                <td>{{skater['shifts']}}</td>
+                <td>{{skater['toi']}}</td>
+            </tr>
+        </thead>
+    {% endfor %}
+</table>
 
-{% for skater in skaters %}
-   <tr>​
-        <th scope=​"col"> <a href="/player/{{skater.id}}">{{skater.name}}</a></th>​
-        <th scope=​"col">{% if skater.team == "home" %} <a href="/team/{{home_team}}">{{home_team|upper}}</a> {% else %} <a href="/team/{{away_team}}">{{away_team|upper}}</a> {% endif %}</th>​
-        <th>{{skater['g']}}</th>
-        <th>{{skater['a']}}</th>
-        <th>{{skater['pts']}}</th>
-        <th>{{skater['+/-']}}</th>
-        <th>{{skater['pim']}}</th>
-        <th>{{skater['s']}}</th>
-        <th>{{skater['bs']}}</th>
-        <th>{{skater['hits']}}</th>
-        <th>{{skater['fw']}}</th>
-        <th>{{skater['fl']}}</th>
-        <th>{{skater['fo%']}}</th>
-        <th>{{skater['shifts']}}</th>
-        <th>{{skater['toi']}}</th>
-    </tr>
-{% endfor %}
-    </table>
 {% endblock %}

@@ -55,7 +55,10 @@ margin-top:0;
     float: left;
 }
 
-p{margin:0;}
+p{
+    top-margin:5;
+    bottom-margin:5;
+}
 
 table{
     width:100%;
