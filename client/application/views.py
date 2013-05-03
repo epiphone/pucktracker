@@ -26,8 +26,6 @@ import json
 
 # Kaikki joukkueet tunnuksineen ja nimineen
 TEAMS = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
-# TODO: TEAMS näkymään jinjalle
-# env.globals['teams'] = TEAMS
 
 
 @app.route("/")
@@ -41,7 +39,9 @@ def index():
     if logged_in():
         user_data = get_followed(ids_only=False)
         if not user_data:
-             return render_template("error.html",e="Jotain mystistä tapahtui..")  # TODO tähän parempi virheenkäsittely
+            # TODO tähän parempi virheenkäsittely
+            return render_template(
+                "error.html", e="Jotain mystistä tapahtui..")
         return render_template("index.html", user_data=user_data)
     else:
         return render_template("login.html")
@@ -71,7 +71,8 @@ def player_search():
         logging.info("*****" + str(query))
         logging.info("Haetaan pelaajia hakuehdolla: %s" % query)
         players = fetch_from_api("/api/json/players?query=%s" % query)
-        return render_template("player_search.html", players=players,query=query)
+        return render_template(
+            "player_search.html", players=players, query=query)
     else:
         return render_template("player_search.html")
 
@@ -94,7 +95,8 @@ def player(player_id):
         # jälkimmäisessä tapauksessa pelaaja ei ole pelannut yhtään ottelua,
         # tulee käsitellä!
         abort(400)
-    season_games = fetch_from_api("/api/json/games?pid=%s&year=2012" % player_id)
+    season_games = fetch_from_api(
+        "/api/json/games?pid=%s&year=2012" % player_id)
     latest_game = get_latest_game(season_games)
 
     name = all_players[str(player_id)]['name']
@@ -105,10 +107,10 @@ def player(player_id):
     career = all_seasons['career']
     del all_seasons['career']
 
-    # Poistetaan pelaaja-lista-dictionary -rakenteesta yksi dictionary-taso, jotta
-    # Jinja template-engine osaa loopata tietorakenteen läpi ilman ongelmaa.
+    # Poistetaan pelaaja-lista-dictionary -rakenteesta yksi dictionary-taso,
+    # jotta Jinja template-engine osaa loopata tietorakenteen läpi ilman ongelmaa.
     career_list = []
-    for k,v in all_seasons.iteritems():
+    for k, v in all_seasons.iteritems():
         new_dict = v
         new_dict['year'] = k
         career_list.append(new_dict)
@@ -145,23 +147,25 @@ def team_search():
 
 
 @app.route("/team/<team>")
-def team(team,year="2012"):
+def team(team, year="2012"):
     '''
     Yksittäisen joukkueen tiedot.
 
     Käyttäjä voi lisätä/poistaa pelaajan seurattavien pelaajien listasta, joka
     on talletettuna sessioon.
     '''
-    logging.info("Haetaan joukkueen %s tiedot vuodelta %s" % (team,year))
-    stats = fetch_from_api("/api/json/teams?team=%s&year=%s" % (team,year))
+    logging.info("Haetaan joukkueen %s tiedot vuodelta %s" % (team, year))
+    stats = fetch_from_api("/api/json/teams?team=%s&year=%s" % (team, year))
     if not stats:
         abort(400)
     season_games = fetch_from_api("/api/json/games?team=%s&year=2012" % (team))
     latest_game = get_latest_game(season_games)
 
     #Haetaan joukkueen pelaajat ja maalivahdit
-    all_players = fetch_from_api("/api/json/top?sort=team&year=2012&goalies=0&limit=1000")
-    all_goalies = fetch_from_api("/api/json/top?sort=team&year=2012&goalies=1&limit=1000")
+    all_players = fetch_from_api(
+        "/api/json/top?sort=team&year=2012&goalies=0&limit=1000")
+    all_goalies = fetch_from_api(
+        "/api/json/top?sort=team&year=2012&goalies=1&limit=1000")
     team_players = []
     for player_dict in all_players:
         if (player_dict['team'] == team):
@@ -209,10 +213,11 @@ def game(game_id):
     shootout = []  # Jos pelissä ei tullut shootoutteja, viedään tyhjä lista
     shootout = game['shootout']
 
-    # Poistetaan pelaaja-lista-dictionary -rakenteesta yksi dictionary-taso, jotta
-    # Jinja template-engine osaa loopata tietorakenteen läpi ilman ongelmaa.
+    # Poistetaan pelaaja-lista-dictionary -rakenteesta yksi dictionary-taso,
+    # jotta Jinja template-engine osaa loopata tietorakenteen läpi ilman
+    # ongelmaa.
     skater_list = []
-    for k,v in game['skaters'].iteritems():
+    for k, v in game['skaters'].iteritems():
         new_dict = v
         new_dict['id'] = k
         skater_list.append(new_dict)
@@ -244,7 +249,11 @@ def standings(year):
         abort(400)
 
     teams_dict = {}
-    teams = sorted(stats.iteritems(), key=lambda (k, v): v["pts"], reverse=True)
+    teams = sorted(
+                    stats.iteritems(),
+                    key=lambda (k, v): v["pts"],
+                    reverse=True)
+
     for k, v in teams:
         div = v["div"]
         v["team"] = k
@@ -266,6 +275,10 @@ def search():
 
 ### Error handlers ###
 @app.errorhandler(404)
-@app.errorhandler(400)
 def page_not_found(e):
-    return render_template('error.html',e=e), 404
+    return render_template('error.html', e=e), 404
+
+
+@app.errorhandler(400)
+def bad_request(e):
+    return render_template('error.html', e=e), 400

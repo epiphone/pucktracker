@@ -197,7 +197,8 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
     signature_params = dict(params.items() + url_params.items() + data.items())
 
     # Kääritään parametrit yhteen merkkijonoon:
-    params_str = "&".join(["%s=%s" % (escape(key), escape(signature_params[key]))
+    params_str = "&".join(
+                ["%s=%s" % (escape(key), escape(signature_params[key]))
                  for key in sorted(signature_params)])
     base_string = "&".join([method, escape(base_url),
                             escape(params_str)])

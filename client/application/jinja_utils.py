@@ -28,4 +28,4 @@ def convert_date(s):
     else:
         day = s[6:8]
 
-    return "%s.%s.%s" % (day,month,year)
+    return "%s.%s.%s" % (day, month, year)
