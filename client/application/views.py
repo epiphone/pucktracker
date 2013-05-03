@@ -84,9 +84,15 @@ def player(player_id):
     Käyttäjä voi lisätä/poistaa pelaajan seurattavien pelaajien listasta.
     '''
     all_players = fetch_from_api("/api/json/players")
+    # TODO tarkista ensin löytyykö annettu id pelaajalistasta!
+
+    # TODO onko tarpeellinen loggaus?
     logging.info("Haetaan pelaajan %s tiedot" % player_id)
     all_seasons = fetch_from_api("/api/json/players/%s" % player_id)
     if not all_seasons:
+        # TODO all_seasons voi olla None tai tyhjä tietorakenne;
+        # jälkimmäisessä tapauksessa pelaaja ei ole pelannut yhtään ottelua,
+        # tulee käsitellä!
         abort(400)
     season_games = fetch_from_api("/api/json/games?pid=%s&year=2012" % player_id)
     latest_game = get_latest_game(season_games)

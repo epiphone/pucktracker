@@ -14,9 +14,6 @@ Yleisesti funktiot palauttavat
 Google App Enginen kautta käytettäessä skreipperi hyödyntää
 App Enginen memcached-välimuistia.
 
-TODO:
-- testaa next_game
-- testaa add_cache
 
 author: Aleksi Pekkala
 """
@@ -77,7 +74,6 @@ logging.getLogger().setLevel(logging.DEBUG)
 LOGGING_ENABLED = True
 URL_YAHOO = "http://sports.yahoo.com/nhl"
 SEASON = "2012"
-PLAYOFFS = False
 MONTHS = ["", "jan", "feb", "mar", "apr", "may", "jun",
           "jul", "aug", "sep", "oct", "nov", "dec"]
 CONFERENCES = ["east", "west"]
@@ -196,7 +192,7 @@ def scrape_player_stats(year=SEASON, playoffs=False, goalies=False,
     if pstats is not None:
         return sorted(pstats, key=sort_func, reverse=reverse)
 
-    if int(year) > int(SEASON):  # or (year == SEASON and playoffs != PLAYOFFS):
+    if int(year) > int(SEASON):
         return None
 
     url = URL_YAHOO + "/stats/byposition?pos=%s&year=%s"
@@ -261,7 +257,13 @@ def scrape_career(pid):
 
     t1 = time.time()
     root = html.fromstring(response.content)
-    header = root.xpath("//tr[@class='ysptblthbody1']")[0]
+
+    try:
+        header = root.xpath("//tr[@class='ysptblthbody1']")[0]
+    except IndexError:
+        # ID on virheellinen, tai pelaaja ei ole pelannut yhtään NHL-ottelua:
+        return {}
+
     columns = [td.text.strip().lower() for td in header.getchildren()[1:-1]]
     seasons = {}
 
@@ -479,8 +481,7 @@ def scrape_schedule():
 
     season = SEASON + str(int(SEASON) + 1)
     url = "http://nhl.com/ice/schedulebyseason.htm?season=" + season
-    if PLAYOFFS:
-        url += "&gameType=3"
+
     t0 = time.time()
     try:
         response = urlfetch.fetch(url)
