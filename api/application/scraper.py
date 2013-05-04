@@ -529,6 +529,8 @@ def scrape_game(gid):
                             headers.append(txt)
                 elif row_class in ["ysprow1", "ysprow2"]:
                     # Pelaajarivi, poimitaan tilastot:
+                    if len(row.getchildren()) < 2:
+                        continue
                     player = {"team": team}
                     pid = row[0][0].attrib["href"].split("/")[-1]
                     header_iter = iter(headers)
