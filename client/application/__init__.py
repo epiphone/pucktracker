@@ -19,7 +19,7 @@ import views
 app.jinja_env.line_statement_prefix = "$"
 # Template-enginen apufunktiot ja vakiot käyttöön
 import jinja_utils
-app.jinja_env.globals.update(jinja_utils=jinja_utils)
+app.jinja_env.globals.update(jinja_utils=jinja_utils, len=len)
 
 # Käynnistetään debug-moodissa:
 if app.debug:
