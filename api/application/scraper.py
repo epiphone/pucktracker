@@ -475,14 +475,14 @@ def scrape_game(gid):
         home_goals, away_goals, period = 0, 0, 1
         for row in root.xpath("//table[4]/tr")[2:]:
             # Otsikkorivi "1st Period", "2nd Period", "Shootout" tms.
+            city = row[0].text.strip().lower()
+            if city == "none":
+                continue
+
             if len(row.getchildren()) == 1:
                 period += 1
                 continue
 
-            city = row[0].text.strip().lower()
-            if city == "none":
-                period += 1
-                continue
             if city in CITIES:
                 team = TEAMS[CITIES.index(city)]
             else:
@@ -513,7 +513,7 @@ def scrape_game(gid):
 
         # Pelaajakohtaiset tilastot:
         goalies, skaters = {}, {}
-        tables = root.xpath("//table[8]/tr[1]/td[1]/table")
+        tables = root.xpath("//table[8]/tr[1]/td/table[1]")
         for team, table in [("away", tables[0]), ("home", tables[1])]:
             for row in table.getchildren():
                 try:
