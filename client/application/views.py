@@ -273,11 +273,42 @@ def standings(year):
 
 
 @app.route("/top")
-def search():
+def top():
     '''
-    TODO: TOP-lista
+    Kauden parhaiden pelaajien lista.
+
+    Url-parametrit
+        - year: määrittää kauden, oletuksena nykyinen kausi.
+        - sort: määrittää järjestyksen, vaihtoehdot ovat
+            - pelaajilla name, team, gp, g, a, pts, +/-, pim, hits, bks, fw, fl,
+                         fo%, ppg, ppa, shg, sha, gw, sog, pct
+                         (oletuksena pts)
+            - maalivahdeilla name, team, gp, gs, min, w, l, otl, ega, ga, gaa,
+                             sa, sv, sv%, so
+                             (oletuksena w)
+        - goalies: (arvo 0 tai 1) määrittää haetaanko maalivahteja;
+                                  oletuksena ei haeta.
+        - playoffs: (0 tai 1) määrittää haetaanko valitun kauden playoffien
+                              top-listoja; oletuksena ei.
+        - reverse: (0 tai 1) määrittää järjestyksen suunnan,
+                             oletuksena reverse=1, eli suurin arvo ensin.
+        - limit: määrittää tulosten maksimimäärän, oletuksena 30.
     '''
-    return render_template("top.html")
+    year = request.args.get('year') or '2012'
+    sort = request.args.get('sort') or 'pim'
+    goalies = request.args.get('goalies') or '0'
+    playoffs = request.args.get('playoffs') or '0'
+    reverse = request.args.get('reverse') or '1'
+    limit = request.args.get('limit') or '30'
+
+    players = fetch_from_api(
+        '''/api/json/top?sort=%s&reverse=%s&year=%s&goalies=%s&playoffs=%s&limit=%s''' %
+        (sort,reverse,year,goalies,playoffs,limit))
+
+    # players = fetch_from_api(
+    #     '''/api/json/top?sort=pim&reverse=1&year=2012&goalies=0&playoffs=0&limit=10''')
+
+    return render_template("top.html", players=players, year=year)
 
 
 ### Error handlers ###

@@ -1,7 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Top listat</h1>
-<h3>Toteuttamatta...</h3>
+<h1>Parhaat pelaajat {{year}}</h1>
+<p>Valinta maalivahdeille?</p>
+
+<table class="standings-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Team</th>
+            <th>GP</th>
+        </tr>
+    </thead>
+    <tbody>
+$ for player in players
+        <tr class="{{ loop.cycle('odd', 'even') }}">
+            <td>{{player.name}}</td>
+            <td>{{player.team|upper}}</td>
+            <td>{{player.gp}}</td>
+        </tr>
+$ endfor
+    </tbody>
+</table>
+
+
+<!-- {{players}} -->
 
 {% endblock %}
