@@ -1,4 +1,4 @@
-# -*- coding: latin-1 -*-
+# -*- coding: utf-8 -*-
 """
 URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 
@@ -208,7 +208,14 @@ def game(game_id):
     away_team = game['away_team']
     away_score = game['away_score']
 
-    goals = game['goals']
+    # Lisätään dictionaryyn eräkohtaisesti listat maaleista, avain = int
+    goals_dict = {}
+    for v in game['goals']:
+        period = v['period']
+        if not period in goals_dict:  # Jos ensimmäinen erän maali
+            goals_dict[period] = [v]  # tehdään uusi lista
+        else:
+            goals_dict[period].append(v)  # Loput maalit lisätään listaan
 
     shootout = []  # Jos pelissä ei tullut shootoutteja, viedään tyhjä lista
     shootout = game['shootout']
@@ -232,7 +239,7 @@ def game(game_id):
         home_score=home_score,
         away_team=away_team,
         away_score=away_score,
-        goals=goals,
+        goals=goals_dict,
         skaters=skater_list,
         shootout=shootout)
 
@@ -248,12 +255,12 @@ def standings(year):
     if not stats:
         abort(400)
 
-    teams_dict = {}
-    teams = sorted(
-                    stats.iteritems(),
-                    key=lambda (k, v): v["pts"],
-                    reverse=True)
-
+    teams_dict = {}  # Dict, jossa avaimena on divisioona ja arvona joukkue
+    teams = sorted(  # Järjestetään joukkueet listaan pts:n mukaan
+        stats.iteritems(),
+        key=lambda (k, v): v["pts"],
+        reverse=True)
+# teams-listan joukkuuet lajitellaan teams_dict-dictionaryyn divisioonan mukaan
     for k, v in teams:
         div = v["div"]
         v["team"] = k

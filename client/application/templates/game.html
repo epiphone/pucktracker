@@ -25,27 +25,34 @@
 
 <!-- Maalit TODO: reverse-funktio ei toimi yli 10-maalin peleissä -->
 
-<h4>Maalit</h4>​
-<table class="standings-table" id="goals"> ​
-    <thead>​
-        <tr>​
-            <th scope=​"col" class="bottom-border">Joukkue:​</th>​
-            <th scope=​"col" class="bottom-border">​Aika​:</th>​
-            <th scope=​"col" class="bottom-border">Erä:​</th>​
-            <th scope=​"col" class="bottom-border">Tulos:​</th>​
-            <th scope=​"col" class="bottom-border">Tekijä:​</th>​
-        </tr>​
-    </thead>​
-    {% for goal in goals %}
-        <tr>​
-            <td scope=​"col"><a href="/team/{{goal.team}}">{{goal.team|upper}}</a></td>​
-            <td scope=​"col">{{goal.time}}</td>​
-            <td scope=​"col">{{goal.period}}</td>​
-            <td scope=​"col">{{goal.score | reverse}}​</td>​
-            <td scope=​"col">{{goal.desc}}</td>​
-        </tr>​
-    {% endfor %}
-</table> ​
+<h2>Maalit</h2>​
+
+{% for period in goals %}
+    $ if period == 4
+        <h4>Lisäaika</h4>
+    $ else
+        <h4>Erä {{period}}</h4>
+    $ endif
+    <table class="standings-table" id="goals"> ​
+        <thead>​
+            <tr>​
+                <th scope=​"col" class="bottom-border">Joukkue​</th>​
+                <th scope=​"col" class="bottom-border">​Aika​</th>​
+                <th scope=​"col" class="bottom-border">Tulos​</th>​
+                <th scope=​"col" class="bottom-border">Tekijä​</th>​
+            </tr>​
+        </thead>​
+        {% for goal in goals[period] %}
+            <tr class="{{ loop.cycle('odd', 'even') }}">​
+                <td scope=​"col"><a href="/team/{{goal.team}}">{{goal.team|upper}}</a></td>​
+                <td scope=​"col">{{goal.time}}</td>​
+                <td scope=​"col">{{goal.score | reverse}}​</td>​
+                <td scope=​"col">{{goal.desc}}</td>​
+            </tr>​
+        {% endfor %}
+    </table> ​
+{% endfor %}
+
 
 <!-- Rankkarit -->
 
@@ -92,7 +99,7 @@
     </thead>​
     {% for skater in skaters %}
         <thead>
-            <tr class="{{ loop.cycle('even', 'odd') }}">​
+            <tr class="{{ loop.cycle('odd', 'even') }}">​
                 <td scope=​"col"> <a href="/player/{{skater.id}}">{{skater.name}}</a></td>​
                 <td scope=​"col">{% if skater.team == "home" %} <a href="/team/{{home_team}}">{{home_team|upper}}</a> {% else %} <a href="/team/{{away_team}}">{{away_team|upper}}</a> {% endif %}</td>​
                 <td>{{skater['g']}}</td>

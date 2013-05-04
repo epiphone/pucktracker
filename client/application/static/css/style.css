@@ -56,8 +56,8 @@ margin-top:0;
 }
 
 p{
-    top-margin:5;
-    bottom-margin:5;
+    margin-top:5;
+    margin-bottom:5;
 }
 
 table{

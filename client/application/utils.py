@@ -1,4 +1,4 @@
-# coding:utf-8
+# -*- coding: utf-8 -*-
 """
 Apufunktioita, mm. OAuth Client.
 
@@ -135,6 +135,8 @@ def fetch_from_api(url, method="GET"):
     """
     if not url.startswith("http://"):
         url = API_URL + url
+
+    logging.info("API-pyynto: " + url)
     method = METHODS[method]
 
     resp = urlfetch.fetch(
@@ -143,7 +145,7 @@ def fetch_from_api(url, method="GET"):
         deadline=30)
 
     if resp.status_code != 200:
-        logging.info("Pyyntö epäonnistui " + resp.content)
+        logging.info("Pyynto epaonnistui " + resp.content)
         return None  # TODO voiko olla muita onnistuneita statuskoodeja?
 
     return json.loads(resp.content)
