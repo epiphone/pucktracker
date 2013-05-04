@@ -10,7 +10,7 @@ URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 | /player/<player_id>     | player        | Pelaaja-sivu                 |
 | /team                   | team_search   | Joukkuehaku                  |
 | /team/<team>            | team          | Joukkue-sivu                 |
-| /game/<game_id>         | game          | Peli-sivu                    |
+| /game/<game_id>         | game          | Ottelusivu                   |
 | /standings/<int:year>   | standings     | Sarjataulukko                |
 | /top                    | search        | TODO: Top-sivu               |
 
@@ -21,11 +21,15 @@ from application import app
 from flask import render_template, session,  request, abort
 from utils import fetch_from_api, get_latest_game, logged_in
 from utils import get_followed
-import json
+from jinja_utils import convert_date
 
 
 # Kaikki joukkueet tunnuksineen ja nimineen
 TEAMS = {"bos": "Boston Bruins", "san": "San Jose Sharks", "nas": "Nashville Predators", "buf": "Buffalo Sabres", "cob": "Columbus Blue Jackets", "wpg": "Winnipeg Jets","cgy": "Calgary Flames", "chi": "Chicago Blackhawks", "det": "Detroit Redwings", "edm": "Edmonton Oilers", "car": "Carolina Hurricanes", "los": "Los Angeles Kings", "mon": "Montreal Canadiens", "dal": "Dallas Stars", "njd": "New Jersey Devils", "nyi": "NY Islanders", "nyr": "NY Rangers", "phi": "Philadelphia Flyers", "pit": "Pittsburgh Penguins", "col": "Colorado Avalanche", "stl": "St. Louis Blues", "tor": "Toronto Maple Leafs", "van": "Vancouver Canucks", "was": "Washington Capitals", "pho": "Phoenix Coyotes", "sjs": "San Jose Sharks", "ott": "Ottawa Senators", "tam": "Tampa Bay Lightning", "ana": "Anaheim Ducks", "fla": "Florida Panthers", "cbs": "Columbus Bluejackets", "min": "Minnesota Wild"}
+# Ottelusivun mahdolliset pelaajatilastosarakkeet oikeassa järjestyksessä:
+SKATER_COLS = ["name", "G", "A", "+/-", "SOG", "PIM", "S", "BS", "Hits",
+               "Take", "Give", "FW", "FL", "FO%", "Shifts", "TOI"]
+GOALIE_COLS = ["name", "SA", "Shots", "GA", "SV", "Saves", "SV%", "PIM", "TOI"]
 
 
 @app.route("/")
@@ -202,46 +206,45 @@ def game(game_id):
     if not game:
         abort(400)
 
-    date = game_id
-    home_team = game['home_team']
-    home_score = game['home_score']
-    away_team = game['away_team']
-    away_score = game['away_score']
+    # Lisätään dictionaryyn eräkohtaisesti listat maaleista:
+    goals_dict = {i: [] for i in range(1, 5)}
+    for goal in game["goals"]:
+        period = goal["period"]
+        goals_dict[period].append(goal)
 
-    # Lisätään dictionaryyn eräkohtaisesti listat maaleista, avain = int
-    goals_dict = {}
-    for v in game['goals']:
-        period = v['period']
-        if not period in goals_dict:  # Jos ensimmäinen erän maali
-            goals_dict[period] = [v]  # tehdään uusi lista
-        else:
-            goals_dict[period].append(v)  # Loput maalit lisätään listaan
+    # Lajitellaan pelaajat joukkueittain listoihin:
+    players = dict(home_skaters=[], away_skaters=[], home_goalies=[],
+        away_goalies=[])
+    for position in ["skaters", "goalies"]:
+        for k, v in game[position].iteritems():
+            v["pid"] = k
+            key = v["team"] + "_" + position
+            players[key].append(v)
 
-    shootout = []  # Jos pelissä ei tullut shootoutteja, viedään tyhjä lista
-    shootout = game['shootout']
+    # Järjestetään pelaajalistat sukunimen perusteella:
+    sort_func = lambda x: x["name"].split()[-1]
+    for k, v in players.iteritems():
+        players[k] = sorted(v, key=sort_func)
 
-    # Poistetaan pelaaja-lista-dictionary -rakenteesta yksi dictionary-taso,
-    # jotta Jinja template-engine osaa loopata tietorakenteen läpi ilman
-    # ongelmaa.
-    skater_list = []
-    for k, v in game['skaters'].iteritems():
-        new_dict = v
-        new_dict['id'] = k
-        skater_list.append(new_dict)
-
-    # Järjestetään pelaajalista
-    skater_list = sorted(skater_list, key=lambda x: x["pts"], reverse=True)
+    # Selvitetään pelaajatilastojen sarakkeet (voivat vaihdella):
+    skater_cols = game["skaters"].values()[0].keys()
+    goalie_cols = game["goalies"].values()[0].keys()
+    sorted_skater_cols, sorted_goalie_cols = [], []
+    for col in SKATER_COLS:
+        if col.lower() in skater_cols:
+            sorted_skater_cols.append(col)
+    for col in GOALIE_COLS:
+        if col.lower() in goalie_cols:
+            sorted_goalie_cols.append(col)
 
     return render_template(
         "game.html",
-        date=date,
-        home_team=home_team,
-        home_score=home_score,
-        away_team=away_team,
-        away_score=away_score,
+        gid=game_id,
+        game=game,
         goals=goals_dict,
-        skaters=skater_list,
-        shootout=shootout)
+        players=players,
+        skater_cols=sorted_skater_cols,
+        goalie_cols=sorted_goalie_cols)
 
 
 @app.route("/standings/<int:year>")

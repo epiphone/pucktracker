@@ -9,7 +9,6 @@ Käyttö Jinjassa:
 
 (latest_game on tuotu parametrina render_templaten yhteydessä)
 """
-from views import TEAMS
 
 
 def convert_date(s):
