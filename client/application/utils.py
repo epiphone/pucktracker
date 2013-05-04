@@ -231,7 +231,9 @@ def fetch_from_api_signed(base_url, token=None, callback=None, verifier=None,
         headers=headers,
         payload=data,
         deadline=30)
-    logging.info("API-pyynto (suojattu): " + resp.url)
+
+    logging.info("API-pyynto (suojattu): " + base_url)
+
     if resp.status_code == 401:
         # OAuth-auktorisointi epäonnistui (mahd. Access Token on vanhentunut),
         # laitetaan käyttäjä kirjautumaan uudestaan:
