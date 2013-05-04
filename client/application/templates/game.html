@@ -69,7 +69,8 @@ $ for team in ["away", "home"]:
         </tr>
         $ for player in players[team + "_goalies"]:
             <tr>
-                $ for column in goalie_cols:
+                <td colspan="{{ len(skater_cols) - len(goalie_cols) + 1 }}">{{ player.name }}</td>
+                $ for column in goalie_cols[1:]:
                     <td>{{ player[column.lower()]}}</td>
                 $ endfor
             </tr>
