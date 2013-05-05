@@ -772,8 +772,8 @@ def parse_stat_value(value):
         return 0.0  # FO%-sarakkeeseen voi olla merkitty pelkkä viiva
     if value_str.isdigit() or value_str[0] in ["-", "+"]:
         return int(value_str)
-    if value_str.startswith("."):
-        return float(value_str)
+    # if value_str.startswith("."):
+    #     return float(value_str)
     if value_str == "n/a":
         return None
     if value_str in ALT_TEAMS:

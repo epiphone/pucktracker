@@ -385,14 +385,11 @@ def get_players_and_teams(players=None, teams=None):
             abort(400)  # Bad request - virheellinen joukkueen tunnus
         for team in teams:
             stats = standings[team]
-            gid = scraper.get_latest_game(team=team)
-            if not stats or not gid:
-                teams_dict[team] = dict(stats=None, latest_game=None)
-            else:
-                latest_game = scraper.scrape_game(gid) if gid else None
-                if latest_game:
-                    latest_game["gid"] = gid
-                teams_dict[team] = dict(stats=stats, latest_game=latest_game)
+            try:
+                games = scraper.scrape_games_by_team(team)
+            except:
+                games = None
+            teams_dict[team] = dict(stats=stats, games=games)
 
     if players:
         player_stats = scraper.scrape_player_stats()
@@ -400,14 +397,12 @@ def get_players_and_teams(players=None, teams=None):
         for pid in players:
             for pstat in player_stats:
                 if pid == pstat["pid"]:
-                    gid = scraper.get_latest_game(pid=pid)
-                    if not gid:
-                        stats, latest_game = None, None
-                    else:
-                        latest_game = scraper.scrape_game(gid)
-                        latest_game["gid"] = gid
-                        stats = pstat
-                    players_dict[pid] = dict(stats=stats, latest_game=latest_game)
+                    try:
+                        games = scraper.scrape_games_by_player(pid)
+                    except:
+                        games = None
+                    stats, latest_game = None, None
+                    players_dict[pid] = dict(stats=pstat, games=games)
                     break
 
         # Seurattavaa pelaajaa ei löytynyt kenttäpelaajista,
@@ -419,20 +414,18 @@ def get_players_and_teams(players=None, teams=None):
                 continue  # Pelaaja löytyi kenttäpelaajista
             for pstat in goalie_stats:
                 if pid == pstat["pid"]:
-                    gid = scraper.get_latest_game(pid=pid)
-                    if not gid:
-                        stats, latest_game = None, None
-                    else:
-                        latest_game = scraper.scrape_game(gid)
-                        latest_game["gid"] = gid
-                        stats = pstat
-                    players_dict[pid] = dict(stats=stats, latest_game=latest_game)
+                    try:
+                        games = scraper.scrape_games_by_player(pid)
+                    except:
+                        games = None
+                    stats, latest_game = None, None
+                    players_dict[pid] = dict(stats=pstat, games=games)
                     break
 
         # Jos pelaajaa ei löytynyt kenttäpelaajista eikä maalivahdeista,
         # ei pelaaja ole pelannut yhdessäkään ottelussa nykyisellä kaudella
         for pid in players:
             if not pid in players_dict:
-                players_dict[pid] = dict(stats=None, latest_game=None)
+                players_dict[pid] = dict(stats=None, games=None)
 
     return dict(players=players_dict, teams=teams_dict)

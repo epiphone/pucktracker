@@ -129,7 +129,6 @@ def login():
 
     # Tallennetaan Request Token Secret sessioon:
     session["req_token_secret"] = oauth_token_secret
-    logging.info("session['req_token_secret'] = " + session["req_token_secret"])
 
     # Ohjataan käyttäjä providerin kirjautumissivulle:
     url = API_URL + AUTHORIZE_URL + "?oauth_token=" + oauth_token
