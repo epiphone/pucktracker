@@ -4,7 +4,6 @@
 <fieldset class="ui-grid-a" id="team-info">
     <div class="ui-block-a">
         <h2>{{TEAMS[team]}}</h2>
-        <p>{{team|upper}}</p>
     </div>
     <div class="ui-block-b">
         $ if team in session["teams"]:
@@ -15,16 +14,40 @@
     </div>
 </fieldset>
 
-<div class="keystats">
-    <ul>
-        <li><strong>GP</strong><br>{{ stats.gp }}</li>
-        <li><strong>W</strong><br>{{ stats.w }}</li>
-        <li><strong>L</strong><br>{{ stats.l }}</li>
-        <li><strong>OTL</strong><br>{{ stats.otl }}</li>
-        <li><strong>Pts</strong><br>{{ stats.pts }}</li>
-    </ul>
-</div>
+<!-- Kauden tilastot -->
+<table>
+    <tr class="table-header-row"><td colspan="12">Kauden tilastot</td></tr>
+    <tr class="header-row">
+        <td>GP</td>
+        <td>W</td>
+        <td>L</td>
+        <td>OTL</td>
+        <td>Pts</td>
+        <td>GF</td>
+        <td>GA</td>
+        <td>Diff</td>
+        <td>Home</td>
+        <td>Road</td>
+        <td>Last 10</td>
+        <td>Streak</td>
+    </tr>
+    <tr class="odd-row">
+        <td>{{stats.gp}}</td>
+        <td>{{stats.w}}</td>
+        <td>{{stats.l}}</td>
+        <td>{{stats.otl}}</td>
+        <td>{{stats.pts}}</td>
+        <td>{{stats.gf}}</td>
+        <td>{{stats.ga}}</td>
+        <td>{{stats.diff}}</td>
+        <td>{{stats.home}}</td>
+        <td>{{stats.road}}</td>
+        <td>{{stats['last 10']}}</td>
+        <td>{{stats.streak|title}}</td>
+    </tr>
+</table>
 
+<!-- Ottelut -->
 <table>
     <tr class="table-header-row"><td colspan="3">Ottelut</td></tr>
     $ for gid in games|sort(reverse=True):
