@@ -35,7 +35,7 @@
                 <tr>
                     <td>{{ goal.time }}</td>
                     <td><strong>{{ goal.team|upper }}</strong></td>
-                    <td>{{ goal.desc }}</td>
+                    <td>{{ goal.desc | replace("Assists","Syöttäjät") }}</td>
                     <td class="no-wrap"><strong>{{ goal.score }}</strong></td>
                 </tr>
             $ endfor
@@ -48,7 +48,7 @@
         <tr>
             <td>{{ goals[4][0].time }}</td>
             <td><strong>{{ goals[4][0].team | upper }}</strong></td>
-            <td>{{ goals[4][0].desc }}</td>
+            <td>{{ goals[4][0].desc  | replace("Assists","Syöttäjät") }}</td>
             <td><strong>{{ goals[4][0].score }}</strong></td>
         </tr>
     $ elif game.shootout:
