@@ -3,17 +3,15 @@
 
 <h1>Hae pelaajia</h1>
 
-<label for="search-basic">Hakuehto:</label>
-
 <form name="simple_bar" method="get" action="/player">
-    <input type="search" name="q" id="search-basic" {% if query %} value={{query}} {% endif %}/>
+    <input type="search" name="q" id="search-basic" {% if query %} value={{query}} {% endif %} required pattern=".{3,}"/>
     <input type="submit" value="Hae">
 </form>
 {% if players %}
 <p>Osumat hakuehdolla <strong>{{query}}</strong>:</p>
     <ul data-role="listview">
         {% for key, value in players.iteritems() %}
-        <li><a href="/player/{{key}}">{{value.name}} ({{key}})</a></li>
+        <li><a href="/player/{{key}}">{{value.name}}</a></li>
         {% endfor %}
     </ul>
 {% endif %}
