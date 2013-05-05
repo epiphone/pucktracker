@@ -19,7 +19,7 @@ URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 import logging
 from application import app
 from flask import render_template, session,  request, abort
-from utils import fetch_from_api, get_latest_game, logged_in
+from utils import fetch_from_api, logged_in
 from utils import get_followed
 from jinja_utils import convert_date
 
@@ -101,7 +101,6 @@ def player(player_id):
         abort(400)
     season_games = fetch_from_api(
         "/api/json/games?pid=%s&year=2012" % player_id)
-    latest_game = get_latest_game(season_games)
 
     name = all_players[str(player_id)]['name']
     position = all_players[str(player_id)]['pos']
@@ -135,7 +134,7 @@ def player(player_id):
         all_seasons=career_list,
         position=position,
         career=career,
-        latest_game=latest_game,
+        games=season_games,
         following=following,
         pid=player_id)
 
