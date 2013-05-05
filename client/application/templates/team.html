@@ -83,7 +83,7 @@
     </tr>
     $ for g in goalies:
         <tr class="{{ loop.cycle('odd', 'even' )}}-row">
-            <td><a href="/player{{g.pid}}">{{g['name']}}</a></td>
+            <td><a href="/player/{{g.pid}}">{{g['name']}}</a></td>
             <td>{{g['gp']}}</td>
             <td>{{g['gs']}}</td>
             <td>{{g['min']}}</td>
@@ -128,7 +128,7 @@
     </tr>
     $ for s in skaters:
         <tr class="{{ loop.cycle('odd', 'even') }}-row">
-            <td><a href="/player{{s.pid}}">{{s['name']}}</a></td>
+            <td><a href="/player/{{s.pid}}">{{s['name']}}</a></td>
             <td>{{s['gp']}}</td>
             <td>{{s['g']}}</td>
             <td>{{s['a']}}</td>
@@ -150,13 +150,5 @@
         </tr>
     $ endfor
 </table>
-
-<h4> Pelaajat: </h4>
-{{skaters}}
-<div id="players">
-    {% for player in players %}
-        <a href="/player/{{player.pid}}">{{player.name}}</a>
-    {% endfor %}
-</div>
 
 {% endblock %}
