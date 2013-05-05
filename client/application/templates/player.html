@@ -56,255 +56,265 @@ $ if position == 'G':
                 <td>{{this_season['sv%']}}</td>​
                 <td>{{this_season['so']}}</td>​
             </tr>
-        <tr class="table-header-row"><td colspan="20">Viimeisin ottelu</td></tr>
-            <tr class="header-row">​
-                <td>Pvm</td>​
-                <td>Joukkueet</td>​
-                <td>Tulos</td>​
-                <td>GS</td>​
-                <td>MIN</td>​
-                <td>W</td>​
-                <td>L</td>​
-                <td>OTL</td>​
-                <td>EGA</td>​
-                <td>GA</td>​
-                <td>GAA</td>​
-                <td>SA</td>​
-                <td>SV</td>​
-                <td>SV%</td>​
-                <td>SO</td>​
-            </tr>​​
-            <tr class="odd-row">​
-                <td><a href="/game/{{latest_game.date}}">{{jinja_utils.convert_date(latest_game.date)}}</a></td>​
-                <td>{{team|upper}} vs {{latest_game.opponent|upper}}</td>​
-                <td>{{latest_game.result|upper}}</td>​
-                <td>{{latest_game['gs']}}</td>​
-                <td>{{latest_game['min']}}</td>​
-                <td>{{latest_game['w']}}</td>​
-                <td>{{latest_game['l']}}</td>​
-                <td>{{latest_game['otl']}}</td>​
-                <td>{{latest_game['ega']}}</td>​
-                <td>{{latest_game['ga']}}</td>​
-                <td>{{latest_game['gaa']}}</td>​
-                <td>{{latest_game['sa']}}</td>​
-                <td>{{latest_game['sv']}}</td>​
-                <td>{{latest_game['sv%']}}</td>​
-                <td>{{latest_game['so']}}</td>​
-            </tr>​
+    </table>
 
+    <table>
+        <tr class="table-header-row"><td colspan="20">Viimeisin ottelu</td></tr>
+        <tr class="header-row">​
+            <td>Pvm</td>​
+            <td>Joukkueet</td>​
+            <td>Tulos</td>​
+            <td>GS</td>​
+            <td>MIN</td>​
+            <td>W</td>​
+            <td>L</td>​
+            <td>OTL</td>​
+            <td>EGA</td>​
+            <td>GA</td>​
+            <td>GAA</td>​
+            <td>SA</td>​
+            <td>SV</td>​
+            <td>SV%</td>​
+            <td>SO</td>​
+        </tr>​​
+        <tr class="odd-row">​
+            <td><a href="/game/{{latest_game.date}}">{{jinja_utils.convert_date(latest_game.date)}}</a></td>​
+            <td>{{team|upper}} vs {{latest_game.opponent|upper}}</td>​
+            <td>{{latest_game.result|upper}}</td>​
+            <td>{{latest_game['gs']}}</td>​
+            <td>{{latest_game['min']}}</td>​
+            <td>{{latest_game['w']}}</td>​
+            <td>{{latest_game['l']}}</td>​
+            <td>{{latest_game['otl']}}</td>​
+            <td>{{latest_game['ega']}}</td>​
+            <td>{{latest_game['ga']}}</td>​
+            <td>{{latest_game['gaa']}}</td>​
+            <td>{{latest_game['sa']}}</td>​
+            <td>{{latest_game['sv']}}</td>​
+            <td>{{latest_game['sv%']}}</td>​
+            <td>{{latest_game['so']}}</td>​
+        </tr>​
+    </table>
+    <table>
         <tr class="table-header-row"><td colspan="20">Kaikki kaudet</td></tr>​
-            <tr class="header-row">​
-                <td>Vuosi</td>​
-                <td>Joukkue</td>​
-                <td>GP</td>​
-                <td>GS</td>​
-                <td>MIN</td>​
-                <td>W</td>​
-                <td>L</td>​
-                <td>T</td>​
-                <td>OTL</td>​
-                <td>EGA</td>​
-                <td>GA</td>​
-                <td>GAA</td>​
-                <td>SA</td>​
-                <td>SV</td>​
-                <td>SV%</td>​
-                <td>SO</td>​
-            </tr>​​
-        {% for s in all_seasons %}
-            <tr  class="{{ loop.cycle('odd', 'even') }}-row">​
-                <td>{{s.year}}</td>​
-                <td><a href="/team/{{s.team}}">{{s.team | upper}}</a></td>​
-                <td>{{s['gp']}}</td>​
-                <td>{{s['gs']}}</td>​
-                <td>{{s['min']}}</td>​
-                <td>{{s['w']}}</td>​
-                <td>{{s['l']}}</td>​
-                <td>{{s['t']}}</td>​
-                <td>{{s['otl']}}</td>​
-                <td>{{s['ega']}}</td>​
-                <td>{{s['ga']}}</td>​
-                <td>{{s['gaa']}}</td>​
-                <td>{{s['sa']}}</td>​
-                <td>{{s['sv']}}</td>​
-                <td>{{s['sv%']}}</td>​
-                <td>{{s['so']}}</td>​
-            </tr>
-        {% endfor %}
-<!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
-            <tr class="totals-row">​
-                <td></td>​
-                <td></td>​
-                <td>{{career['gp']}}</td>​
-                <td>{{career['gs']}}</td>​
-                <td>{{career['min']}}</td>​
-                <td>{{career['w']}}</td>​
-                <td>{{career['l']}}</td>​
-                <td>{{career['t']}}</td>​
-                <td>{{career['otl']}}</td>​
-                <td>{{career['ega']}}</td>​
-                <td>{{career['ga']}}</td>​
-                <td>{{career['gaa']}}</td>​
-                <td>{{career['sa']}}</td>​
-                <td>{{career['sv']}}</td>​
-                <td>{{career['sv%']}}</td>​
-                <td>{{career['so']}}</td>​            </tr>​
+        <tr class="header-row">​
+            <td>Vuosi</td>​
+            <td>Joukkue</td>​
+            <td>GP</td>​
+            <td>GS</td>​
+            <td>MIN</td>​
+            <td>W</td>​
+            <td>L</td>​
+            <td>T</td>​
+            <td>OTL</td>​
+            <td>EGA</td>​
+            <td>GA</td>​
+            <td>GAA</td>​
+            <td>SA</td>​
+            <td>SV</td>​
+            <td>SV%</td>​
+            <td>SO</td>​
+        </tr>​​
+    {% for s in all_seasons %}
+        <tr  class="{{ loop.cycle('odd', 'even') }}-row">​
+            <td>{{s.year}}</td>​
+            <td><a href="/team/{{s.team}}">{{s.team | upper}}</a></td>​
+            <td>{{s['gp']}}</td>​
+            <td>{{s['gs']}}</td>​
+            <td>{{s['min']}}</td>​
+            <td>{{s['w']}}</td>​
+            <td>{{s['l']}}</td>​
+            <td>{{s['t']}}</td>​
+            <td>{{s['otl']}}</td>​
+            <td>{{s['ega']}}</td>​
+            <td>{{s['ga']}}</td>​
+            <td>{{s['gaa']}}</td>​
+            <td>{{s['sa']}}</td>​
+            <td>{{s['sv']}}</td>​
+            <td>{{s['sv%']}}</td>​
+            <td>{{s['so']}}</td>​
+        </tr>
+    {% endfor %}
+    <!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
+        <tr class="totals-row">​
+            <td></td>​
+            <td></td>​
+            <td>{{career['gp']}}</td>​
+            <td>{{career['gs']}}</td>​
+            <td>{{career['min']}}</td>​
+            <td>{{career['w']}}</td>​
+            <td>{{career['l']}}</td>​
+            <td>{{career['t']}}</td>​
+            <td>{{career['otl']}}</td>​
+            <td>{{career['ega']}}</td>​
+            <td>{{career['ga']}}</td>​
+            <td>{{career['gaa']}}</td>​
+            <td>{{career['sa']}}</td>​
+            <td>{{career['sv']}}</td>​
+            <td>{{career['sv%']}}</td>​
+            <td>{{career['so']}}</td>​
+        </tr>​
     </table>
 $ else:
     <table>
         <tr class="table-header-row"><td colspan="20">Nykyinen kausi</td></tr>​
-            <tr class="header-row">​
-                <td>G</td>​
-                <td>​A</td>​
-                <td>Pts</td>​
-                <td>+/-</td>​
-                <td>PIM</td>​
-                <td>Hits</td>​
-                <td>BkS</td>​
-                <td>FW</td>​
-                <td>FL</td>​
-                <td>FO%</td>​
-                <td>PPG</td>​
-                <td>PPA</td>​
-                <td>SHG</td>​
-                <td>SHA</td>​
-                <td>GW</td>​
-                <td>SOG</td>​
-                <td>Pct</td>​
-            </tr>​​
-            <tr class="odd-row">​
-                <td>{{this_season.g}}</td>​
-                <td>{{this_season.a}}</td>​
-                <td>{{this_season.pts}}</td>​
-                <td>{{this_season['+/-']}}</td>​
-                <td>{{this_season.pim}}</td>​
-                <td>{{this_season.hits}}</td>​
-                <td>{{this_season.bks}}</td>​
-                <td>{{this_season.fw}}</td>​
-                <td>{{this_season.fl}}</td>​
-                <td>{{this_season['fo%']}}</td>​
-                <td>{{this_season.ppg}}</td>​
-                <td>{{this_season.ppa}}</td>​
-                <td>{{this_season.shg}}</td>​
-                <td>{{this_season.sha}}</td>​
-                <td>{{this_season.gw}}</td>​
-                <td>{{this_season.sog}}</td>​
-                <td>{{this_season.pct}}</td>​
-            </tr>
+        <tr class="header-row">​
+            <td>G</td>​
+            <td>​A</td>​
+            <td>Pts</td>​
+            <td>+/-</td>​
+            <td>PIM</td>​
+            <td>Hits</td>​
+            <td>BkS</td>​
+            <td>FW</td>​
+            <td>FL</td>​
+            <td>FO%</td>​
+            <td>PPG</td>​
+            <td>PPA</td>​
+            <td>SHG</td>​
+            <td>SHA</td>​
+            <td>GW</td>​
+            <td>SOG</td>​
+            <td>Pct</td>​
+        </tr>​​
+        <tr class="odd-row">​
+            <td>{{this_season.g}}</td>​
+            <td>{{this_season.a}}</td>​
+            <td>{{this_season.pts}}</td>​
+            <td>{{this_season['+/-']}}</td>​
+            <td>{{this_season.pim}}</td>​
+            <td>{{this_season.hits}}</td>​
+            <td>{{this_season.bks}}</td>​
+            <td>{{this_season.fw}}</td>​
+            <td>{{this_season.fl}}</td>​
+            <td>{{this_season['fo%']}}</td>​
+            <td>{{this_season.ppg}}</td>​
+            <td>{{this_season.ppa}}</td>​
+            <td>{{this_season.shg}}</td>​
+            <td>{{this_season.sha}}</td>​
+            <td>{{this_season.gw}}</td>​
+            <td>{{this_season.sog}}</td>​
+            <td>{{this_season.pct}}</td>​
+        </tr>
+    </table>
 
+    <table>
         <tr class="table-header-row"><td colspan="20">Viimeisin ottelu</td></tr>
-            <tr class="header-row">​
-                <td>Pvm</td>​
-                <td>Joukkueet</td>​
-                <td>Tulos</td>​
-                <td>G</td>​
-                <td>​A</td>​
-                <td>Pts</td>​
-                <td>+/-</td>​
-                <td>PIM</td>​
-                <td>Hits</td>​
-                <td>BkS</td>​
-                <td>FW</td>​
-                <td>FL</td>​
-                <td>FO%</td>​
-                <td>PPG</td>​
-                <td>PPA</td>​
-                <td>SHG</td>​
-                <td>SHA</td>​
-                <td>GW</td>​
-                <td>SOG</td>​
-                <td>Pct</td>​
-            </tr>​​
-            <tr class="odd-row">​
-                <td><a href="/game/{{latest_game.date}}">{{jinja_utils.convert_date(latest_game.date)}}</a></td>​
-                <td>{{team|upper}} vs {{latest_game.opponent|upper}}</td>​
-                <td>{{latest_game.result|upper}}</td>​
-                <td>{{latest_game.g}}</td>​
-                <td>{{latest_game.a}}</td>​
-                <td>{{latest_game.pts}}</td>​
-                <td>{{latest_game['+/-']}}</td>​
-                <td>{{latest_game.pim}}</td>​
-                <td>{{latest_game.hits}}</td>​
-                <td>{{latest_game.bks}}</td>​
-                <td>{{latest_game.fw}}</td>​
-                <td>{{latest_game.fl}}</td>​
-                <td>{{latest_game['fo%']}}</td>​
-                <td>{{latest_game.ppg}}</td>​
-                <td>{{latest_game.ppa}}</td>​
-                <td>{{latest_game.shg}}</td>​
-                <td>{{latest_game.sha}}</td>​
-                <td>{{latest_game.gw}}</td>​
-                <td>{{latest_game.sog}}</td>​
-                <td>{{latest_game.pct}}</td>​
-            </tr>​
+        <tr class="header-row">​
+            <td>Pvm</td>​
+            <td>Joukkueet</td>​
+            <td>Tulos</td>​
+            <td>G</td>​
+            <td>​A</td>​
+            <td>Pts</td>​
+            <td>+/-</td>​
+            <td>PIM</td>​
+            <td>Hits</td>​
+            <td>BkS</td>​
+            <td>FW</td>​
+            <td>FL</td>​
+            <td>FO%</td>​
+            <td>PPG</td>​
+            <td>PPA</td>​
+            <td>SHG</td>​
+            <td>SHA</td>​
+            <td>GW</td>​
+            <td>SOG</td>​
+            <td>Pct</td>​
+        </tr>​​
+        <tr class="odd-row">​
+            <td><a href="/game/{{latest_game.date}}">{{jinja_utils.convert_date(latest_game.date)}}</a></td>​
+            <td>{{team|upper}} vs {{latest_game.opponent|upper}}</td>​
+            <td>{{latest_game.result|upper}}</td>​
+            <td>{{latest_game.g}}</td>​
+            <td>{{latest_game.a}}</td>​
+            <td>{{latest_game.pts}}</td>​
+            <td>{{latest_game['+/-']}}</td>​
+            <td>{{latest_game.pim}}</td>​
+            <td>{{latest_game.hits}}</td>​
+            <td>{{latest_game.bks}}</td>​
+            <td>{{latest_game.fw}}</td>​
+            <td>{{latest_game.fl}}</td>​
+            <td>{{latest_game['fo%']}}</td>​
+            <td>{{latest_game.ppg}}</td>​
+            <td>{{latest_game.ppa}}</td>​
+            <td>{{latest_game.shg}}</td>​
+            <td>{{latest_game.sha}}</td>​
+            <td>{{latest_game.gw}}</td>​
+            <td>{{latest_game.sog}}</td>​
+            <td>{{latest_game.pct}}</td>​
+        </tr>​
+    </table>
 
+
+    <table>
         <tr class="table-header-row"><td colspan="20">Kaikki kaudet</td></tr>​
-            <tr class="header-row">​
-                <td>Vuosi</td>​
-                <td>Joukkue</td>​
-                <td>G</td>​
-                <td>​A</td>​
-                <td>Pts</td>​
-                <td>+/-</td>​
-                <td>PIM</td>​
-                <td>Hits</td>​
-                <td>BkS</td>​
-                <td>FW</td>​
-                <td>FL</td>​
-                <td>FO%</td>​
-                <td>PPG</td>​
-                <td>PPA</td>​
-                <td>SHG</td>​
-                <td>SHA</td>​
-                <td>GW</td>​
-                <td>SOG</td>​
-                <td>Pct</td>​
-            </tr>​​
-        {% for s in all_seasons %}
-            <tr  class="{{ loop.cycle('odd', 'even') }}-row">​
-                <td>{{s.year}}</td>​
-                <td><a href="/team/{{s.team}}">{{s.team | upper}}</a></td>​
-                <td>{{s.g}}</td>​
-                <td>{{s.a}}</td>​
-                <td>{{s.pts}}</td>​
-                <td>{{s['+/-']}}</td>​
-                <td>{{s.pim}}</td>​
-                <td>{{s.hits}}</td>​
-                <td>{{s.bks}}</td>​
-                <td>{{s.fw}}</td>​
-                <td>{{s.fl}}</td>​
-                <td>{{s['fo%']}}</td>​
-                <td>{{s.ppg}}</td>​
-                <td>{{s.ppa}}</td>​
-                <td>{{s.shg}}</td>​
-                <td>{{s.sha}}</td>​
-                <td>{{s.gw}}</td>​
-                <td>{{s.sog}}</td>​
-                <td>{{s.pct}}</td>​
-            </tr>
-        {% endfor %}
-            <!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
-            <tr class="totals-row">​
-                <td></td>​
-                <td></td>​
-                <td>{{career.g}}</td>​
-                <td>{{career.a}}</td>​
-                <td>{{career.pts}}</td>​
-                <td>{{career['+/-']}}</td>​
-                <td>{{career.pim}}</td>​
-                <td>{{career.hits}}</td>​
-                <td>{{career.bks}}</td>​
-                <td>{{career.fw}}</td>​
-                <td>{{career.fl}}</td>​
-                <td>{{career['fo%']}}</td>​
-                <td>{{career.ppg}}</td>​
-                <td>{{career.ppa}}</td>​
-                <td>{{career.shg}}</td>​
-                <td>{{career.sha}}</td>​
-                <td>{{career.gw}}</td>​
-                <td>{{career.sog}}</td>​
-                <td>{{career.pct}}</td>​
-            </tr>​
+        <tr class="header-row">​
+            <td>Vuosi</td>​
+            <td>Joukkue</td>​
+            <td>G</td>​
+            <td>​A</td>​
+            <td>Pts</td>​
+            <td>+/-</td>​
+            <td>PIM</td>​
+            <td>Hits</td>​
+            <td>BkS</td>​
+            <td>FW</td>​
+            <td>FL</td>​
+            <td>FO%</td>​
+            <td>PPG</td>​
+            <td>PPA</td>​
+            <td>SHG</td>​
+            <td>SHA</td>​
+            <td>GW</td>​
+            <td>SOG</td>​
+            <td>Pct</td>​
+        </tr>​​
+    {% for s in all_seasons %}
+        <tr  class="{{ loop.cycle('odd', 'even') }}-row">​
+            <td>{{s.year}}</td>​
+            <td><a href="/team/{{s.team}}">{{s.team | upper}}</a></td>​
+            <td>{{s.g}}</td>​
+            <td>{{s.a}}</td>​
+            <td>{{s.pts}}</td>​
+            <td>{{s['+/-']}}</td>​
+            <td>{{s.pim}}</td>​
+            <td>{{s.hits}}</td>​
+            <td>{{s.bks}}</td>​
+            <td>{{s.fw}}</td>​
+            <td>{{s.fl}}</td>​
+            <td>{{s['fo%']}}</td>​
+            <td>{{s.ppg}}</td>​
+            <td>{{s.ppa}}</td>​
+            <td>{{s.shg}}</td>​
+            <td>{{s.sha}}</td>​
+            <td>{{s.gw}}</td>​
+            <td>{{s.sog}}</td>​
+            <td>{{s.pct}}</td>​
+        </tr>
+    {% endfor %}
+        <!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
+        <tr class="totals-row">​
+            <td></td>​
+            <td></td>​
+            <td>{{career.g}}</td>​
+            <td>{{career.a}}</td>​
+            <td>{{career.pts}}</td>​
+            <td>{{career['+/-']}}</td>​
+            <td>{{career.pim}}</td>​
+            <td>{{career.hits}}</td>​
+            <td>{{career.bks}}</td>​
+            <td>{{career.fw}}</td>​
+            <td>{{career.fl}}</td>​
+            <td>{{career['fo%']}}</td>​
+            <td>{{career.ppg}}</td>​
+            <td>{{career.ppa}}</td>​
+            <td>{{career.shg}}</td>​
+            <td>{{career.sha}}</td>​
+            <td>{{career.gw}}</td>​
+            <td>{{career.sog}}</td>​
+            <td>{{career.pct}}</td>​
+        </tr>​
     </table>
 $ endif
 
