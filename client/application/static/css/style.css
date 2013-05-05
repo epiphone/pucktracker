@@ -91,25 +91,6 @@ td:first-child {
     white-space: nowrap;
 }
 
-/* Standings */
-.standings-table td,
-.standings-table th {
-    text-align: right;
-}
-
-.standings-table td:first-child {
-    text-align: left;
-}
-
-.standings-table th:first-child {
+.set-width {
     width: 10%;
-    text-align: left;
-}
-
-.standings-table .even {
-    background-color: #FCFCFC;
-}
-
-.standings-table thead tr {
-    background-color: #DEDEDE;
 }

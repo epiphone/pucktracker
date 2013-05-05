@@ -3,30 +3,66 @@
 
 <h3>Runkosarja {{year}}</h3>
 
-<h4>Eastern</h4>
-{% for div in ["atlantic", "northeast", "southeast"] %}
-    <table class="standings-table">
-        <thead>
-            <tr>
-                <th>{{div|title}}</th>
-                <th>GP</th>
-                <th>W</th>
-                <th>L</th>
-                <th>OTL</th>
-                <th>Pts</th>
-                <th>GF</th>
-                <th>GA</th>
-                <th>Diff</th>
-                <th>Home</th>
-                <th>Road</th>
-                <th>Last 10</th>
-                <th>Streak</th>
-            </tr>
-        </thead>
-        <tbody>
+<table>
+    <tr class="table-header-row"><td colspan="13">Eastern</td></tr>
+    {% for div in ["atlantic", "northeast", "southeast"] %}
+        <tr class="header-row">
+            <td class="set-width">{{div|title}}</td>
+            <td>GP</td>
+            <td>W</td>
+            <td>L</td>
+            <td>OTL</td>
+            <td>Pts</td>
+            <td>GF</td>
+            <td>GA</td>
+            <td>Diff</td>
+            <td>Home</td>
+            <td>Road</td>
+            <td>Last 10</td>
+            <td>Streak</td>
+        </tr>
         {% for team in teams[div] %}
-            <tr class="{{ loop.cycle('odd', 'even') }}">
+            <tr class="{{ loop.cycle('odd', 'even') }}-row">
                 <td><a href="/team/{{team.team}}">{{team.team|upper}}</a></td>
+                <td class="set-width">{{team.gp}}</td>
+                <td>{{team.w}}</td>
+                <td>{{team.l}}</td>
+                <td>{{team.otl}}</td>
+                <td>{{team.pts}}</td>
+                <td>{{team.gf}}</td>
+                <td>{{team.ga}}</td>
+                <td>{{team.diff}}</td>
+                <td>{{team.home}}</td>
+                <td>{{team.road}}</td>
+                <td>{{team['last 10']}}</td>
+                <td>{{team.streak|title}}</td>
+            </tr>
+        {% endfor %}
+    {% endfor %}
+</table>
+
+
+<table>
+    <tr class="table-header-row"><td colspan="13">Eastern</td></tr>
+    {% for div in ["central", "northwest", "pacific"] %}
+        <tr class="header-row">
+            <td class="set-width">{{div|title}}</td>
+            <td>GP</td>
+            <td>W</td>
+            <td>L</td>
+            <td>OTL</td>
+            <td>Pts</td>
+            <td>GF</td>
+            <td>GA</td>
+            <td>Diff</td>
+            <td>Home</td>
+            <td>Road</td>
+            <td>Last 10</td>
+            <td>Streak</td>
+        </tr>
+        {% for team in teams[div] %}
+            <tr class="{{ loop.cycle('odd', 'even') }}-row">
+                <td class="set-width"><a href="/team/{{team.team}}">{{team.team|upper}}</a></td>
                 <td>{{team.gp}}</td>
                 <td>{{team.w}}</td>
                 <td>{{team.l}}</td>
@@ -41,51 +77,7 @@
                 <td>{{team.streak|title}}</td>
             </tr>
         {% endfor %}
-        </tbody>
-    </table>
-{% endfor %}
-
-<h4>Western</h4>
-{% for div in ["central", "northwest", "pacific"] %}
-    <table class="standings-table">
-        <thead>
-            <tr>
-                <th>{{div|title}}</th>
-                <th>GP</th>
-                <th>W</th>
-                <th>L</th>
-                <th>OTL</th>
-                <th>Pts</th>
-                <th>GF</th>
-                <th>GA</th>
-                <th>Diff</th>
-                <th>Home</th>
-                <th>Road</th>
-                <th>Last 10</th>
-                <th>Streak</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for team in teams[div] %}
-            <tr class="{{ loop.cycle('odd', 'even') }}">
-                <td><a href="/team/{{team.team}}">{{team.team|upper}}</a></td>
-                <td>{{team.gp}}</td>
-                <td>{{team.w}}</td>
-                <td>{{team.l}}</td>
-                <td>{{team.otl}}</td>
-                <td>{{team.pts}}</td>
-                <td>{{team.gf}}</td>
-                <td>{{team.ga}}</td>
-                <td>{{team.diff}}</td>
-                <td>{{team.home}}</td>
-                <td>{{team.road}}</td>
-                <td>{{team['last 10']}}</td>
-                <td>{{team.streak|title}}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-{% endfor %}
-
+    {% endfor %}
+</table>
 
 {% endblock %}
