@@ -33,12 +33,6 @@ border-bottom: 1px solid #e3e3e3;
     font-weight: bold;
 }
 
-.top-border {
-    border-top:1px solid #333333
-
-}
-
-
 /*player-page*/
 .no-top-margin{
 margin-top:0;
@@ -69,10 +63,16 @@ table{
 .table-header-row {
     color: #FFFFFF;
     background-color: #3D3D3D;
+
 }
 
 .header-row {
     background-color: #CCCCCC;
+}
+
+.totals-row > td{
+    background-color: #CCCCCC;
+    border-top:1px solid #333333;
 }
 
 .odd-row {

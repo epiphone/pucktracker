@@ -15,11 +15,12 @@ app.config.from_object('application.settings')
 # Sivut
 import oauth_views
 import views
+from views import TEAMS
 
 # Templaten syntaksiasetuksia:
 app.jinja_env.line_statement_prefix = "$"
 # Template-enginen apufunktiot ja vakiot käyttöön:
-app.jinja_env.globals.update(jinja_utils=jinja_utils, len=len)
+app.jinja_env.globals.update(jinja_utils=jinja_utils, len=len, TEAMS=TEAMS)
 # Template-enginen custom-filterit:
 app.jinja_env.filters["shorten_name"] = jinja_utils.shorten_name
 

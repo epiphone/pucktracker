@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Pelaajan tiedot</h1>
 <div class="ui-grid-a" id="player-info">
     <div class="ui-block-a">
         <h2 class="no-top-margin">{{name}}</h2>
@@ -9,7 +8,7 @@
             <strong>{{position}}</strong>
         </p>
         <h3>
-            <a href="/team/{{team}}">{{team|upper}}</a>
+            <a href="/team/{{team}}">{{TEAMS[team]}}</a>
         </h3>
     </div>
     <div class="ui-block-b">
@@ -21,174 +20,160 @@
     </div>
 </div>
 
-<h4>Nykyinen kausi</h4>​
-<table id="current-season" class="standings-table">
-    <thead>​
-        <tr>​
-            <th scope=​"col" class="bottom-border">G</th>​
-            <th scope=​"col" class="bottom-border">​A</th>​
-            <th scope=​"col" class="bottom-border">Pts</th>​
-            <th scope=​"col" class="bottom-border">+/-</th>​
-            <th scope=​"col" class="bottom-border">PIM</th>​
-            <th scope=​"col" class="bottom-border">Hits</th>​
-            <th scope=​"col" class="bottom-border">BkS</th>​
-            <th scope=​"col" class="bottom-border">FW</th>​
-            <th scope=​"col" class="bottom-border">FL</th>​
-            <th scope=​"col" class="bottom-border">FO%</th>​
-            <th scope=​"col" class="bottom-border">PPG</th>​
-            <th scope=​"col" class="bottom-border">PPA</th>​
-            <th scope=​"col" class="bottom-border">SHG</th>​
-            <th scope=​"col" class="bottom-border">SHA</th>​
-            <th scope=​"col" class="bottom-border">GW</th>​
-            <th scope=​"col" class="bottom-border">SOG</th>​
-            <th scope=​"col" class="bottom-border">Pct</th>​
-        </tr>​
-    </thead>​
-    <tbody>
-        <tr>​
-            <td scope=​"col">{{this_season.g}}</td>​
-            <td scope=​"col">{{this_season.a}}</td>​
-            <td scope=​"col">{{this_season.pts}}</td>​
-            <td scope=​"col">{{this_season['+/-']}}</td>​
-            <td scope=​"col">{{this_season.pim}}</td>​
-            <td scope=​"col">{{this_season.hits}}</td>​
-            <td scope=​"col">{{this_season.bks}}</td>​
-            <td scope=​"col">{{this_season.fw}}</td>​
-            <td scope=​"col">{{this_season.fl}}</td>​
-            <td scope=​"col">{{this_season['fo%']}}</td>​
-            <td scope=​"col">{{this_season.ppg}}</td>​
-            <td scope=​"col">{{this_season.ppa}}</td>​
-            <td scope=​"col">{{this_season.shg}}</td>​
-            <td scope=​"col">{{this_season.sha}}</td>​
-            <td scope=​"col">{{this_season.gw}}</td>​
-            <td scope=​"col">{{this_season.sog}}</td>​
-            <td scope=​"col">{{this_season.pct}}</td>​
+<table>
+    <tr class="table-header-row"><td colspan="20">Nykyinen kausi</td></tr>​
+        <tr class="header-row">​
+            <td>G</td>​
+            <td>​A</td>​
+            <td>Pts</td>​
+            <td>+/-</td>​
+            <td>PIM</td>​
+            <td>Hits</td>​
+            <td>BkS</td>​
+            <td>FW</td>​
+            <td>FL</td>​
+            <td>FO%</td>​
+            <td>PPG</td>​
+            <td>PPA</td>​
+            <td>SHG</td>​
+            <td>SHA</td>​
+            <td>GW</td>​
+            <td>SOG</td>​
+            <td>Pct</td>​
+        </tr>​​
+        <tr class="odd-row">​
+            <td>{{this_season.g}}</td>​
+            <td>{{this_season.a}}</td>​
+            <td>{{this_season.pts}}</td>​
+            <td>{{this_season['+/-']}}</td>​
+            <td>{{this_season.pim}}</td>​
+            <td>{{this_season.hits}}</td>​
+            <td>{{this_season.bks}}</td>​
+            <td>{{this_season.fw}}</td>​
+            <td>{{this_season.fl}}</td>​
+            <td>{{this_season['fo%']}}</td>​
+            <td>{{this_season.ppg}}</td>​
+            <td>{{this_season.ppa}}</td>​
+            <td>{{this_season.shg}}</td>​
+            <td>{{this_season.sha}}</td>​
+            <td>{{this_season.gw}}</td>​
+            <td>{{this_season.sog}}</td>​
+            <td>{{this_season.pct}}</td>​
         </tr>
-    </tbody>
-</table>
 
-<h4>Viimeisin ottelu</h4>​
-<table class="standings-table" id="last-game">
-    <thead>​
-        <tr>​
-            <th scope=​"col" class="bottom-border">Pvm</th>​
-            <th scope=​"col" class="bottom-border">Joukkueet</th>​
-            <th scope=​"col" class="bottom-border">Tulos</th>​
-            <th scope=​"col" class="bottom-border">G</th>​
-            <th scope=​"col" class="bottom-border">​A</th>​
-            <th scope=​"col" class="bottom-border">Pts</th>​
-            <th scope=​"col" class="bottom-border">+/-</th>​
-            <th scope=​"col" class="bottom-border">PIM</th>​
-            <th scope=​"col" class="bottom-border">Hits</th>​
-            <th scope=​"col" class="bottom-border">BkS</th>​
-            <th scope=​"col" class="bottom-border">FW</th>​
-            <th scope=​"col" class="bottom-border">FL</th>​
-            <th scope=​"col" class="bottom-border">FO%</th>​
-            <th scope=​"col" class="bottom-border">PPG</th>​
-            <th scope=​"col" class="bottom-border">PPA</th>​
-            <th scope=​"col" class="bottom-border">SHG</th>​
-            <th scope=​"col" class="bottom-border">SHA</th>​
-            <th scope=​"col" class="bottom-border">GW</th>​
-            <th scope=​"col" class="bottom-border">SOG</th>​
-            <th scope=​"col" class="bottom-border">Pct</th>​
+    <tr class="table-header-row"><td colspan="20">Viimeisin ottelu</td></tr>
+        <tr class="header-row">​
+            <td>Pvm</td>​
+            <td>Joukkueet</td>​
+            <td>Tulos</td>​
+            <td>G</td>​
+            <td>​A</td>​
+            <td>Pts</td>​
+            <td>+/-</td>​
+            <td>PIM</td>​
+            <td>Hits</td>​
+            <td>BkS</td>​
+            <td>FW</td>​
+            <td>FL</td>​
+            <td>FO%</td>​
+            <td>PPG</td>​
+            <td>PPA</td>​
+            <td>SHG</td>​
+            <td>SHA</td>​
+            <td>GW</td>​
+            <td>SOG</td>​
+            <td>Pct</td>​
+        </tr>​​
+        <tr class="odd-row">​
+            <td><a href="/game/{{latest_game.date}}">{{jinja_utils.convert_date(latest_game.date)}}</a></td>​
+            <td>{{team|upper}} vs {{latest_game.opponent|upper}}</td>​
+            <td>{{latest_game.result|upper}}</td>​
+            <td>{{latest_game.g}}</td>​
+            <td>{{latest_game.a}}</td>​
+            <td>{{latest_game.pts}}</td>​
+            <td>{{latest_game['+/-']}}</td>​
+            <td>{{latest_game.pim}}</td>​
+            <td>{{latest_game.hits}}</td>​
+            <td>{{latest_game.bks}}</td>​
+            <td>{{latest_game.fw}}</td>​
+            <td>{{latest_game.fl}}</td>​
+            <td>{{latest_game['fo%']}}</td>​
+            <td>{{latest_game.ppg}}</td>​
+            <td>{{latest_game.ppa}}</td>​
+            <td>{{latest_game.shg}}</td>​
+            <td>{{latest_game.sha}}</td>​
+            <td>{{latest_game.gw}}</td>​
+            <td>{{latest_game.sog}}</td>​
+            <td>{{latest_game.pct}}</td>​
         </tr>​
-    </thead>​
-    <tr>​
-        <td scope=​"col"><a href="/game/{{latest_game.date}}">{{jinja_utils.convert_date(latest_game.date)}}</a></td>​
-        <td scope=​"col">{{team|upper}} vs {{latest_game.opponent|upper}}</td>​
-        <td scope=​"col">{{latest_game.result|upper}}</td>​
-        <td scope=​"col">{{latest_game.g}}</td>​
-        <td scope=​"col">{{latest_game.a}}</td>​
-        <td scope=​"col">{{latest_game.pts}}</td>​
-        <td scope=​"col">{{latest_game['+/-']}}</td>​
-        <td scope=​"col">{{latest_game.pim}}</td>​
-        <td scope=​"col">{{latest_game.hits}}</td>​
-        <td scope=​"col">{{latest_game.bks}}</td>​
-        <td scope=​"col">{{latest_game.fw}}</td>​
-        <td scope=​"col">{{latest_game.fl}}</td>​
-        <td scope=​"col">{{latest_game['fo%']}}</td>​
-        <td scope=​"col">{{latest_game.ppg}}</td>​
-        <td scope=​"col">{{latest_game.ppa}}</td>​
-        <td scope=​"col">{{latest_game.shg}}</td>​
-        <td scope=​"col">{{latest_game.sha}}</td>​
-        <td scope=​"col">{{latest_game.gw}}</td>​
-        <td scope=​"col">{{latest_game.sog}}</td>​
-        <td scope=​"col">{{latest_game.pct}}</td>​
-    </tr>​
-</table>
 
-<h4>Kaikki kaudet</h4>​
-<table id="all-seasons" class="standings-table">
-    <thead>​
-        <tr>​
-            <th scope=​"col" class="bottom-border">Vuosi</th>​
-            <th scope=​"col" class="bottom-border">Joukkue</th>​
-            <th scope=​"col" class="bottom-border">G</th>​
-            <th scope=​"col" class="bottom-border">​A</th>​
-            <th scope=​"col" class="bottom-border">Pts</th>​
-            <th scope=​"col" class="bottom-border">+/-</th>​
-            <th scope=​"col" class="bottom-border">PIM</th>​
-            <th scope=​"col" class="bottom-border">Hits</th>​
-            <th scope=​"col" class="bottom-border">BkS</th>​
-            <th scope=​"col" class="bottom-border">FW</th>​
-            <th scope=​"col" class="bottom-border">FL</th>​
-            <th scope=​"col" class="bottom-border">FO%</th>​
-            <th scope=​"col" class="bottom-border">PPG</th>​
-            <th scope=​"col" class="bottom-border">PPA</th>​
-            <th scope=​"col" class="bottom-border">SHG</th>​
-            <th scope=​"col" class="bottom-border">SHA</th>​
-            <th scope=​"col" class="bottom-border">GW</th>​
-            <th scope=​"col" class="bottom-border">SOG</th>​
-            <th scope=​"col" class="bottom-border">Pct</th>​
+    <tr class="table-header-row"><td colspan="20">Kaikki kaudet</td></tr>​
+        <tr class="header-row">​
+            <td>Vuosi</td>​
+            <td>Joukkue</td>​
+            <td>G</td>​
+            <td>​A</td>​
+            <td>Pts</td>​
+            <td>+/-</td>​
+            <td>PIM</td>​
+            <td>Hits</td>​
+            <td>BkS</td>​
+            <td>FW</td>​
+            <td>FL</td>​
+            <td>FO%</td>​
+            <td>PPG</td>​
+            <td>PPA</td>​
+            <td>SHG</td>​
+            <td>SHA</td>​
+            <td>GW</td>​
+            <td>SOG</td>​
+            <td>Pct</td>​
+        </tr>​​
+    {% for s in all_seasons %}
+        <tr  class="{{ loop.cycle('odd', 'even') }}-row">​
+            <td>{{s.year}}</td>​
+            <td><a href="/team/{{s.team}}">{{s.team | upper}}</a></td>​
+            <td>{{s.g}}</td>​
+            <td>{{s.a}}</td>​
+            <td>{{s.pts}}</td>​
+            <td>{{s['+/-']}}</td>​
+            <td>{{s.pim}}</td>​
+            <td>{{s.hits}}</td>​
+            <td>{{s.bks}}</td>​
+            <td>{{s.fw}}</td>​
+            <td>{{s.fl}}</td>​
+            <td>{{s['fo%']}}</td>​
+            <td>{{s.ppg}}</td>​
+            <td>{{s.ppa}}</td>​
+            <td>{{s.shg}}</td>​
+            <td>{{s.sha}}</td>​
+            <td>{{s.gw}}</td>​
+            <td>{{s.sog}}</td>​
+            <td>{{s.pct}}</td>​
+        </tr>
+    {% endfor %}
+        <!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
+        <tr class="totals-row">​
+            <td></td>​
+            <td></td>​
+            <td>{{career.g}}</td>​
+            <td>{{career.a}}</td>​
+            <td>{{career.pts}}</td>​
+            <td>{{career['+/-']}}</td>​
+            <td>{{career.pim}}</td>​
+            <td>{{career.hits}}</td>​
+            <td>{{career.bks}}</td>​
+            <td>{{career.fw}}</td>​
+            <td>{{career.fl}}</td>​
+            <td>{{career['fo%']}}</td>​
+            <td>{{career.ppg}}</td>​
+            <td>{{career.ppa}}</td>​
+            <td>{{career.shg}}</td>​
+            <td>{{career.sha}}</td>​
+            <td>{{career.gw}}</td>​
+            <td>{{career.sog}}</td>​
+            <td>{{career.pct}}</td>​
         </tr>​
-    </thead>​
-    <tbody>
-        {% for s in all_seasons %}
-            <tr  class="{{ loop.cycle('odd', 'even') }}">​
-                <td>{{s.year}}</td>​
-                <td><a href="/team/{{s.team}}">{{s.team | upper}}</a></td>​
-                <td>{{s.g}}</td>​
-                <td>{{s.a}}</td>​
-                <td>{{s.pts}}</td>​
-                <td>{{s['+/-']}}</td>​
-                <td>{{s.pim}}</td>​
-                <td>{{s.hits}}</td>​
-                <td>{{s.bks}}</td>​
-                <td>{{s.fw}}</td>​
-                <td>{{s.fl}}</td>​
-                <td>{{s['fo%']}}</td>​
-                <td>{{s.ppg}}</td>​
-                <td>{{s.ppa}}</td>​
-                <td>{{s.shg}}</td>​
-                <td>{{s.sha}}</td>​
-                <td>{{s.gw}}</td>​
-                <td>{{s.sog}}</td>​
-                <td>{{s.pct}}</td>​
-            </tr>
-        {% endfor %}
-<!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
-        <tr>​
-            <th class="top-border" scope=​"col"></th>​
-            <th class="top-border" scope=​"col"></th>​
-            <th class="top-border" scope=​"col">{{career.g}}</th>​
-            <th class="top-border" scope=​"col">{{career.a}}</th>​
-            <th class="top-border" scope=​"col">{{career.pts}}</th>​
-            <th class="top-border" scope=​"col">{{career['+/-']}}</th>​
-            <th class="top-border" scope=​"col">{{career.pim}}</th>​
-            <th class="top-border" scope=​"col">{{career.hits}}</th>​
-            <th class="top-border" scope=​"col">{{career.bks}}</th>​
-            <th class="top-border" scope=​"col">{{career.fw}}</th>​
-            <th class="top-border" scope=​"col">{{career.fl}}</th>​
-            <th class="top-border" scope=​"col">{{career['fo%']}}</th>​
-            <th class="top-border" scope=​"col">{{career.ppg}}</th>​
-            <th class="top-border" scope=​"col">{{career.ppa}}</th>​
-            <th class="top-border" scope=​"col">{{career.shg}}</th>​
-            <th class="top-border" scope=​"col">{{career.sha}}</th>​
-            <th class="top-border" scope=​"col">{{career.gw}}</th>​
-            <th class="top-border" scope=​"col">{{career.sog}}</th>​
-            <th class="top-border" scope=​"col">{{career.pct}}</th>​
-        </tr>​
-    </tbody>
 </table>
 
 {% endblock %}

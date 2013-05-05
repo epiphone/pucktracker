@@ -13,7 +13,13 @@ Käyttö Jinjassa:
 
 def convert_date(s):
     '''
-    Palauttaa peli-id:n päivämäärä-arvon suomalaisessa pvm-formaatissa
+    Palauttaa peli-id:n päivämäärä-arvon suomalaisessa pvm-formaatissa.
+    Peli-id on muodossa YYYYMMDD + 2 satunnaisnumeroa.
+
+    >>> convert_date("2013050408")
+    '4.5.2013'
+    >>> convert_date("2013042720")
+    '27.4.2013'
     '''
     year = s[:4]
 
