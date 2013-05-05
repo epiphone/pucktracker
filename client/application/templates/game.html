@@ -69,7 +69,7 @@ $ for team in ["away", "home"]:
         </tr>
         $ for player in players[team + "_goalies"]:
             <tr class="{{ loop.cycle('odd', 'even') }}-row">
-                <td colspan="{{ len(skater_cols) - len(goalie_cols) + 1 }}">{{ player.name|shorten_name }}</td>
+                <td colspan="{{ len(skater_cols) - len(goalie_cols) + 1 }}"><a href="/player/{{player.pid}}">{{ player.name|shorten_name }}</a></td>
                 $ for column in goalie_cols[1:]:
                     <td>{{ player[column.lower()]}}</td>
                 $ endfor
@@ -83,7 +83,7 @@ $ for team in ["away", "home"]:
         </tr>
         $ for player in players[team + "_skaters"]:
             <tr class="{{ loop.cycle('odd', 'even') }}-row">
-                <td>{{ player.name|shorten_name }}</td>
+                <td><a href="/player/{{player.pid}}">{{ player.name|shorten_name }}</a></td>
                 $ for column in skater_cols[1:]:
                     <td>{{ player[column.lower()]}}</td>
                 $ endfor
