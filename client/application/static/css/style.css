@@ -72,7 +72,7 @@ table{
 
 .totals-row > td{
     background-color: #CCCCCC;
-    border-top:1px solid #333333;
+    border-top: 1px solid #333333;
 }
 
 .odd-row {
@@ -93,4 +93,37 @@ td:first-child {
 
 .set-width {
     width: 10%;
+}
+
+/* Iso tilastotaulukko, jossa perustilastot */
+.keystats ul {
+    list-style: none outside none;
+    font-size: 1.1em;
+    margin-left: -30px;
+}
+
+.keystats li {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-image: none;
+    line-height: 1.2em;
+    float: left;
+    background-color: #FFFFFF;
+    border-style: solid none solid solid;
+    border-width: 1px;
+    width: 45px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.keystats li:last-child {
+    border-style: solid;
+}
+
+.keystats strong {
+    background-color: #E3E5E4;
+    display: block;
+    margin-bottom: -15px;
 }

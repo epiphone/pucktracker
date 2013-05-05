@@ -17,9 +17,9 @@ def convert_date(s):
     Peli-id on muodossa YYYYMMDD + 2 satunnaisnumeroa.
 
     >>> convert_date("2013050408")
-    '4.5.2013'
+    '4.5.13'
     >>> convert_date("2013042720")
-    '27.4.2013'
+    '27.4.13'
     '''
     year = s[:4]
 
@@ -50,3 +50,16 @@ def shorten_name(name):
     if not "." in first_name:
         names[0] = first_name[0] + "."
     return " ".join([n.title() for n in names])
+
+
+def shorten_game(game):
+    """
+    Palauttaa ottelun nimen lyhennetyssä muodossa.
+
+    >>> shorten_game("Winnipeg Jets vs Winnipeg (23-19-3)")
+    'vs Winnipeg (23-19-3)'
+    """
+    try:
+        return game[game.index("vs"):]
+    except ValueError:
+        return game[game.index("@"):]

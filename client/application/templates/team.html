@@ -3,70 +3,43 @@
 
 <fieldset class="ui-grid-a" id="team-info">
     <div class="ui-block-a">
-        <h2>{{name}}</h2>
+        <h2>{{TEAMS[team]}}</h2>
         <p>{{team|upper}}</p>
     </div>
     <div class="ui-block-b">
-        {% if following == true %}
+        $ if team in session["teams"]:
             <a href="/remove_followed/{{team}}" data-role="button">Poista seurattavista</a>
-        {% else %}
+        $ else:
             <a href="/add_followed/{{team}}" data-role="button">Lisää seurattaviin</a>
-        {% endif %}
+        $ endif
     </div>
 </fieldset>
 
+<div class="keystats">
+    <ul>
+        <li><strong>GP</strong><br>{{ stats.gp }}</li>
+        <li><strong>W</strong><br>{{ stats.w }}</li>
+        <li><strong>L</strong><br>{{ stats.l }}</li>
+        <li><strong>OTL</strong><br>{{ stats.otl }}</li>
+        <li><strong>Pts</strong><br>{{ stats.pts }}</li>
+    </ul>
+</div>
+
 <table>
-    <tr class="table-header-row"><td colspan="13">Kauden {{year}} tilastot​</td></tr>
-    <tr class="header-row">
-        <td>GP</td>
-        <td>W</td>
-        <td>L</td>
-        <td>T</td>
-        <td>OTL</td>
-        <td>Pts</td>
-        <td>GF</td>
-        <td>GA</td>
-        <td>Diff</td>
-        <td>Home</td>
-        <td>Road</td>
-        <td>Last 10</td>
-        <td>Streak</td>
-    </tr>
-    <tr class="odd-row">
-        <td>{{stats['gp']}}</td>
-        <td>{{stats['w']}}</td>
-        <td>{{stats['l']}}</td>
-        <td>{{stats['t']}}</td>
-        <td>{{stats['otl']}}</td>
-        <td>{{stats['pts']}}</td>
-        <td>{{stats['gf']}}</td>
-        <td>{{stats['ga']}}</td>
-        <td>{{stats['diff']}}</td>
-        <td>{{stats['home']}}</td>
-        <td>{{stats['road']}}</td>
-        <td>{{stats['last 10']}}</td>
-        <td>{{stats['streak']}}</td>
-    </tr>
+    <tr class="table-header-row"><td colspan="3">Ottelut</td></tr>
+    $ for gid in games|sort(reverse=True):
+        <tr class="{{ loop.cycle('odd', 'even') }}-row">
+            <td>{{ jinja_utils.convert_date(gid) }}</td>
+            <td>{{ games[gid].opponent|shorten_game }}</td>
+            <td><strong><a href="/game/{{ gid }}">{{ games[gid].score }}</a></strong></td>
+        </tr>
+    $ endfor
 </table>
 
 <table>
-    <tr class="table-header-row"><td colspan="3">Viimeisin ottelu​</td></tr>
+    <tr class="table-header-row"><td colspan="19">Pelaajat</td></tr>
     <tr class="header-row">
-        <td>Pvm</td>
-        <td>Vastus</td>
-        <td>Tulos</td>
-    </tr>
-    <tr class="odd-row">
-        <td><a href="/game/{{latest_game.date}}">{{jinja_utils.convert_date(latest_game.date)}}</a></td>
-        <td>{{latest_game.opponent}}</td>
-        <td>{{latest_game.score}}</td>
-    </tr>
-</table>
-
-<table>
-    <tr class="table-header-row"><td colspan="15">Maalivahdit</td></tr>
-    <tr class="header-row">
-        <td>Nimi</td>
+        <td colspan="6">Maalivahdit</td>
         <td>GP</td>
         <td>GS</td>
         <td>MIN</td>
@@ -82,8 +55,8 @@
         <td>SO</td>
     </tr>
     $ for g in goalies:
-        <tr class="{{ loop.cycle('odd', 'even' )}}-row">
-            <td><a href="/player/{{g.pid}}">{{g['name']}}</a></td>
+        <tr class="{{ loop.cycle('odd', 'even')}}-row">
+            <td colspan="6"><a href="/player/{{g.pid}}">{{g['name']|shorten_name}}</a></td>
             <td>{{g['gp']}}</td>
             <td>{{g['gs']}}</td>
             <td>{{g['min']}}</td>
@@ -99,21 +72,15 @@
             <td>{{g['so']}}</td>
         </tr>
     $ endfor
-</table>
-
-<table>
-    <tr class="table-header-row">
-        <td colspan="19">Kenttäpelaajat</td>
-    </tr>
     <tr class="header-row">
-        <td>Nimi</td>
+        <td>Kenttäpelaajat</td>
         <td>GP</td>
         <td>G</td>
         <td>A</td>
-        <td>PTS</td>
+        <td>Pts</td>
         <td>+/-</td>
         <td>PIM</td>
-        <td>HITS</td>
+        <td>Hits</td>
         <td>BKS</td>
         <td>FW</td>
         <td>FL</td>
@@ -128,7 +95,7 @@
     </tr>
     $ for s in skaters:
         <tr class="{{ loop.cycle('odd', 'even') }}-row">
-            <td><a href="/player/{{s.pid}}">{{s['name']}}</a></td>
+            <td><a href="/player/{{s.pid}}">{{s['name']|shorten_name}}</a></td>
             <td>{{s['gp']}}</td>
             <td>{{s['g']}}</td>
             <td>{{s['a']}}</td>

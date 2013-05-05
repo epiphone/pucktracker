@@ -54,7 +54,7 @@ def index():
 @app.route("/menu")
 def menu():
     """
-    Main Menu
+    Main Menu.
 
     Navigointilinkit eri sivuille.
     """
@@ -151,51 +151,29 @@ def team_search():
 
 
 @app.route("/team/<team>")
-def team(team, year="2012"):
-    '''
+def team(team):
+    """
     Yksittäisen joukkueen tiedot.
-
-    Käyttäjä voi lisätä/poistaa pelaajan seurattavien pelaajien listasta, joka
-    on talletettuna sessioon.
-    '''
-    logging.info("Haetaan joukkueen %s tiedot vuodelta %s" % (team, year))
-    stats = fetch_from_api("/api/json/teams?team=%s&year=%s" % (team, year))
+    """
+    logging.info("Haetaan joukkueen %s tiedot" % team)
+    stats = fetch_from_api("/api/json/teams?team=%s" % team)
     if not stats:
         abort(400)
-    season_games = fetch_from_api("/api/json/games?team=%s&year=2012" % (team))
-    latest_game = get_latest_game(season_games)
+    games = fetch_from_api("/api/json/games?team=" + team)
 
-    #Haetaan joukkueen pelaajat ja maalivahdit
-    all_players = fetch_from_api(
-        "/api/json/top?sort=team&year=2012&goalies=0&limit=1000")
-    all_goalies = fetch_from_api(
-        "/api/json/top?sort=team&year=2012&goalies=1&limit=1000")
-    team_skaters = []
-    team_goalies = []
-    for player_dict in all_players:
-        if (player_dict['team'] == team):
-            team_skaters.append(player_dict)
-    for g in all_goalies:
-        if (g['team'] == team):
-            team_goalies.append(g)
-
-    name = TEAMS[team]
-
-    # Tarkistetaan onko joukkue seurattavien listalla
-    following = False
-    if team in session['teams']:  # TODO testaa toimiiko sessioilla
-        following = True
+    #Haetaan joukkueen pelaajat:
+    all_skaters = fetch_from_api("/api/json/top?goalies=0&limit=1000")
+    all_goalies = fetch_from_api("/api/json/top?goalies=1&limit=1000")
+    team_skaters = [skater for skater in all_skaters if skater["team"] == team]
+    team_goalies = [goalie for goalie in all_goalies if goalie["team"] == team]
 
     return render_template(
         "team.html",
         team=team,
-        name=name,
         stats=stats,
-        year=year,
-        latest_game=latest_game,
         skaters=team_skaters,
         goalies=team_goalies,
-        following=following)
+        games=games)
 
 
 @app.route("/game/<game_id>")

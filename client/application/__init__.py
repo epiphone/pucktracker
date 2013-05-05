@@ -23,6 +23,7 @@ app.jinja_env.line_statement_prefix = "$"
 app.jinja_env.globals.update(jinja_utils=jinja_utils, len=len, TEAMS=TEAMS)
 # Template-enginen custom-filterit:
 app.jinja_env.filters["shorten_name"] = jinja_utils.shorten_name
+app.jinja_env.filters["shorten_game"] = jinja_utils.shorten_game
 
 # Käynnistetään debug-moodissa:
 if app.debug:
