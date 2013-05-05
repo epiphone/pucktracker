@@ -75,6 +75,22 @@ table{
     background-color: #CCCCCC;
 }
 
+.odd-row {
+    background-color: #FFFFFF;
+}
+
+td {
+    text-align: right;
+}
+
+td:first-child {
+    text-align: left;
+}
+
+.no-wrap {
+    white-space: nowrap;
+}
+
 /* Standings */
 .standings-table td,
 .standings-table th {

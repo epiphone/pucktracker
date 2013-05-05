@@ -28,3 +28,19 @@ def convert_date(s):
         day = s[6:8]
 
     return "%s.%s.%s" % (day, month, year)
+
+
+def shorten_name(name):
+    """
+    Palauttaa nimen lyhennetyssä muodossa.
+
+    >>> shorten_name("aleksi pekkala")
+    'A. Pekkala'
+    >>> shorten_name("j.t. miller")
+    'J.T. Miller'
+    """
+    names = name.split()
+    first_name = names[0]
+    if not "." in first_name:
+        names[0] = first_name[0] + "."
+    return " ".join([n.title() for n in names])

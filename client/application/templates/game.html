@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% block content %}
+{% block header_title %} - {{ game.away_team|upper }} vs {{ game.home_team|upper }} {{jinja_utils.convert_date(gid)}}{% endblock %}
 
-<h4>{{jinja_utils.convert_date(gid)}}</h4>
+{% block content %}
 
 <!-- Pistenäyttö -->
 <div class="ui-grid-a" id="score-display">
@@ -30,7 +30,7 @@
                     <td>{{ goal.time }}</td>
                     <td><strong>{{ goal.team|upper }}</strong></td>
                     <td>{{ goal.desc }}</td>
-                    <td><strong>{{ goal.score }}</strong></td>
+                    <td class="no-wrap"><strong>{{ goal.score }}</strong></td>
                 </tr>
             $ endfor
         $ else:
@@ -68,8 +68,8 @@ $ for team in ["away", "home"]:
             $ endfor
         </tr>
         $ for player in players[team + "_goalies"]:
-            <tr>
-                <td colspan="{{ len(skater_cols) - len(goalie_cols) + 1 }}">{{ player.name }}</td>
+            <tr class="{{ loop.cycle('odd', 'even') }}-row">
+                <td colspan="{{ len(skater_cols) - len(goalie_cols) + 1 }}">{{ player.name|shorten_name }}</td>
                 $ for column in goalie_cols[1:]:
                     <td>{{ player[column.lower()]}}</td>
                 $ endfor
@@ -82,8 +82,9 @@ $ for team in ["away", "home"]:
             $ endfor
         </tr>
         $ for player in players[team + "_skaters"]:
-            <tr>
-                $ for column in skater_cols:
+            <tr class="{{ loop.cycle('odd', 'even') }}-row">
+                <td>{{ player.name|shorten_name }}</td>
+                $ for column in skater_cols[1:]:
                     <td>{{ player[column.lower()]}}</td>
                 $ endfor
             </tr>

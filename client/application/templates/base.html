@@ -10,30 +10,20 @@
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css" />
     <link rel="stylesheet" href="/static/css/style.css" />
 
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
     <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
   </head>
 
   <body>
-
-    <!-- Jquery mobile page -->
     <div data-role="page">
-      <!-- Header (same for all pages)-->
+      <!-- Header -->
       <div data-role="header">
-        <h1> Pucktracker </h1>
-
-        <!-- 'home' and 'search' buttons -->
-        <a data-direction="reverse" data-iconpos="notext" data-icon="home" href="/menu" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" title="Home"></a>
-        <p>
-          Kirjautuneena: {{session['name']| replace('None', 'Et ole kirjautunut')}}
-        </p>
+        <h1>Pucktracker</h1>
+        <a data-direction="reverse" data-iconpos="notext" data-icon="home" href="/menu" data-corners="true" data-shadow="true" data-iconshadow="true" title="Home"></a>
       </div>
 
-      <!-- Page content (depends on child template) -->
       <div data-role="content">
-
         {% block content %} {% endblock %}
-
       </div>
 
     </div>
