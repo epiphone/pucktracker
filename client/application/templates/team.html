@@ -15,63 +15,144 @@
     </div>
 </fieldset>
 
-<h4>Kauden {{year}} tilastot​</h4>
-<table id="current-season" class="standings-table">
-    <thead>
-        <tr>
-            <th class="bottom-border">GP</th>
-            <th class="bottom-border">W</th>
-            <th class="bottom-border">L</th>
-            <th class="bottom-border">T</th>
-            <th class="bottom-border">OTL</th>
-            <th class="bottom-border">Pts</th>
-            <th class="bottom-border">GF</th>
-            <th class="bottom-border">GA</th>
-            <th class="bottom-border">Diff</th>
-            <th class="bottom-border">Home</th>
-            <th class="bottom-border">Road</th>
-            <th class="bottom-border">Last 10</th>
-            <th class="bottom-border">Streak</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>{{stats['gp']}}</td>
-            <td>{{stats['w']}}</td>
-            <td>{{stats['l']}}</td>
-            <td>{{stats['t']}}</td>
-            <td>{{stats['otl']}}</td>
-            <td>{{stats['pts']}}</td>
-            <td>{{stats['gf']}}</td>
-            <td>{{stats['ga']}}</td>
-            <td>{{stats['diff']}}</td>
-            <td>{{stats['home']}}</td>
-            <td>{{stats['road']}}</td>
-            <td>{{stats['last 10']}}</td>
-            <td>{{stats['streak']}}</td>
-        </tr>
-    </tbody>
+<table>
+    <tr class="table-header-row"><td colspan="13">Kauden {{year}} tilastot​</td></tr>
+    <tr class="header-row">
+        <td>GP</td>
+        <td>W</td>
+        <td>L</td>
+        <td>T</td>
+        <td>OTL</td>
+        <td>Pts</td>
+        <td>GF</td>
+        <td>GA</td>
+        <td>Diff</td>
+        <td>Home</td>
+        <td>Road</td>
+        <td>Last 10</td>
+        <td>Streak</td>
+    </tr>
+    <tr class="odd-row">
+        <td>{{stats['gp']}}</td>
+        <td>{{stats['w']}}</td>
+        <td>{{stats['l']}}</td>
+        <td>{{stats['t']}}</td>
+        <td>{{stats['otl']}}</td>
+        <td>{{stats['pts']}}</td>
+        <td>{{stats['gf']}}</td>
+        <td>{{stats['ga']}}</td>
+        <td>{{stats['diff']}}</td>
+        <td>{{stats['home']}}</td>
+        <td>{{stats['road']}}</td>
+        <td>{{stats['last 10']}}</td>
+        <td>{{stats['streak']}}</td>
+    </tr>
 </table>
 
-<h4>Viimeisin ottelu​</h4>
-<table id="latest_game" class="standings-table">
-    <thead>
-        <tr>
-            <th class="bottom-border">Pvm</th>
-            <th class="bottom-border">Vastus</th>
-            <th class="bottom-border">Tulos</th>
+<table>
+    <tr class="table-header-row"><td colspan="3">Viimeisin ottelu​</td></tr>
+    <tr class="header-row">
+        <td>Pvm</td>
+        <td>Vastus</td>
+        <td>Tulos</td>
+    </tr>
+    <tr class="odd-row">
+        <td><a href="/game/{{latest_game.date}}">{{jinja_utils.convert_date(latest_game.date)}}</a></td>
+        <td>{{latest_game.opponent}}</td>
+        <td>{{latest_game.score}}</td>
+    </tr>
+</table>
+
+<table>
+    <tr class="table-header-row"><td colspan="15">Maalivahdit</td></tr>
+    <tr class="header-row">
+        <td>Nimi</td>
+        <td>GP</td>
+        <td>GS</td>
+        <td>MIN</td>
+        <td>W</td>
+        <td>L</td>
+        <td>OTL</td>
+        <td>EGA</td>
+        <td>GA</td>
+        <td>GAA</td>
+        <td>SA</td>
+        <td>SV</td>
+        <td>SV%</td>
+        <td>SO</td>
+    </tr>
+    $ for g in goalies:
+        <tr class="{{ loop.cycle('odd', 'even' )}}-row">
+            <td><a href="/player{{g.pid}}">{{g['name']}}</a></td>
+            <td>{{g['gp']}}</td>
+            <td>{{g['gs']}}</td>
+            <td>{{g['min']}}</td>
+            <td>{{g['w']}}</td>
+            <td>{{g['l']}}</td>
+            <td>{{g['otl']}}</td>
+            <td>{{g['ega']}}</td>
+            <td>{{g['ga']}}</td>
+            <td>{{g['gaa']}}</td>
+            <td>{{g['sa']}}</td>
+            <td>{{g['sv']}}</td>
+            <td>{{g['sv%']}}</td>
+            <td>{{g['so']}}</td>
         </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><a href="/game/{{latest_game.date}}">{{jinja_utils.convert_date(latest_game.date)}}</a></td>
-            <td>{{latest_game.opponent}}</td>
-            <td>{{latest_game.score}}</td>
+    $ endfor
+</table>
+
+<table>
+    <tr class="table-header-row">
+        <td colspan="19">Kenttäpelaajat</td>
+    </tr>
+    <tr class="header-row">
+        <td>Nimi</td>
+        <td>GP</td>
+        <td>G</td>
+        <td>A</td>
+        <td>PTS</td>
+        <td>+/-</td>
+        <td>PIM</td>
+        <td>HITS</td>
+        <td>BKS</td>
+        <td>FW</td>
+        <td>FL</td>
+        <td>FO%</td>
+        <td>PPG</td>
+        <td>PPA</td>
+        <td>SHG</td>
+        <td>SHA</td>
+        <td>GW</td>
+        <td>SOG</td>
+        <td>PCT</td>
+    </tr>
+    $ for s in skaters:
+        <tr class="{{ loop.cycle('odd', 'even') }}-row">
+            <td><a href="/player{{s.pid}}">{{s['name']}}</a></td>
+            <td>{{s['gp']}}</td>
+            <td>{{s['g']}}</td>
+            <td>{{s['a']}}</td>
+            <td>{{s['pts']}}</td>
+            <td>{{s['+/-']}}</td>
+            <td>{{s['pim']}}</td>
+            <td>{{s['hits']}}</td>
+            <td>{{s['bks']}}</td>
+            <td>{{s['fw']}}</td>
+            <td>{{s['fl']}}</td>
+            <td>{{s['fo%']}}</td>
+            <td>{{s['ppg']}}</td>
+            <td>{{s['ppa']}}</td>
+            <td>{{s['shg']}}</td>
+            <td>{{s['sha']}}</td>
+            <td>{{s['gw']}}</td>
+            <td>{{s['sog']}}</td>
+            <td>{{s['pct']}}</td>
         </tr>
-    </tbody>
+    $ endfor
 </table>
 
 <h4> Pelaajat: </h4>
+{{skaters}}
 <div id="players">
     {% for player in players %}
         <a href="/player/{{player.pid}}">{{player.name}}</a>

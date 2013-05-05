@@ -170,13 +170,14 @@ def team(team, year="2012"):
         "/api/json/top?sort=team&year=2012&goalies=0&limit=1000")
     all_goalies = fetch_from_api(
         "/api/json/top?sort=team&year=2012&goalies=1&limit=1000")
-    team_players = []
+    team_skaters = []
+    team_goalies = []
     for player_dict in all_players:
         if (player_dict['team'] == team):
-            team_players.append(player_dict)
+            team_skaters.append(player_dict)
     for g in all_goalies:
         if (g['team'] == team):
-            team_players.append(player_dict)
+            team_goalies.append(g)
 
     name = TEAMS[team]
 
@@ -192,7 +193,8 @@ def team(team, year="2012"):
         stats=stats,
         year=year,
         latest_game=latest_game,
-        players=team_players,
+        skaters=team_skaters,
+        goalies=team_goalies,
         following=following)
 
 
