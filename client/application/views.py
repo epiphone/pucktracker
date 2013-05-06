@@ -19,7 +19,7 @@ URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 import logging
 from application import app
 from flask import render_template, session,  request, abort
-from utils import fetch_from_api, logged_in
+from utils import fetch_from_api, logged_in, get_latest_game
 from utils import get_followed
 from jinja_utils import convert_date
 import urllib
@@ -46,8 +46,30 @@ def index():
         if not user_data:
             # TODO tähän parempi virheenkäsittely
             return render_template(
-                "error.html", e="Jotain mystistä tapahtui..")
-        return render_template("index.html", user_data=user_data)
+                "error.html", e="Jotain mystista tapahtui..")
+
+        # Joukkueet viimeisimmän ottelun mukaan järjestettyyn listaan
+        # Lista sisältää vain templatelle olennaisen datan
+        teams = []
+        for k, v in user_data['teams'].iteritems():
+            new_team = {
+                'id': k,
+                'stats': v['stats'],
+                'latest_game': get_latest_game(v['games'])}
+            teams.append(new_team)
+        teams.sort(key=lambda v: v['latest_game']['date'], reverse=True)
+
+        # Samoin pelaajat
+        players = []
+        for k, v in user_data['players'].iteritems():
+            new_player = {
+                'id': k,
+                'stats': v['stats'],
+                'latest_game': get_latest_game(v['games'])}
+            players.append(new_player)
+        players.sort(key=lambda v: v['latest_game']['date'], reverse=True)
+
+        return render_template("index.html", teams=teams, players=players)
     else:
         return render_template("login.html")
 
