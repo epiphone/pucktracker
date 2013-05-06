@@ -20,6 +20,16 @@
     </div>
 </div>
 
+<div class="keystats">
+    <ul>
+        <li><strong>G</strong><br>{{ this_season['g'] }}</li>
+        <li><strong>A</strong><br>{{ this_season['a'] }}</li>
+        <li><strong>PTS</strong><br>{{ this_season['pts'] }}</li>
+        <li><strong>+/-</strong><br>{{ this_season['+/-'] }}</li>
+        <li><strong>PIM</strong><br>{{ this_season['pim'] }}</li>
+    </ul>
+</div>
+
 <!-- Eri taulukot pelaajalle ja maalivahdille -->
 $ if position == 'G':
     <table>
