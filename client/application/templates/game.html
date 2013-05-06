@@ -4,7 +4,7 @@
 {% block content %}
 
 <!-- Pistenäyttö -->
-<div class="ui-body ui-body-a">
+<div class="ui-body ui-body-c">
     <h2 class="centered-text">{{jinja_utils.convert_date(gid)}}</h2>
     <div class="ui-grid-a" id="score-display">
         <div class="ui-block-a">
@@ -12,14 +12,12 @@
                 <p class="big-text"> {{ game.away_score }}</p>
             </div>
             <h2 class="centered-text"><a href="/team/{{ game.away_team }}">{{ TEAMS[game.away_team] }}</a></h3>
-            <h3 class="centered-text">Vieras</h3>
         </div>
         <div class="ui-block-b">
             <div class="ui-bar ui-bar-a score-display centered-text">
                 <p class="big-text"> {{ game.home_score }}</p>
             </div>
             <h2 class="centered-text goal-display-team"><a href="/team/{{ game.home_team }}">{{ TEAMS[game.home_team] }}</a></h3>
-            <h3 class="centered-text">Koti</h3>
         </div>
     </div>
 </div>
