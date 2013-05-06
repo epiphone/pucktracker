@@ -22,6 +22,7 @@ from flask import render_template, session,  request, abort
 from utils import fetch_from_api, logged_in
 from utils import get_followed
 from jinja_utils import convert_date
+import urllib
 
 
 # Kaikki joukkueet tunnuksineen ja nimineen
@@ -256,41 +257,46 @@ def standings(year):
 
 @app.route("/top")
 def top():
-    '''
+    """
     Kauden parhaiden pelaajien lista.
 
-    Url-parametrit
-        - year: määrittää kauden, oletuksena nykyinen kausi.
-        - sort: määrittää järjestyksen, vaihtoehdot ovat
-            - pelaajilla name, team, gp, g, a, pts, +/-, pim, hits, bks, fw, fl,
-                         fo%, ppg, ppa, shg, sha, gw, sog, pct
-                         (oletuksena pts)
-            - maalivahdeilla name, team, gp, gs, min, w, l, otl, ega, ga, gaa,
-                             sa, sv, sv%, so
-                             (oletuksena w)
-        - goalies: (arvo 0 tai 1) määrittää haetaanko maalivahteja;
-                                  oletuksena ei haeta.
-        - playoffs: (0 tai 1) määrittää haetaanko valitun kauden playoffien
-                              top-listoja; oletuksena ei.
-        - reverse: (0 tai 1) määrittää järjestyksen suunnan,
-                             oletuksena reverse=1, eli suurin arvo ensin.
-        - limit: määrittää tulosten maksimimäärän, oletuksena 30.
-    '''
-    year = request.args.get('year') or '2012'
-    sort = request.args.get('sort') or 'pim'
-    goalies = request.args.get('goalies') or '0'
-    playoffs = request.args.get('playoffs') or '0'
-    reverse = request.args.get('reverse') or '1'
-    limit = request.args.get('limit') or '30'
+    Url-parametrit:
+        year: määrittää kauden, oletuksena nykyinen kausi.
+        sort: määrittää järjestyksen, vaihtoehdot ovat
+          - pelaajilla name, team, gp, g, a, pts, +/-, pim, hits, bks, fw, fl,
+                       fo%, ppg, ppa, shg, sha, gw, sog, pct (oletuksena pts)
+          - maalivahdeilla name, team, gp, gs, min, w, l, otl, ega, ga, gaa,
+                           sa, sv, sv%, so (oletuksena w)
+        goalies: (0 tai 1) määrittää haetaanko maalivahteja, oletuksena ei.
+        playoffs: (0 tai 1) playoffit vai runkosarja, oletuksena runkosarja.
+        reverse: (0 tai 1) määrittää järjestyksen suunnan,
+                           oletuksena reverse=1, eli suurin arvo ensin.
+        limit: määrittää tulosten maksimimäärän, oletuksena 30.
+    """
+    year = request.args.get("year", "2012")
+    goalies = request.args.get("goalies", "0")
+    playoffs = request.args.get("playoffs", "0")
+    reverse = request.args.get("reverse", "1")
+    limit = request.args.get("limit", "30")
+    default_sort = "w" if goalies == "1" else "pts"
+    sort = request.args.get("sort", default_sort)
 
-    players = fetch_from_api(
-        '''/api/json/top?sort=%s&reverse=%s&year=%s&goalies=%s&playoffs=%s&limit=%s''' %
-        (sort,reverse,year,goalies,playoffs,limit))
+    params = dict(year=year, sort=sort, goalies=goalies, playoffs=playoffs,
+        reverse=reverse, limit=limit)
 
-    # players = fetch_from_api(
-    #     '''/api/json/top?sort=pim&reverse=1&year=2012&goalies=0&playoffs=0&limit=10''')
+    players = fetch_from_api("/api/json/top?" + urllib.urlencode(params))
+    if not players:
+        abort(400)
 
-    return render_template("top.html", players=players, year=year)
+    return render_template(
+        "top.html",
+        players=players,
+        year=year,
+        playoffs=playoffs,
+        goalies=goalies,
+        reverse=reverse,
+        sort=sort,
+        limit=limit)
 
 
 ### Error handlers ###

@@ -1,29 +1,140 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Parhaat pelaajat {{year}}</h1>
-<p>Valinta maalivahdeille?</p>
-
-<table class="standings-table">
-    <thead>
+<form action="/top" method="GET">
+    <input type="hidden" name="limit" value="{{ limit }}"/>
+    <input type="hidden" name="sort" value="{{ sort }}"/>
+    <input type="hidden" name="reverse" value="{{ reverse }}"/>
+    <table>
         <tr>
-            <th>Name</th>
-            <th>Team</th>
-            <th>GP</th>
+            <td>Kausi</td>
+            <td>Turnaus</td>
         </tr>
-    </thead>
-    <tbody>
-$ for player in players
-        <tr class="{{ loop.cycle('odd', 'even') }}">
-            <td>{{player.name}}</td>
-            <td>{{player.team|upper}}</td>
-            <td>{{player.gp}}</td>
+        <tr>
+            <td>
+                <select name="goalies" onchange="this.form.submit()">
+                    <option value="0">Kenttäpelaajat</option>
+                    <option value="1" {% if goalies=="1" %}selected{% endif %}>Maalivahdit</option>
+                </select>
+            </td>
+            <td>
+                <select name="year" onchange="this.form.submit()">
+                    <option value="2012" {% if year=="2012" %}selected{% endif %}>2012-2013</option>
+                    <option value="2011" {% if year=="2011" %}selected{% endif %}>2011-2012</option>
+                    <option value="2010" {% if year=="2010" %}selected{% endif %}>2010-2011</option>
+                    <option value="2009" {% if year=="2009" %}selected{% endif %}>2009-2010</option>
+                    <option value="2008" {% if year=="2008" %}selected{% endif %}>2008-2009</option>
+                    <option value="2007" {% if year=="2007" %}selected{% endif %}>2007-2008</option>
+                    <option value="2006" {% if year=="2006" %}selected{% endif %}>2006-2007</option>
+                </select>
+            </td>
+            <td>
+                <select name="playoffs" onchange="this.form.submit()">
+                    <option value="0">Runkosarja</option>
+                    <option value="1" {% if playoffs == "1" %}selected{% endif %}>Playoffs</option>
+                </select>
+            </td>
         </tr>
-$ endfor
-    </tbody>
+    </table>
+</form>
+
+<table class="small-table">
+    <tr class="header-row">
+        <td><a>Name</a></td>
+        <td><a>Team</a></td>
+        <td><a>GP</a></td>
+        $ if goalies == "1":
+            <td {% if sort == "gs" %}class="selected"{% endif %}><a>GS</a></td>
+            <td {% if sort == "min" %}class="selected"{% endif %}><a>MIN</a></td>
+            <td {% if sort == "w" %}class="selected"{% endif %}><a>W</a></td>
+            <td {% if sort == "l" %}class="selected"{% endif %}><a>L</a></td>
+            <td {% if sort == "otl" %}class="selected"{% endif %}><a>OTL</a></td>
+            <td {% if sort == "ega" %}class="selected"{% endif %}><a>EGA</a></td>
+            <td {% if sort == "ga" %}class="selected"{% endif %}><a>GA</a></td>
+            <td {% if sort == "gaa" %}class="selected"{% endif %}><a>GAA</a></td>
+            <td {% if sort == "sa" %}class="selected"{% endif %}><a>SA</a></td>
+            <td {% if sort == "sv" %}class="selected"{% endif %}><a>SV</a></td>
+            <td {% if sort == "sv%" %}class="selected"{% endif %}><a>SV%</a></td>
+            <td {% if sort == "so" %}class="selected"{% endif %}><a>SO</a></td>
+        $ else:
+            <td {% if sort == "g" %}class="selected"{% endif %}><a>G</a></td>
+            <td {% if sort == "a" %}class="selected"{% endif %}><a>A</a></td>
+            <td {% if sort == "pts" %}class="selected"{% endif %}><a>Pts</a></td>
+            <td {% if sort == "+/-" %}class="selected"{% endif %}><a>+/-</a></td>
+            <td {% if sort == "pim" %}class="selected"{% endif %}><a>PIM</a></td>
+            <td {% if sort == "hits" %}class="selected"{% endif %}><a>Hits</a></td>
+            <td {% if sort == "bks" %}class="selected"{% endif %}><a>BkS</a></td>
+            <td {% if sort == "fw" %}class="selected"{% endif %}><a>FW</a></td>
+            <td {% if sort == "fl" %}class="selected"{% endif %}><a>FL</a></td>
+            <td {% if sort == "fo%" %}class="selected"{% endif %}><a>FO%</a></td>
+            <td {% if sort == "ppg" %}class="selected"{% endif %}><a>PPG</a></td>
+            <td {% if sort == "ppa" %}class="selected"{% endif %}><a>PPA</a></td>
+            <td {% if sort == "shg" %}class="selected"{% endif %}><a>SHG</a></td>
+            <td {% if sort == "sha" %}class="selected"{% endif %}><a>SHA</a></td>
+            <td {% if sort == "gw" %}class="selected"{% endif %}><a>GW</a></td>
+            <td {% if sort == "sog" %}class="selected"{% endif %}><a>SOG</a></td>
+            <td {% if sort == "pct" %}class="selected"{% endif %}><a>Pct</a></td>
+        $ endif
+    </tr>
+    $ for player in players:
+        <tr class="{{ loop.cycle('odd', 'even') }}-row">
+            <td>{{ player.name|shorten_name }}</td>
+            <td>{{ player.team|upper }}</td>
+            <td>{{ player.gp }}</td>
+            $ if goalies == "1":
+                <td>{{ player.gs }}</td>
+                <td>{{ player.min }}</td>
+                <td>{{ player.w }}</td>
+                <td>{{ player.l }}</td>
+                <td>{{ player.otl }}</td>
+                <td>{{ player.ega }}</td>
+                <td>{{ player.ga }}</td>
+                <td>{{ player.gaa }}</td>
+                <td>{{ player.sa }}</td>
+                <td>{{ player.sv }}</td>
+                <td>{{ player["sv%"] }}</td>
+                <td>{{ player.so }}</td>
+            $ else:
+                <td>{{ player.g }}</td>
+                <td>{{ player.a }}</td>
+                <td>{{ player.pts }}</td>
+                <td>{{ player["+/-"] }}</td>
+                <td>{{ player.pim }}</td>
+                <td>{{ player.hits }}</td>
+                <td>{{ player.bks }}</td>
+                <td>{{ player.fw }}</td>
+                <td>{{ player.fl }}</td>
+                <td>{{ player["fo%"] }}</td>
+                <td>{{ player.ppg }}</td>
+                <td>{{ player.ppa }}</td>
+                <td>{{ player.shg }}</td>
+                <td>{{ player.sha }}</td>
+                <td>{{ player.gw }}</td>
+                <td>{{ player.sog }}</td>
+                <td>{{ player.pct }}</td>
+            $ endif
+        </tr>
+    $ endfor
 </table>
 
-
-<!-- {{players}} -->
+{% raw %}
+<script>
+$(".header-row td a").click(function() {
+    var sort = $(this).text().toLowerCase();
+{% endraw %}
+    var old_sort = "{{ sort }}",
+        reverse = "{{ reverse }}";
+{% raw %}
+    if (sort == old_sort) {
+        reverse = reverse == "1" ? "0" : "1";
+    } else {
+        reverse = "1"
+        $("input[name='reverse']").val(reverse);
+        $("input[name='sort']").val(sort);
+    }
+    $("form").unbind("click").submit();
+});
+</script>
+{% endraw %}
 
 {% endblock %}

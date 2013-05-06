@@ -60,6 +60,10 @@ table {
 }
 
 /* Yleiset taulukkosäädöt */
+.small-table {
+    font-size: 0.8em;
+}
+
 .table-header-row {
     color: #FFFFFF;
     background-color: #3D3D3D;
@@ -93,6 +97,11 @@ td:first-child {
 
 .set-width {
     width: 10%;
+}
+
+.selected {
+    color: #FFFFFF;
+    background-color: #3D3D3D;
 }
 
 /* Iso tilastotaulukko, jossa perustilastot */
