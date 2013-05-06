@@ -19,7 +19,7 @@ URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 import logging
 from application import app
 from flask import render_template, session,  request, abort
-from utils import fetch_from_api, logged_in
+from utils import fetch_from_api, logged_in, get_latest_game
 from utils import get_followed
 from jinja_utils import convert_date
 
@@ -45,8 +45,30 @@ def index():
         if not user_data:
             # TODO tähän parempi virheenkäsittely
             return render_template(
-                "error.html", e="Jotain mystistä tapahtui..")
-        return render_template("index.html", user_data=user_data)
+                "error.html", e="Jotain mystista tapahtui..")
+
+        # Joukkueet viimeisimmän ottelun mukaan järjestettyyn listaan
+        # Lista sisältää vain templatelle olennaisen datan
+        teams = []
+        for k, v in user_data['teams'].iteritems():
+            new_team = {
+                'id': k,
+                'stats': v['stats'],
+                'latest_game': get_latest_game(v['games'])}
+            teams.append(new_team)
+        teams.sort(key=lambda v: v['latest_game']['date'], reverse=True)
+
+        # Samoin pelaajat
+        players = []
+        for k, v in user_data['players'].iteritems():
+            new_player = {
+                'id': k,
+                'stats': v['stats'],
+                'latest_game': get_latest_game(v['games'])}
+            players.append(new_player)
+        players.sort(key=lambda v: v['latest_game']['date'], reverse=True)
+
+        return render_template("index.html", teams=teams, players=players)
     else:
         return render_template("login.html")
 
@@ -262,8 +284,8 @@ def top():
     Url-parametrit
         - year: määrittää kauden, oletuksena nykyinen kausi.
         - sort: määrittää järjestyksen, vaihtoehdot ovat
-            - pelaajilla name, team, gp, g, a, pts, +/-, pim, hits, bks, fw, fl,
-                         fo%, ppg, ppa, shg, sha, gw, sog, pct
+            - pelaajilla name, team, gp, g, a, pts, +/-, pim, hits, bks, fw,
+                         fl, fo%, ppg, ppa, shg, sha, gw, sog, pct
                          (oletuksena pts)
             - maalivahdeilla name, team, gp, gs, min, w, l, otl, ega, ga, gaa,
                              sa, sv, sv%, so
@@ -285,10 +307,7 @@ def top():
 
     players = fetch_from_api(
         '''/api/json/top?sort=%s&reverse=%s&year=%s&goalies=%s&playoffs=%s&limit=%s''' %
-        (sort,reverse,year,goalies,playoffs,limit))
-
-    # players = fetch_from_api(
-    #     '''/api/json/top?sort=pim&reverse=1&year=2012&goalies=0&playoffs=0&limit=10''')
+        (sort, reverse, year, goalies, playoffs, limit))
 
     return render_template("top.html", players=players, year=year)
 

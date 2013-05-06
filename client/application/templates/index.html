@@ -2,8 +2,8 @@
 {% block content %}
 
 <!-- Jos käyttäjä ei seuraa vielä mitään, näytetään selite ja linkit hakuihin -->
-$ if user_data['teams'] == {}:
-    $ if user_data['players'] == {}:
+$ if teams == []:
+    $ if players == []:
         <h2> Et seuraa vielä yhtään pelaajaa tai joukkuetta.</h2>
         <p> Voit lisätä pelaajia ja joukkeita seurantaan joukkue- ja pelaajasivuilla. </p>
         <a href="/menu" data-role="button" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-up-c"><span class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">Palaa valikkoon</span></span></a>
@@ -15,22 +15,18 @@ $ if user_data['teams'] == {}:
     $endif
 $endif
 
-
-$ if user_data["teams"]:
-    <p>Seuratut joukkueet</p>
-    $ for tid, team in user_data["teams"].iteritems():
-        <strong>tid</strong>
+$ if players:
+    <h2>Seuratut h2elaajat</h2>
+    $ for p in players:
+        <p>{{p}}</p>
     $ endfor
 $ endif
 
-$ if user_data["players"]:
-    <p>Seuratut pelaajat</p>
-    $ for player in user_data["players"]:
-        <a href="/player/{{player}}">{{player|title}}</a>
+$ if teams:
+    <h2>Joukkueet</h2>
+    $ for t in teams:
+        <p>{{t}}</p>
     $ endfor
 $ endif
-
-<h4>Debug (user_data):</h4>
-{{user_data}}
 
 {% endblock %}
