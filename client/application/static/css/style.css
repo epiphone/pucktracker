@@ -146,3 +146,8 @@ td:first-child {
 .keystats .wide {
     width: 80px;
 }
+
+/*Index sivu*/
+.title-column{
+    width:130px;
+}
