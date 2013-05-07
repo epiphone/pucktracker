@@ -20,7 +20,8 @@ import views
 app.jinja_env.line_statement_prefix = "$"
 # Template-enginen apufunktiot ja vakiot käyttöön:
 from views import TEAMS
-app.jinja_env.globals.update(jinja_utils=jinja_utils, len=len, TEAMS=TEAMS)
+app.jinja_env.globals.update(jinja_utils=jinja_utils, len=len, TEAMS=TEAMS,
+    sort_url=jinja_utils.sort_url)
 # Template-enginen custom-filterit:
 app.jinja_env.filters["shorten_name"] = jinja_utils.shorten_name
 app.jinja_env.filters["shorten_game"] = jinja_utils.shorten_game

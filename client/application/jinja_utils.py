@@ -9,6 +9,7 @@ Käyttö Jinjassa:
 
 (latest_game on tuotu parametrina render_templaten yhteydessä)
 """
+import urllib
 
 
 def convert_date(s):
@@ -73,3 +74,26 @@ def year_to_season(year):
     '08-09'
     """
     return year[2:] + "-" + str(int(year) + 1)[2:]
+
+
+def sort_url(new_sort, old_sort, year, goalies, playoffs, reverse, limit):
+    """
+    Luo top-urlin annettujen parametrien perusteella.
+
+    >>> sort_url("gs", "a", "2011", "1", "0", "0", "12")
+    '/top?sort=a&year=2011&goalies=1&playoffs=0&reverse=1&limit=12'
+    >>> sort_url("gs", "gs", "2011", "1", "0", "1", "12")
+    '/top?sort=gs&year=2011&goalies=1&playoffs=0&reverse=0&limit=12'
+    """
+    if new_sort == old_sort:
+        reverse = "0" if reverse == "1" else "1"
+    else:
+        reverse = "1"
+    params = dict(
+        sort=new_sort,
+        year=year,
+        goalies=goalies,
+        playoffs=playoffs,
+        reverse=reverse,
+        limit=limit)
+    return "href=/top?%s" % urllib.urlencode(params)

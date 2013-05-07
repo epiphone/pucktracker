@@ -264,7 +264,8 @@ def standings(year):
         stats.iteritems(),
         key=lambda (k, v): v["pts"],
         reverse=True)
-# teams-listan joukkuuet lajitellaan teams_dict-dictionaryyn divisioonan mukaan
+
+    # Järjestetään joukkueet divisioonittain
     for k, v in teams:
         div = v["div"]
         v["team"] = k
@@ -273,7 +274,7 @@ def standings(year):
         else:
             teams_dict[div].append(v)
 
-    return render_template("standings.html", teams=teams_dict, year=year)
+    return render_template("standings.html", teams=teams_dict, year=str(year))
 
 
 @app.route("/top")
@@ -301,6 +302,14 @@ def top():
     limit = request.args.get("limit", "30")
     default_sort = "w" if goalies == "1" else "pts"
     sort = request.args.get("sort", default_sort)
+    goalie_sorts = ["gs", "min", "w", "l", "otl", "ega", "ga", "gaa", "sa",
+        "sv", "sv%", "so"]
+
+    if goalies == "1":
+        if sort not in ["name", "team", "gp"] + goalie_sorts:
+            sort = "w"
+    elif sort in goalie_sorts:
+        sort = "pts"
 
     params = dict(year=year, sort=sort, goalies=goalies, playoffs=playoffs,
         reverse=reverse, limit=limit)

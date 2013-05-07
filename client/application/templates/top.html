@@ -7,10 +7,6 @@
     <input type="hidden" name="reverse" value="{{ reverse }}"/>
     <table>
         <tr>
-            <td>Kausi</td>
-            <td>Turnaus</td>
-        </tr>
-        <tr>
             <td>
                 <select name="goalies" onchange="this.form.submit()">
                     <option value="0">Kenttäpelaajat</option>
@@ -40,101 +36,81 @@
 
 <table class="small-table">
     <tr class="header-row">
-        <td><a>Name</a></td>
-        <td><a>Team</a></td>
+        <td>Nimi</td>
+        <td>Joukkue</td>
         <td><a>GP</a></td>
         $ if goalies == "1":
-            <td {% if sort == "gs" %}class="selected"{% endif %}><a>GS</a></td>
-            <td {% if sort == "min" %}class="selected"{% endif %}><a>MIN</a></td>
-            <td {% if sort == "w" %}class="selected"{% endif %}><a>W</a></td>
-            <td {% if sort == "l" %}class="selected"{% endif %}><a>L</a></td>
-            <td {% if sort == "otl" %}class="selected"{% endif %}><a>OTL</a></td>
-            <td {% if sort == "ega" %}class="selected"{% endif %}><a>EGA</a></td>
-            <td {% if sort == "ga" %}class="selected"{% endif %}><a>GA</a></td>
-            <td {% if sort == "gaa" %}class="selected"{% endif %}><a>GAA</a></td>
-            <td {% if sort == "sa" %}class="selected"{% endif %}><a>SA</a></td>
-            <td {% if sort == "sv" %}class="selected"{% endif %}><a>SV</a></td>
-            <td {% if sort == "sv%" %}class="selected"{% endif %}><a>SV%</a></td>
-            <td {% if sort == "so" %}class="selected"{% endif %}><a>SO</a></td>
+            <td {% if sort == "gs" %}class="selected"{% endif %}><a {{sort_url("gs", sort, year, goalies, playoffs, reverse, limit) }}>GS</a></td>
+            <td {% if sort == "min" %}class="selected"{% endif %}><a {{sort_url("min", sort, year, goalies, playoffs, reverse, limit)}}>MIN</a></td>
+            <td {% if sort == "w" %}class="selected"{% endif %}><a {{sort_url("w", sort, year, goalies, playoffs, reverse, limit)}}>W</a></td>
+            <td {% if sort == "l" %}class="selected"{% endif %}><a {{sort_url("l", sort, year, goalies, playoffs, reverse, limit)}}>L</a></td>
+            <td {% if sort == "otl" %}class="selected"{% endif %}><a {{sort_url("otl", sort, year, goalies, playoffs, reverse, limit)}}>OTL</a></td>
+            <td {% if sort == "ega" %}class="selected"{% endif %}><a {{sort_url("ega", sort, year, goalies, playoffs, reverse, limit)}}>EGA</a></td>
+            <td {% if sort == "ga" %}class="selected"{% endif %}><a {{sort_url("ga", sort, year, goalies, playoffs, reverse, limit)}}>GA</a></td>
+            <td {% if sort == "gaa" %}class="selected"{% endif %}><a {{sort_url("gaa", sort, year, goalies, playoffs, reverse, limit)}}>GAA</a></td>
+            <td {% if sort == "sa" %}class="selected"{% endif %}><a {{sort_url("sa", sort, year, goalies, playoffs, reverse, limit)}}>SA</a></td>
+            <td {% if sort == "sv" %}class="selected"{% endif %}><a {{sort_url("sv", sort, year, goalies, playoffs, reverse, limit)}}>SV</a></td>
+            <td {% if sort == "sv%" %}class="selected"{% endif %}><a {{sort_url("sv%", sort, year, goalies, playoffs, reverse, limit)}}>SV%</a></td>
+            <td {% if sort == "so" %}class="selected"{% endif %}><a {{sort_url("so", sort, year, goalies, playoffs, reverse, limit)}}>SO</a></td>
         $ else:
-            <td {% if sort == "g" %}class="selected"{% endif %}><a>G</a></td>
-            <td {% if sort == "a" %}class="selected"{% endif %}><a>A</a></td>
-            <td {% if sort == "pts" %}class="selected"{% endif %}><a>Pts</a></td>
-            <td {% if sort == "+/-" %}class="selected"{% endif %}><a>+/-</a></td>
-            <td {% if sort == "pim" %}class="selected"{% endif %}><a>PIM</a></td>
-            <td {% if sort == "hits" %}class="selected"{% endif %}><a>Hits</a></td>
-            <td {% if sort == "bks" %}class="selected"{% endif %}><a>BkS</a></td>
-            <td {% if sort == "fw" %}class="selected"{% endif %}><a>FW</a></td>
-            <td {% if sort == "fl" %}class="selected"{% endif %}><a>FL</a></td>
-            <td {% if sort == "fo%" %}class="selected"{% endif %}><a>FO%</a></td>
-            <td {% if sort == "ppg" %}class="selected"{% endif %}><a>PPG</a></td>
-            <td {% if sort == "ppa" %}class="selected"{% endif %}><a>PPA</a></td>
-            <td {% if sort == "shg" %}class="selected"{% endif %}><a>SHG</a></td>
-            <td {% if sort == "sha" %}class="selected"{% endif %}><a>SHA</a></td>
-            <td {% if sort == "gw" %}class="selected"{% endif %}><a>GW</a></td>
-            <td {% if sort == "sog" %}class="selected"{% endif %}><a>SOG</a></td>
-            <td {% if sort == "pct" %}class="selected"{% endif %}><a>Pct</a></td>
+            <td {% if sort == "g" %}class="selected"{% endif %}><a {{sort_url("g", sort, year, goalies, playoffs, reverse, limit)}}>G</a></td>
+            <td {% if sort == "a" %}class="selected"{% endif %}><a {{sort_url("a", sort, year, goalies, playoffs, reverse, limit)}}>A</a></td>
+            <td {% if sort == "pts" %}class="selected"{% endif %}><a {{sort_url("pts", sort, year, goalies, playoffs, reverse, limit)}}>Pts</a></td>
+            <td {% if sort == "+/-" %}class="selected"{% endif %}><a {{sort_url("+/-", sort, year, goalies, playoffs, reverse, limit)}}>+/-</a></td>
+            <td {% if sort == "pim" %}class="selected"{% endif %}><a {{sort_url("pim", sort, year, goalies, playoffs, reverse, limit)}}>PIM</a></td>
+            <td {% if sort == "hits" %}class="selected"{% endif %}><a {{sort_url("hits", sort, year, goalies, playoffs, reverse, limit)}}>Hits</a></td>
+            <td {% if sort == "bks" %}class="selected"{% endif %}><a {{sort_url("bks", sort, year, goalies, playoffs, reverse, limit)}}>BkS</a></td>
+            <td {% if sort == "fw" %}class="selected"{% endif %}><a {{sort_url("fw", sort, year, goalies, playoffs, reverse, limit)}}>FW</a></td>
+            <td {% if sort == "fl" %}class="selected"{% endif %}><a {{sort_url("fl", sort, year, goalies, playoffs, reverse, limit)}}>FL</a></td>
+            <td {% if sort == "fo%" %}class="selected"{% endif %}><a {{sort_url("fo%", sort, year, goalies, playoffs, reverse, limit)}}>FO%</a></td>
+            <td {% if sort == "ppg" %}class="selected"{% endif %}><a {{sort_url("ppg", sort, year, goalies, playoffs, reverse, limit)}}>PPG</a></td>
+            <td {% if sort == "ppa" %}class="selected"{% endif %}><a {{sort_url("ppa", sort, year, goalies, playoffs, reverse, limit)}}>PPA</a></td>
+            <td {% if sort == "shg" %}class="selected"{% endif %}><a {{sort_url("shg", sort, year, goalies, playoffs, reverse, limit)}}>SHG</a></td>
+            <td {% if sort == "sha" %}class="selected"{% endif %}><a {{sort_url("sha", sort, year, goalies, playoffs, reverse, limit)}}>SHA</a></td>
+            <td {% if sort == "gw" %}class="selected"{% endif %}><a {{sort_url("gw", sort, year, goalies, playoffs, reverse, limit)}}>GW</a></td>
+            <td {% if sort == "sog" %}class="selected"{% endif %}><a {{sort_url("sog", sort, year, goalies, playoffs, reverse, limit)}}>SOG</a></td>
+            <td {% if sort == "pct" %}class="selected"{% endif %}><a {{sort_url("pct", sort, year, goalies, playoffs, reverse, limit)}}>Pct</a></td>
         $ endif
     </tr>
     $ for player in players:
         <tr class="{{ loop.cycle('odd', 'even') }}-row">
-            <td>{{ player.name|shorten_name }}</td>
-            <td>{{ player.team|upper }}</td>
+            <td><a href="/player/{{player.pid}}"><small>{{ player.name|shorten_name }}</small></a></td>
+            <td><a href="/team/{{player.team}}">{{ player.team|upper }}</a></td>
             <td>{{ player.gp }}</td>
             $ if goalies == "1":
-                <td>{{ player.gs }}</td>
-                <td>{{ player.min }}</td>
-                <td>{{ player.w }}</td>
-                <td>{{ player.l }}</td>
-                <td>{{ player.otl }}</td>
-                <td>{{ player.ega }}</td>
-                <td>{{ player.ga }}</td>
-                <td>{{ player.gaa }}</td>
-                <td>{{ player.sa }}</td>
-                <td>{{ player.sv }}</td>
-                <td>{{ player["sv%"] }}</td>
-                <td>{{ player.so }}</td>
+                <td {% if sort == "gs" %}class="selected-low"{% endif %}>{{ player.gs }}</td>
+                <td {% if sort == "min" %}class="selected-low"{% endif %}>{{ player.min }}</td>
+                <td {% if sort == "w" %}class="selected-low"{% endif %}>{{ player.w }}</td>
+                <td {% if sort == "l" %}class="selected-low"{% endif %}>{{ player.l }}</td>
+                <td {% if sort == "otl" %}class="selected-low"{% endif %}>{{ player.otl }}</td>
+                <td {% if sort == "ega" %}class="selected-low"{% endif %}>{{ player.ega }}</td>
+                <td {% if sort == "ga" %}class="selected-low"{% endif %}>{{ player.ga }}</td>
+                <td {% if sort == "gaa" %}class="selected-low"{% endif %}>{{ player.gaa }}</td>
+                <td {% if sort == "sa" %}class="selected-low"{% endif %}>{{ player.sa }}</td>
+                <td {% if sort == "sv" %}class="selected-low"{% endif %}>{{ player.sv }}</td>
+                <td {% if sort == "sv%" %}class="selected-low"{% endif %}>{{ player["sv%"] }}</td>
+                <td {% if sort == "so" %}class="selected-low"{% endif %}>{{ player.so }}</td>
             $ else:
-                <td>{{ player.g }}</td>
-                <td>{{ player.a }}</td>
-                <td>{{ player.pts }}</td>
-                <td>{{ player["+/-"] }}</td>
-                <td>{{ player.pim }}</td>
-                <td>{{ player.hits }}</td>
-                <td>{{ player.bks }}</td>
-                <td>{{ player.fw }}</td>
-                <td>{{ player.fl }}</td>
-                <td>{{ player["fo%"] }}</td>
-                <td>{{ player.ppg }}</td>
-                <td>{{ player.ppa }}</td>
-                <td>{{ player.shg }}</td>
-                <td>{{ player.sha }}</td>
-                <td>{{ player.gw }}</td>
-                <td>{{ player.sog }}</td>
-                <td>{{ player.pct }}</td>
+                <td {% if sort == "g" %}class="selected-low"{% endif %}>{{ player.g }}</td>
+                <td {% if sort == "a" %}class="selected-low"{% endif %}>{{ player.a }}</td>
+                <td {% if sort == "pts" %}class="selected-low"{% endif %}>{{ player.pts }}</td>
+                <td {% if sort == "+/-" %}class="selected-low"{% endif %}>{{ player["+/-"] }}</td>
+                <td {% if sort == "pim" %}class="selected-low"{% endif %}>{{ player.pim }}</td>
+                <td {% if sort == "hits" %}class="selected-low"{% endif %}>{{ player.hits }}</td>
+                <td {% if sort == "bks" %}class="selected-low"{% endif %}>{{ player.bks }}</td>
+                <td {% if sort == "fw" %}class="selected-low"{% endif %}>{{ player.fw }}</td>
+                <td {% if sort == "fl" %}class="selected-low"{% endif %}>{{ player.fl }}</td>
+                <td {% if sort == "fo%" %}class="selected-low"{% endif %}>{{ player["fo%"] }}</td>
+                <td {% if sort == "ppg" %}class="selected-low"{% endif %}>{{ player.ppg }}</td>
+                <td {% if sort == "ppa" %}class="selected-low"{% endif %}>{{ player.ppa }}</td>
+                <td {% if sort == "shg" %}class="selected-low"{% endif %}>{{ player.shg }}</td>
+                <td {% if sort == "sha" %}class="selected-low"{% endif %}>{{ player.sha }}</td>
+                <td {% if sort == "gw" %}class="selected-low"{% endif %}>{{ player.gw }}</td>
+                <td {% if sort == "sog" %}class="selected-low"{% endif %}>{{ player.sog }}</td>
+                <td {% if sort == "pct" %}class="selected-low"{% endif %}>{{ player.pct }}</td>
             $ endif
         </tr>
     $ endfor
 </table>
-
-{% raw %}
-<script>
-$(".header-row td a").click(function() {
-    var sort = $(this).text().toLowerCase();
-{% endraw %}
-    var old_sort = "{{ sort }}",
-        reverse = "{{ reverse }}";
-{% raw %}
-    if (sort == old_sort) {
-        reverse = reverse == "1" ? "0" : "1";
-    } else {
-        reverse = "1"
-        $("input[name='reverse']").val(reverse);
-        $("input[name='sort']").val(sort);
-    }
-    $("form").unbind("click").submit();
-});
-</script>
-{% endraw %}
 
 {% endblock %}
