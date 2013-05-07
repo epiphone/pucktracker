@@ -52,28 +52,30 @@ def index():
         # Lista sisältää vain templatelle olennaisen datan
         teams = []
         for k, v in user_data['teams'].iteritems():
-            new_team = {
-                'id': k,
-                'stats': v['stats'],
-                'latest_game': get_latest_game(v['games'])}
-            teams.append(new_team)
+            if v['games'] and v['stats']:
+                latest_game = get_latest_game(v['games'])
+                stats = v['stats']
+                new_team = {
+                    'id': k,
+                    'stats': v['stats'],
+                    'latest_game': get_latest_game(v['games'])}
+                teams.append(new_team)
         teams.sort(key=lambda v: v['latest_game']['date'], reverse=True)
 
         # Samoin pelaajat
         players = []
         for k, v in user_data['players'].iteritems():
-            stats = v['stats'] or None
-            if v['games']:
+            if v['games'] and v['stats']:
                 latest_game = get_latest_game(v['games'])
-            else:
-                latest_game = None
+                stats = v['stats']
 
-            new_player = {
-                'id': k,
-                'stats': stats,
-                'latest_game': latest_game}
-            players.append(new_player)
-        players.sort(key=lambda v: v['latest_game']['date'], reverse=True)
+                new_player = {
+                    'id': k,
+                    'stats': stats,
+                    'latest_game': latest_game}
+                players.append(new_player)
+
+        players.sort( key=lambda v: v['latest_game']['date'], reverse=True)
 
         return render_template("index.html", teams=teams, players=players)
     else:
