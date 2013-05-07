@@ -3,81 +3,28 @@
 
 <div class="ui-grid-a" id="player-info">
     <div class="ui-block-a">
-        <h2 class="no-top-margin">{{name}}</h2>
-        <p>Pelipaikka:
-            <strong>{{position}}</strong>
-        </p>
-        <h3>
-            <a href="/team/{{team}}">{{TEAMS[team]}}</a>
-        </h3>
+        <h2 class="no-top-margin">{{name}} ({{position|upper}})</h2>
+        <h3><a href="/team/{{team}}">{{TEAMS[team]}}</a></h3>
     </div>
     <div class="ui-block-b">
         {% if following == True %}
-            <a href="/remove_followed/{{pid}}" data-role="button">Poista seurattavista {{pid}}</a>
+            <a href="/remove_followed/{{pid}}" data-role="button">Poista seurattavista</a>
         {% else %}
-            <a href="/add_followed/{{pid}}" data-role="button">Lisää seurattaviin {{pid}}</a>
+            <a href="/add_followed/{{pid}}" data-role="button">Lisää seurattaviin</a>
         {% endif %}
     </div>
 </div>
 
-<div class="keystats">
-    <ul>
-        <li><strong>G</strong><br>{{ this_season['g'] }}</li>
-        <li><strong>A</strong><br>{{ this_season['a'] }}</li>
-        <li><strong>PTS</strong><br>{{ this_season['pts'] }}</li>
-        <li><strong>+/-</strong><br>{{ this_season['+/-'] }}</li>
-        <li><strong>PIM</strong><br>{{ this_season['pim'] }}</li>
-    </ul>
-</div>
-
 <!-- Eri taulukot pelaajalle ja maalivahdille -->
-$ if position == 'G':
-    <table>
-        <tr class="table-header-row"><td colspan="20">Nykyinen kausi</td></tr>​
-            <tr class="header-row">​
-                <td>GP</td>​
-                <td>GS</td>​
-                <td>MIN</td>​
-                <td>W</td>​
-                <td>L</td>​
-                <td>T</td>​
-                <td>OTL</td>​
-                <td>EGA</td>​
-                <td>GA</td>​
-                <td>GAA</td>​
-                <td>SA</td>​
-                <td>SV</td>​
-                <td>SV%</td>​
-                <td>SO</td>​
-            </tr>​​
-            <tr class="odd-row">​
-                <td>{{this_season['gp']}}</td>​
-                <td>{{this_season['gs']}}</td>​
-                <td>{{this_season['min']}}</td>​
-                <td>{{this_season['w']}}</td>​
-                <td>{{this_season['l']}}</td>​
-                <td>{{this_season['t']}}</td>​
-                <td>{{this_season['otl']}}</td>​
-                <td>{{this_season['ega']}}</td>​
-                <td>{{this_season['ga']}}</td>​
-                <td>{{this_season['gaa']}}</td>​
-                <td>{{this_season['sa']}}</td>​
-                <td>{{this_season['sv']}}</td>​
-                <td>{{this_season['sv%']}}</td>​
-                <td>{{this_season['so']}}</td>​
-            </tr>
-    </table>
-
-    <table>
-        <tr class="table-header-row"><td colspan="3">Ottelut</td></tr>
-        $ for gid in games|sort(reverse=True):
-            <tr class="{{ loop.cycle('odd', 'even') }}-row">
-                <td>{{ jinja_utils.convert_date(gid) }}</td>
-                <td>{{ games[gid].opponent | upper}}</td>
-                <td><strong><a href="/game/{{ gid }}">{{games[gid].result | upper}}</a></strong></td>
-            </tr>
-        $ endfor
-    </table>
+$ if position == "g":
+    <div class="keystats">
+        <ul>
+            <li><strong>W-L-OTL</strong><br>{{this_season.w}}-{{this_season.l}}-{{this_season.otl}}</li>
+            <li><strong>SV%</strong><br>{{ this_season['sv%'] }}</li>
+            <li><strong>GAA</strong><br>{{ this_season.gaa }}</li>
+            <li><strong>SO</strong><br>{{ this_season.so }}</li>
+        </ul>
+    </div>
 
     <table>
         <tr class="table-header-row"><td colspan="20">Kaikki kaudet</td></tr>​
@@ -121,8 +68,8 @@ $ if position == 'G':
     {% endfor %}
     <!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
         <tr class="totals-row">​
-            <td></td>​
-            <td></td>​
+            <td>Ura</td>​
+            <td> </td>​
             <td>{{career['gp']}}</td>​
             <td>{{career['gs']}}</td>​
             <td>{{career['min']}}</td>​
@@ -140,64 +87,22 @@ $ if position == 'G':
         </tr>​
     </table>
 $ else:
-    <table>
-        <tr class="table-header-row"><td colspan="20">Nykyinen kausi</td></tr>​
-        <tr class="header-row">​
-            <td>G</td>​
-            <td>​A</td>​
-            <td>Pts</td>​
-            <td>+/-</td>​
-            <td>PIM</td>​
-            <td>Hits</td>​
-            <td>BkS</td>​
-            <td>FW</td>​
-            <td>FL</td>​
-            <td>FO%</td>​
-            <td>PPG</td>​
-            <td>PPA</td>​
-            <td>SHG</td>​
-            <td>SHA</td>​
-            <td>GW</td>​
-            <td>SOG</td>​
-            <td>Pct</td>​
-        </tr>​​
-        <tr class="odd-row">​
-            <td>{{this_season.g}}</td>​
-            <td>{{this_season.a}}</td>​
-            <td>{{this_season.pts}}</td>​
-            <td>{{this_season['+/-']}}</td>​
-            <td>{{this_season.pim}}</td>​
-            <td>{{this_season.hits}}</td>​
-            <td>{{this_season.bks}}</td>​
-            <td>{{this_season.fw}}</td>​
-            <td>{{this_season.fl}}</td>​
-            <td>{{this_season['fo%']}}</td>​
-            <td>{{this_season.ppg}}</td>​
-            <td>{{this_season.ppa}}</td>​
-            <td>{{this_season.shg}}</td>​
-            <td>{{this_season.sha}}</td>​
-            <td>{{this_season.gw}}</td>​
-            <td>{{this_season.sog}}</td>​
-            <td>{{this_season.pct}}</td>​
-        </tr>
-    </table>
-
-    <table>
-        <tr class="table-header-row"><td colspan="3">Ottelut</td></tr>
-        $ for gid in games|sort(reverse=True):
-            <tr class="{{ loop.cycle('odd', 'even') }}-row">
-                <td>{{ jinja_utils.convert_date(gid) }}</td>
-                <td>{{ games[gid].opponent | upper}}</td>
-                <td><strong><a href="/game/{{ gid }}">{{games[gid].result | upper}}</a></strong></td>
-            </tr>
-        $ endfor
-    </table>
+    <div class="keystats">
+        <ul>
+            <li><strong>G</strong><br>{{ this_season['g'] }}</li>
+            <li><strong>A</strong><br>{{ this_season['a'] }}</li>
+            <li><strong>PTS</strong><br>{{ this_season['pts'] }}</li>
+            <li><strong>+/-</strong><br>{{ this_season['+/-'] }}</li>
+            <li><strong>PIM</strong><br>{{ this_season['pim'] }}</li>
+        </ul>
+    </div>
 
     <table>
         <tr class="table-header-row"><td colspan="20">Kaikki kaudet</td></tr>​
         <tr class="header-row">​
             <td>Vuosi</td>​
             <td>Joukkue</td>​
+            <td>GP</td>​
             <td>G</td>​
             <td>​A</td>​
             <td>Pts</td>​
@@ -217,9 +122,10 @@ $ else:
             <td>Pct</td>​
         </tr>​​
     {% for s in all_seasons %}
-        <tr  class="{{ loop.cycle('odd', 'even') }}-row">​
-            <td>{{s.year}}</td>​
-            <td><a href="/team/{{s.team}}">{{s.team | upper}}</a></td>​
+        <tr class="{{ loop.cycle('odd', 'even') }}-row">​
+            <td>{{s.year[2:]}}-{{str(int(s.year)+1)[2:]}}</td>​
+            <td><a href="/team/{{s.team}}">{{s.team|upper}}</a></td>​
+            <td>{{s.gp}}</td>​
             <td>{{s.g}}</td>​
             <td>{{s.a}}</td>​
             <td>{{s.pts}}</td>​
@@ -241,8 +147,9 @@ $ else:
     {% endfor %}
         <!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
         <tr class="totals-row">​
+            <td>Ura</td>​
             <td></td>​
-            <td></td>​
+            <td>{{career.gp}}</td>​
             <td>{{career.g}}</td>​
             <td>{{career.a}}</td>​
             <td>{{career.pts}}</td>​
@@ -263,5 +170,18 @@ $ else:
         </tr>​
     </table>
 $ endif
+
+<!-- pelatut ottelut -->
+<table>
+    <tr class="table-header-row"><td colspan="3">Ottelut</td></tr>
+    $ for gid in games|sort(reverse=True):
+        <tr class="{{ loop.cycle('odd', 'even') }}-row">
+            <td>{{ jinja_utils.convert_date(gid) }}</td>
+            <td>{{ games[gid].opponent | upper}}</td>
+            <td><strong><a href="/game/{{ gid }}">{{games[gid].result | upper}}</a></strong></td>
+        </tr>
+    $ endfor
+</table>
+
 
 {% endblock %}
