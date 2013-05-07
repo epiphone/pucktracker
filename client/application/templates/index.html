@@ -17,88 +17,126 @@ $endif
 
 $ if players:
     $ for p in players:
-<div class="ui-body ui-body-c">
-    <table>
-        <tr>
-            <td rowspan="7" class="title-column"><a href="/player/{{p['stats']['pid']}}">{{p['stats']['name'] | shorten_name}}</a><br>{{p['stats']['team'] | upper}}</td>
-        </tr>
-        <tr class="header-row">
-            <td colspan="5">Kauden tilastot</td>
-        </tr>
+<table>
+    <tr class="table-header-row">
+        <td colspan="5"><a href="/player/{{p['stats']['pid']}}">{{p['stats']['name'] | title}}</a> {{p['stats']['team'] | upper}}</td>
+    </tr>
 
-        <tr>
-            <td><strong>G</strong></td>
-            <td><strong>A</strong></td>
-            <td><strong>PTS</strong></td>
-            <td><strong>+/-</strong></td>
-            <td><strong>PIM</strong></td>
-        </tr>
-        <tr>
-            <td>{{ p['stats']['g'] }}</td>
-            <td>{{ p['stats']['a'] }}</td>
-            <td>{{ p['stats']['pts'] }}</td>
-            <td>{{ p['stats']['+/-'] }}</td>
-            <td>{{ p['stats']['pim'] }}</td>
-        </tr>
+        $ if p['stats']['min']:
         <tr class="header-row">
-            <td colspan="5">
-                Viimeisin ottelu: <a href="/game/{{p['latest_game']['date']}}">{{jinja_utils.convert_date(p['latest_game']['date'])}} {{p['latest_game']['opponent']|upper}}</a>
-            </td>
+            <td colspan="4">Kauden tilastot</td>
         </tr>
-        <tr>
-            <td><strong>G</strong></td>
-            <td><strong>A</strong></td>
-            <td><strong>PTS</strong></td>
-            <td><strong>+/-</strong></td>
-            <td><strong>PIM</strong></td>
-        </tr>
-        <tr>
-            <td>{{ p['latest_game']['g'] }}</td>
-            <td>{{ p['latest_game']['a'] }}</td>
-            <td>{{ p['latest_game']['pts'] }}</td>
-            <td>{{ p['latest_game']['+/-'] }}</td>
-            <td>{{ p['latest_game']['pim'] }}</td>
-        </tr>
-    </table>
-</div>
+            <tr class="odd-row">
+                <td><strong>W-L-OTL</strong></td>
+                <td><strong>SV%</strong></td>
+                <td><strong>GAA</strong></td>
+                <td><strong>SO</strong></td>
+            </tr>
+            <tr>
+                <td>{{ p['stats']['w'] }} - {{ p['stats']['l'] }} - {{ p['stats']['otl'] }}</td>
+                <td>{{ p['stats']['sv%'] }}</td>
+                <td>{{ p['stats']['gaa'] }}</td>
+                <td>{{ p['stats']['so'] }}</td>
+            </tr>
+            <tr class="header-row">
+                <td colspan="5">
+                    Viimeisin ottelu: <a href="/game/{{p['latest_game']['date']}}">{{jinja_utils.convert_date(p['latest_game']['date'])}} {{p['latest_game']['opponent']|upper}}</a>
+                </td>
+            </tr>
+            <tr class="odd-row">
+                <td><strong>W-L-OTL</strong></td>
+                <td><strong>SV%</strong></td>
+                <td><strong>GAA</strong></td>
+                <td><strong>SO</strong></td>
+            </tr>
+            <tr>
+                <td>{{ p['stats']['w'] }} - {{ p['stats']['l'] }} - {{ p['stats']['otl'] }}</td>
+                <td>{{ p['stats']['sv%'] }}</td>
+                <td>{{ p['stats']['gaa'] }}</td>
+                <td>{{ p['stats']['so'] }}</td>
+            </tr>
+        $ else:
+
+    <tr class="header-row">
+        <td colspan="5">Kauden tilastot</td>
+    </tr>
+    <tr class="odd-row">
+        <td><strong>G</strong></td>
+        <td><strong>A</strong></td>
+        <td><strong>PTS</strong></td>
+        <td><strong>+/-</strong></td>
+        <td><strong>PIM</strong></td>
+    </tr>
+    <tr>
+        <td>{{ p['stats']['g'] }}</td>
+        <td>{{ p['stats']['a'] }}</td>
+        <td>{{ p['stats']['pts'] }}</td>
+        <td>{{ p['stats']['+/-'] }}</td>
+        <td>{{ p['stats']['pim'] }}</td>
+    </tr>
+    <tr class="header-row">
+        <td colspan="5">
+            Viimeisin ottelu: <a href="/game/{{p['latest_game']['date']}}">{{jinja_utils.convert_date(p['latest_game']['date'])}} {{p['latest_game']['opponent']|upper}}</a>
+        </td>
+    </tr>
+    <tr class="odd-row">
+        <td><strong>G</strong></td>
+        <td><strong>A</strong></td>
+        <td><strong>PTS</strong></td>
+        <td><strong>+/-</strong></td>
+        <td><strong>PIM</strong></td>
+    </tr>
+    <tr>
+        <td>{{ p['latest_game']['g'] }}</td>
+        <td>{{ p['latest_game']['a'] }}</td>
+        <td>{{ p['latest_game']['pts'] }}</td>
+        <td>{{ p['latest_game']['+/-'] }}</td>
+        <td>{{ p['latest_game']['pim'] }}</td>
+    </tr>
+    $ endif
+</table>
 
     $ endfor
 $ endif
 
 $ if teams:
     $ for t in teams:
-        <div class="ui-body ui-body-c">
+        <table>
+            <tr class="table-header-row"><td colspan="5" ><a href="/team/{{t['id']}}">{{TEAMS[t['id']]}}</a></td></tr>
 
-            <table>
-                <tr><td rowspan="6" class="title-column"><a href="/team/{{t['id']}}">{{TEAMS[t['id']]}}</a></td></tr>
+            <tr class="header-row">
+                <td colspan="5">Kauden tilastot</td>
+            </tr>
+            <tr>
+                <td><strong>W</strong></td>
+                <td><strong>L</strong></td>
+                <td><strong>OTL</strong></td>
+                <td><strong>PTS</strong></td>
+                <td><strong>L10</strong></td>
+            </tr>
+            <tr>
+                <td>{{ t['stats']['w'] }}</td>
+                <td>{{ t['stats']['l'] }}</td>
+                <td>{{ t['stats']['otl'] }}</td>
+                <td>{{ t['stats']['pts'] }}</td>
+                <td>{{ t['stats']['last 10'] }}</td>
+            </tr>
+            <tr class="header-row">
+                <td colspan="2">Viimeisin ottelu: </td>
+                <td colspan="2">{{ jinja_utils.convert_date(t['latest_game']['date']) }} {{ t['latest_game']['opponent']|shorten_game }}
+                </td>
+                <td><strong><a href="/game/{{ t['latest_game']['date'] }}">{{ t['latest_game']['score']}}</a></strong></td>
 
-                <tr class="header-row">
-                    <td colspan="5">Kauden tilastot</td>
-                </tr>
-                <tr>
-                    <td><strong>W</strong></td>
-                    <td><strong>L</strong></td>
-                    <td><strong>OTL</strong></td>
-                    <td><strong>PTS</strong></td>
-                    <td><strong>L10</strong></td>
-                </tr>
-                <tr>
-                    <td>{{ t['stats']['w'] }}</td>
-                    <td>{{ t['stats']['l'] }}</td>
-                    <td>{{ t['stats']['otl'] }}</td>
-                    <td>{{ t['stats']['pts'] }}</td>
-                    <td>{{ t['stats']['last 10'] }}</td>
-                </tr>
-                <tr>
-                    <td class="header-row" colspan="5">Viimeisin ottelu: <a href="/game/{{ t['latest_game']['date'] }}">{{ jinja_utils.convert_date(t['latest_game']['date']) }} {{ t['latest_game']['opponent']|shorten_game }} </a></td>
-                </tr>
-                <tr>
-                    <td colspan="5"><strong>{{ t['latest_game']['score'] }}</strong></td>
-                </tr>
-            </table>
-        </div>
+            </tr>
+            <tr>
+            </tr>
+        </table>
 
     $ endfor
 $ endif
+
+<h1>debug</h1>
+{{players}}
+
 
 {% endblock %}

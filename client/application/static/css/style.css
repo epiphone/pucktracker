@@ -13,17 +13,21 @@
     text-align: center;
 }
 
+a {
+    text-shadow: none;
+}
+
 /*Page specific */
 
 /*  /game  */
 .score-display{
-    height:60px;
+    height: 60px;
     margin-right: 5px;
     margin-left: 5px;
 }
 
 .big-text{
-    font-size:65px;
+    font-size: 65px;
     vertical-align: middle;
     margin-top:0;
     /*padding-bottom: 10px;*/

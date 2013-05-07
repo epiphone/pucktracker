@@ -62,10 +62,16 @@ def index():
         # Samoin pelaajat
         players = []
         for k, v in user_data['players'].iteritems():
+            stats = v['stats'] or None
+            if v['games']:
+                latest_game = get_latest_game(v['games'])
+            else:
+                latest_game = None
+
             new_player = {
                 'id': k,
-                'stats': v['stats'],
-                'latest_game': get_latest_game(v['games'])}
+                'stats': stats,
+                'latest_game': latest_game}
             players.append(new_player)
         players.sort(key=lambda v: v['latest_game']['date'], reverse=True)
 
