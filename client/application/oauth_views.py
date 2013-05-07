@@ -11,7 +11,6 @@ from settings import REQUEST_TOKEN_URL, ACCESS_TOKEN_URL, AUTHORIZE_URL
 from settings import CALLBACK_URL, API_URL
 from utils import fetch_from_api_signed, get_followed, logged_in, add_followed
 from utils import remove_followed
-import logging
 import time
 
 
@@ -29,81 +28,6 @@ def before_request():
         return
     elif not logged_in():
         return redirect(url_for("index"))
-
-
-@app.route("/add_followed/<ident>")
-def add_followed_view(ident):
-    """
-    Lisää annetun pelaajan/joukkueen käyttäjän seurantaan,
-    uudellenohjaa lisätyn pelaajan/joukkueen sivulle.
-    """
-    resp = add_followed(ident, True)
-    if resp:
-        session["players"] = resp["players"]
-        session["teams"] = resp["teams"]
-    url = "/team/" + ident if ident.isalpha() else "/player/" + ident
-    return redirect(url)
-
-
-@app.route("/remove_followed/<ident>")
-def remove_followed_view(ident):
-    """
-    Poistaa annetun pelaajan/joukkueen käyttäjän seurannasta,
-    uudellenohjaa poistetun pelaajan/joukkueen sivulle.
-    """
-    resp = remove_followed(ident, True)
-    if resp:
-        session["players"] = resp["players"]
-        session["teams"] = resp["teams"]
-    url = "/team/" + ident if ident.isalpha() else "/player/" + ident
-    return redirect(url)
-
-
-@app.route("/session")
-def show_session():
-    """
-    Näyttää sessioon tallennetut tiedot.
-    TODO Debug
-    """
-    return str(session.viewitems())
-
-
-@app.route("/test_user_remove/<ident>")
-def test_user_reset(ident):
-    """
-    Testifunktio TODO: poista
-    """
-    param = request.args.get("ids_only", "0")
-    ids_only = True if param == "1" else False
-
-    return str(remove_followed(ident, ids_only))
-
-
-@app.route("/test_user/<ident>")
-def test_add_pid(ident):
-    """
-    Testifunktio TODO: poista
-    """
-    param = request.args.get("ids_only", "0")
-    ids_only = True if param == "1" else False
-
-    return str(add_followed(ident, ids_only))
-
-
-@app.route("/test_user")
-def test_user():
-    """
-    Testifunktio TODO: poista
-    """
-    param = request.args.get("ids_only", "0")
-    ids_only = True if param == "1" else False
-
-    followed = get_followed(ids_only)
-    if not followed:
-        # TODO virheidenkäsittely
-        pass
-
-    return str(get_followed(ids_only))
 
 
 @app.route("/login")
@@ -179,22 +103,6 @@ def callback():
     session["teams"] = followed["teams"]
     session["name"] = followed["name"]
     return redirect("/")
-
-
-@app.route("/protected")
-def protected():
-    """
-    Testifunktio - yritetään hakea API:lta OAuthilla suojattua dataa.
-    """
-    url = API_URL + "/protected"
-    token = session["acc_token"]
-    token_s = session["acc_token_secret"]
-    resp = fetch_from_api_signed(
-        base_url=url,
-        token=token,
-        secret=token_s,
-        method="GET")
-    return str(resp.status_code) + "<br>" + resp.content
 
 
 @app.route("/logout")
