@@ -112,10 +112,9 @@ def player(player_id):
     Käyttäjä voi lisätä/poistaa pelaajan seurattavien pelaajien listasta.
     '''
     all_players = fetch_from_api("/api/json/players")
-    # TODO tarkista ensin löytyykö annettu id pelaajalistasta!
+    if not player_id in all_players:
+        abort(400)
 
-    # TODO onko tarpeellinen loggaus?
-    logging.info("Haetaan pelaajan %s tiedot" % player_id)
     all_seasons = fetch_from_api("/api/json/players/%s" % player_id)
     if not all_seasons:
         # TODO all_seasons voi olla None tai tyhjä tietorakenne;
@@ -126,7 +125,7 @@ def player(player_id):
         "/api/json/games?pid=%s&year=2012" % player_id)
 
     name = all_players[str(player_id)]['name']
-    position = all_players[str(player_id)]['pos']
+    position = all_players[str(player_id)]['pos'].lower()
     team = all_players[str(player_id)]['team']
 
     this_season = all_seasons['2012']
@@ -144,11 +143,6 @@ def player(player_id):
     # Järjestetään pelaajalista
     career_list = sorted(career_list, key=lambda x: x["year"], reverse=False)
 
-    # Tarkistetaan onko joukkue seurattavien listalla
-    following = False
-    if player_id in session['players']:  # TODO testaa toimiiko sessioilla
-        following = True
-
     return render_template(
         "player.html",
         name=name,
@@ -158,7 +152,6 @@ def player(player_id):
         position=position,
         career=career,
         games=season_games,
-        following=following,
         pid=player_id)
 
 

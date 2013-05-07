@@ -7,11 +7,11 @@
         <h3><a href="/team/{{team}}">{{TEAMS[team]}}</a></h3>
     </div>
     <div class="ui-block-b">
-        {% if following == True %}
+        $ if pid in session["players"]:
             <a href="/remove_followed/{{pid}}" data-role="button">Poista seurattavista</a>
-        {% else %}
+        $ else:
             <a href="/add_followed/{{pid}}" data-role="button">Lisää seurattaviin</a>
-        {% endif %}
+        $ endif
     </div>
 </div>
 
@@ -19,10 +19,10 @@
 $ if position == "g":
     <div class="keystats">
         <ul>
-            <li><strong>W-L-OTL</strong><br>{{this_season.w}}-{{this_season.l}}-{{this_season.otl}}</li>
-            <li><strong>SV%</strong><br>{{ this_season['sv%'] }}</li>
-            <li><strong>GAA</strong><br>{{ this_season.gaa }}</li>
-            <li><strong>SO</strong><br>{{ this_season.so }}</li>
+            <li class="wide"><strong>W-L-OTL</strong><br>{{this_season.w or "-"}}-{{this_season.l or "-"}}-{{this_season.otl or "-"}}</li>
+            <li><strong>SV%</strong><br>{{ this_season['sv%'] or "-"}}</li>
+            <li><strong>GAA</strong><br>{{ this_season.gaa or "-"}}</li>
+            <li><strong>SO</strong><br>{{ this_season.so or "-"}}</li>
         </ul>
     </div>
 
@@ -50,50 +50,50 @@ $ if position == "g":
         <tr  class="{{ loop.cycle('odd', 'even') }}-row">​
             <td>{{s.year}}</td>​
             <td><a href="/team/{{s.team}}">{{s.team | upper}}</a></td>​
-            <td>{{s['gp']}}</td>​
-            <td>{{s['gs']}}</td>​
-            <td>{{s['min']}}</td>​
-            <td>{{s['w']}}</td>​
-            <td>{{s['l']}}</td>​
-            <td>{{s['t']}}</td>​
-            <td>{{s['otl']}}</td>​
-            <td>{{s['ega']}}</td>​
-            <td>{{s['ga']}}</td>​
-            <td>{{s['gaa']}}</td>​
-            <td>{{s['sa']}}</td>​
-            <td>{{s['sv']}}</td>​
-            <td>{{s['sv%']}}</td>​
-            <td>{{s['so']}}</td>​
+            <td>{{s['gp'] or "-"}}</td>​
+            <td>{{s['gs'] or "-"}}</td>​
+            <td>{{s['min'] or "-"}}</td>​
+            <td>{{s['w'] or "-"}}</td>​
+            <td>{{s['l'] or "-"}}</td>​
+            <td>{{s['t'] or "-"}}</td>​
+            <td>{{s['otl'] or "-"}}</td>​
+            <td>{{s['ega'] or "-"}}</td>​
+            <td>{{s['ga'] or "-"}}</td>​
+            <td>{{s['gaa'] or "-"}}</td>​
+            <td>{{s['sa'] or "-"}}</td>​
+            <td>{{s['sv'] or "-"}}</td>​
+            <td>{{s['sv%'] or "-"}}</td>​
+            <td>{{s['so'] or "-"}}</td>​
         </tr>
     {% endfor %}
     <!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
         <tr class="totals-row">​
             <td>Ura</td>​
             <td> </td>​
-            <td>{{career['gp']}}</td>​
-            <td>{{career['gs']}}</td>​
-            <td>{{career['min']}}</td>​
-            <td>{{career['w']}}</td>​
-            <td>{{career['l']}}</td>​
-            <td>{{career['t']}}</td>​
-            <td>{{career['otl']}}</td>​
-            <td>{{career['ega']}}</td>​
-            <td>{{career['ga']}}</td>​
-            <td>{{career['gaa']}}</td>​
-            <td>{{career['sa']}}</td>​
-            <td>{{career['sv']}}</td>​
-            <td>{{career['sv%']}}</td>​
-            <td>{{career['so']}}</td>​
+            <td>{{career['gp'] or "-"}}</td>​
+            <td>{{career['gs'] or "-"}}</td>​
+            <td>{{career['min'] or "-"}}</td>​
+            <td>{{career['w'] or "-"}}</td>​
+            <td>{{career['l'] or "-"}}</td>​
+            <td>{{career['t'] or "-"}}</td>​
+            <td>{{career['otl'] or "-"}}</td>​
+            <td>{{career['ega'] or "-"}}</td>​
+            <td>{{career['ga'] or "-"}}</td>​
+            <td>{{career['gaa'] or "-"}}</td>​
+            <td>{{career['sa'] or "-"}}</td>​
+            <td>{{career['sv'] or "-"}}</td>​
+            <td>{{career['sv%'] or "-"}}</td>​
+            <td>{{career['so'] or "-"}}</td>​
         </tr>​
     </table>
 $ else:
     <div class="keystats">
         <ul>
-            <li><strong>G</strong><br>{{ this_season['g'] }}</li>
-            <li><strong>A</strong><br>{{ this_season['a'] }}</li>
-            <li><strong>PTS</strong><br>{{ this_season['pts'] }}</li>
-            <li><strong>+/-</strong><br>{{ this_season['+/-'] }}</li>
-            <li><strong>PIM</strong><br>{{ this_season['pim'] }}</li>
+            <li><strong>G</strong><br>{{ this_season['g'] or "-"}}</li>
+            <li><strong>A</strong><br>{{ this_season['a'] or "-"}}</li>
+            <li><strong>PTS</strong><br>{{ this_season['pts'] or "-"}}</li>
+            <li><strong>+/-</strong><br>{{ this_season['+/-'] or "-"}}</li>
+            <li><strong>PIM</strong><br>{{ this_season['pim'] or "-"}}</li>
         </ul>
     </div>
 
@@ -123,50 +123,50 @@ $ else:
         </tr>​​
     {% for s in all_seasons %}
         <tr class="{{ loop.cycle('odd', 'even') }}-row">​
-            <td>{{s.year[2:]}}-{{str(int(s.year)+1)[2:]}}</td>​
+            <td>{{s.year|year_to_season}}</td>​
             <td><a href="/team/{{s.team}}">{{s.team|upper}}</a></td>​
-            <td>{{s.gp}}</td>​
-            <td>{{s.g}}</td>​
-            <td>{{s.a}}</td>​
-            <td>{{s.pts}}</td>​
-            <td>{{s['+/-']}}</td>​
-            <td>{{s.pim}}</td>​
-            <td>{{s.hits}}</td>​
-            <td>{{s.bks}}</td>​
-            <td>{{s.fw}}</td>​
-            <td>{{s.fl}}</td>​
-            <td>{{s['fo%']}}</td>​
-            <td>{{s.ppg}}</td>​
-            <td>{{s.ppa}}</td>​
-            <td>{{s.shg}}</td>​
-            <td>{{s.sha}}</td>​
-            <td>{{s.gw}}</td>​
-            <td>{{s.sog}}</td>​
-            <td>{{s.pct}}</td>​
+            <td>{{s.gp or "-"}}</td>​
+            <td>{{s.g or "-"}}</td>​
+            <td>{{s.a or "-"}}</td>​
+            <td>{{s.pts or "-"}}</td>​
+            <td>{{s['+/-'] or "-"}}</td>​
+            <td>{{s.pim or "-"}}</td>​
+            <td>{{s.hits or "-"}}</td>​
+            <td>{{s.bks or "-"}}</td>​
+            <td>{{s.fw or "-"}}</td>​
+            <td>{{s.fl or "-"}}</td>​
+            <td>{{s['fo%'] or "-"}}</td>​
+            <td>{{s.ppg or "-"}}</td>​
+            <td>{{s.ppa or "-"}}</td>​
+            <td>{{s.shg or "-"}}</td>​
+            <td>{{s.sha or "-"}}</td>​
+            <td>{{s.gw or "-"}}</td>​
+            <td>{{s.sog or "-"}}</td>​
+            <td>{{s.pct or "-"}}</td>​
         </tr>
     {% endfor %}
         <!-- Viimeinen rivi jossa vuodet yhteenlaskettuna -->
         <tr class="totals-row">​
             <td>Ura</td>​
             <td></td>​
-            <td>{{career.gp}}</td>​
-            <td>{{career.g}}</td>​
-            <td>{{career.a}}</td>​
-            <td>{{career.pts}}</td>​
-            <td>{{career['+/-']}}</td>​
-            <td>{{career.pim}}</td>​
-            <td>{{career.hits}}</td>​
-            <td>{{career.bks}}</td>​
-            <td>{{career.fw}}</td>​
-            <td>{{career.fl}}</td>​
-            <td>{{career['fo%']}}</td>​
-            <td>{{career.ppg}}</td>​
-            <td>{{career.ppa}}</td>​
-            <td>{{career.shg}}</td>​
-            <td>{{career.sha}}</td>​
-            <td>{{career.gw}}</td>​
-            <td>{{career.sog}}</td>​
-            <td>{{career.pct}}</td>​
+            <td>{{career.gp or "-"}}</td>​
+            <td>{{career.g or "-"}}</td>​
+            <td>{{career.a or "-"}}</td>​
+            <td>{{career.pts or "-"}}</td>​
+            <td>{{career['+/-'] or "-"}}</td>​
+            <td>{{career.pim or "-"}}</td>​
+            <td>{{career.hits or "-"}}</td>​
+            <td>{{career.bks or "-"}}</td>​
+            <td>{{career.fw or "-"}}</td>​
+            <td>{{career.fl or "-"}}</td>​
+            <td>{{career['fo%'] or "-"}}</td>​
+            <td>{{career.ppg or "-"}}</td>​
+            <td>{{career.ppa or "-"}}</td>​
+            <td>{{career.shg or "-"}}</td>​
+            <td>{{career.sha or "-"}}</td>​
+            <td>{{career.gw or "-"}}</td>​
+            <td>{{career.sog or "-"}}</td>​
+            <td>{{career.pct or "-"}}</td>​
         </tr>​
     </table>
 $ endif
@@ -177,7 +177,7 @@ $ endif
     $ for gid in games|sort(reverse=True):
         <tr class="{{ loop.cycle('odd', 'even') }}-row">
             <td>{{ jinja_utils.convert_date(gid) }}</td>
-            <td>{{ games[gid].opponent | upper}}</td>
+            <td>{{ games[gid].opponent|upper}}</td>
             <td><strong><a href="/game/{{ gid }}">{{games[gid].result | upper}}</a></strong></td>
         </tr>
     $ endfor
