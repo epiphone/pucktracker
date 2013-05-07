@@ -17,9 +17,9 @@ def convert_date(s):
     Peli-id on muodossa YYYYMMDD + 2 satunnaisnumeroa.
 
     >>> convert_date("2013050408")
-    '4.5.13'
+    '4.5.2013'
     >>> convert_date("2013042720")
-    '27.4.13'
+    '27.4.2013'
     '''
     year = s[:4]
 
@@ -63,3 +63,13 @@ def shorten_game(game):
         return game[game.index("vs"):]
     except ValueError:
         return game[game.index("@"):]
+
+
+def year_to_season(year):
+    """
+    Palauttaa vuoden kaudeksi muokattuna.
+
+    >>> year_to_season("2008")
+    '08-09'
+    """
+    return year[2:] + "-" + str(int(year) + 1)[2:]

@@ -77,8 +77,7 @@ table {
     background-color: #CCCCCC;
 }
 
-.totals-row > td{
-    background-color: #CCCCCC;
+.totals-row td{
     border-top: 1px solid #333333;
 }
 
@@ -138,6 +137,10 @@ td:first-child {
     background-color: #E3E5E4;
     display: block;
     margin-bottom: -15px;
+}
+
+.keystats .wide {
+    width: 80px;
 }
 
 /*Index sivu*/
