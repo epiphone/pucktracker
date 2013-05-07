@@ -2,17 +2,19 @@
 """
 URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 
-|           URL           |    Funktio    |            Kuvaus            |
-|-------------------------|---------------|------------------------------|
-| /                       | index         | Käyttäjäkohtainen index-sivu |
-| /menu                   | menu          | Main Menu                    |
-| /player                 | player_search | Pelaajahaku                  |
-| /player/<player_id>     | player        | Pelaaja-sivu                 |
-| /team                   | team_search   | Joukkuehaku                  |
-| /team/<team>            | team          | Joukkue-sivu                 |
-| /game/<game_id>         | game          | Ottelusivu                   |
-| /standings/<int:year>   | standings     | Sarjataulukko                |
-| /top                    | search        | TODO: Top-sivu               |
+|           URL            |       Funktio        |            Kuvaus            |
+|--------------------------|----------------------|------------------------------|
+| /                        | index                | Käyttäjäkohtainen index-sivu |
+| /menu                    | menu                 | Main Menu                    |
+| /player                  | player_search        | Pelaajahaku                  |
+| /player/<player_id>      | player               | Pelaaja-sivu                 |
+| /team                    | team_search          | Joukkuehaku                  |
+| /team/<team>             | team                 | Joukkue-sivu                 |
+| /game/<game_id>          | game                 | Ottelusivu                   |
+| /standings/<int:year>    | standings            | Sarjataulukko                |
+| /top                     | search               | TODO: Top-sivu               |
+| /add_followed/<ident>    | add_followed_view    | Lisää pelaajan seurantaan    |
+| /remove_followed/<ident> | remove_followed_view | Poistaa pelaajan seurannasta |
 
 """
 
