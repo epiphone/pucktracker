@@ -77,7 +77,7 @@ def index():
                     'latest_game': latest_game}
                 players.append(new_player)
 
-        players.sort( key=lambda v: v['latest_game']['date'], reverse=True)
+        players.sort(key=lambda v: v['latest_game']['date'], reverse=True)
 
         return render_template("index.html", teams=teams, players=players)
     else:
