@@ -7,10 +7,6 @@
     <input type="hidden" name="reverse" value="{{ reverse }}"/>
     <table>
         <tr>
-            <td>Kausi</td>
-            <td>Turnaus</td>
-        </tr>
-        <tr>
             <td>
                 <select name="goalies" onchange="this.form.submit()">
                     <option value="0">Kenttäpelaajat</option>
@@ -40,8 +36,8 @@
 
 <table class="small-table">
     <tr class="header-row">
-        <td><a>Name</a></td>
-        <td><a>Team</a></td>
+        <td>Nimi</td>
+        <td>Joukkue</td>
         <td><a>GP</a></td>
         $ if goalies == "1":
             <td {% if sort == "gs" %}class="selected"{% endif %}><a {{sort_url("gs", sort, year, goalies, playoffs, reverse, limit) }}>GS</a></td>
@@ -78,8 +74,8 @@
     </tr>
     $ for player in players:
         <tr class="{{ loop.cycle('odd', 'even') }}-row">
-            <td>{{ player.name|shorten_name }}</td>
-            <td>{{ player.team|upper }}</td>
+            <td><a href="/player/{{player.pid}}"><small>{{ player.name|shorten_name }}</small></a></td>
+            <td><a href="/team/{{player.team}}">{{ player.team|upper }}</a></td>
             <td>{{ player.gp }}</td>
             $ if goalies == "1":
                 <td {% if sort == "gs" %}class="selected-low"{% endif %}>{{ player.gs }}</td>
