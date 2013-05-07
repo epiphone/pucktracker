@@ -106,6 +106,10 @@ td:first-child {
     background-color: #3D3D3D;
 }
 
+.selected-low {
+    background-color: #CCCCCC;
+}
+
 /* Iso tilastotaulukko, jossa perustilastot */
 .keystats ul {
     list-style: none outside none;

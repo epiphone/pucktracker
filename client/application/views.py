@@ -295,6 +295,14 @@ def top():
     limit = request.args.get("limit", "30")
     default_sort = "w" if goalies == "1" else "pts"
     sort = request.args.get("sort", default_sort)
+    goalie_sorts = ["gs", "min", "w", "l", "otl", "ega", "ga", "gaa", "sa",
+        "sv", "sv%", "so"]
+
+    if goalies == "1":
+        if sort not in ["name", "team", "gp"] + goalie_sorts:
+            sort = "w"
+    elif sort in goalie_sorts:
+        sort = "pts"
 
     params = dict(year=year, sort=sort, goalies=goalies, playoffs=playoffs,
         reverse=reverse, limit=limit)
