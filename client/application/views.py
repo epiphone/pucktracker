@@ -18,9 +18,10 @@ URL-reititykset ja sivut OAuth-toimintoja lukuunottamatta.
 
 import logging
 from application import app
-from flask import render_template, session,  request, abort
+from flask import render_template, session,  request, abort, redirect
 from utils import fetch_from_api, logged_in, get_latest_game
 from utils import get_followed
+from utils import add_followed, remove_followed
 from jinja_utils import convert_date
 import urllib
 
