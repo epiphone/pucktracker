@@ -1,6 +1,6 @@
 /* Pucktracker-asiakassovelluksen prototyyppi */
 
-/*General*/
+/* Yleistä */
 .ui-content {
     padding-left: 10px;
     padding-right: 10px;
@@ -17,9 +17,7 @@ a {
     text-shadow: none;
 }
 
-/*Page specific */
-
-/*  /game  */
+/*  Ottelusivu  */
 .score-display{
     height: 60px;
     margin-right: 5px;
@@ -38,7 +36,15 @@ a {
     font-weight: bold;
 }
 
-/* pelaaja-sivu */
+/* Etusivu */
+.index-table {
+    background-color: #F1F5F5;
+    border: 2px solid #D3D3D3;
+    border-radius: 15px 15px 15px 15px;
+    padding: 10px;
+}
+
+/* Pelaaja-sivu */
 .no-top-margin{
 margin-top:0;
 }
